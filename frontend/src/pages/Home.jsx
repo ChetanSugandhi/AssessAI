@@ -19,7 +19,7 @@ function Home() {
           
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
             <a 
-              href="/student-login" 
+              href="/authform" 
               className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 transition duration-150 ease-in-out"
             >
               Student Portal

@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
 import { Github, Facebook, Linkedin } from 'lucide-react';
-
+import { useNavigate } from 'react-router-dom';
 const AuthForm = () => {
   const [isActive, setIsActive] = useState(false);
+  const navigate = useNavigate();
 
+  const handleSignUp = (e) => {
+    e.preventDefault();
+    navigate('/student-dashboard');
+  };
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-green-100 to-blue-100">
       <div className={`bg-white rounded-[30px] shadow-lg relative overflow-hidden w-[768px] max-w-full min-h-[480px] ${isActive ? 'active' : ''}`}>
@@ -11,7 +16,7 @@ const AuthForm = () => {
         <div className={`absolute top-0 h-full transition-all duration-600 ease-in-out ${
           isActive ? 'translate-x-[100%] opacity-100 z-[5]' : 'left-0 w-1/2 opacity-0 z-[1]'
         }`}>
-          <form className="bg-white h-full flex flex-col items-center justify-center px-10">
+          <form onSubmit={handleSignUp} className="bg-white h-full flex flex-col items-center justify-center pl-17 mr-24">
             <h1 className="text-2xl font-bold mb-4">Create Account</h1>
             <div className="flex gap-3 my-5">
               <a href="#" className="border border-gray-300 rounded-[20%] w-10 h-10 flex items-center justify-center hover:bg-gray-50">
@@ -40,7 +45,7 @@ const AuthForm = () => {
               placeholder="Password" 
               className="bg-gray-100 border-none my-2 px-4 py-2 text-sm rounded-lg w-full outline-none"
             />
-            <button className="bg-[#1f5355] text-white text-sm px-11 py-2.5 border border-transparent rounded-lg font-semibold tracking-wider uppercase mt-2.5 cursor-pointer hover:bg-[#1a4547] transition-colors">
+            <button type="submit" className="bg-[#1f5355] text-white text-sm px-11 py-2.5 border border-transparent rounded-lg font-semibold tracking-wider uppercase mt-2.5 cursor-pointer hover:bg-[#1a4547] transition-colors">
               Sign Up
             </button>
           </form>
@@ -50,7 +55,7 @@ const AuthForm = () => {
         <div className={`absolute top-0 h-full transition-all duration-600 ease-in-out ${
           isActive ? 'translate-x-[100%]' : 'left-0 w-1/2 z-[2]'
         }`}>
-          <form className="bg-white h-full flex flex-col items-center justify-center px-10">
+          <form onSubmit={handleSignUp} className="bg-white h-full flex flex-col items-center justify-center px-10">
             <h1 className="text-2xl font-bold mb-4">Sign In</h1>
             <div className="flex gap-3 my-5">
               <a href="#" className="border border-gray-300 rounded-[20%] w-10 h-10 flex items-center justify-center hover:bg-gray-50">

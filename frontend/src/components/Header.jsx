@@ -30,7 +30,7 @@ const Header = () => {
           
           <div className="flex space-x-4">
             <a 
-              href="/student-login" 
+              href="/authform" 
               className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition duration-150 ease-in-out"
             >
               Student Login
