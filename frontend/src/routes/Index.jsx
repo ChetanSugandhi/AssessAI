@@ -5,6 +5,8 @@ import Home from '../pages/Home'
 import Signup from '../components/Signup'
 // import SignUp from '@/pages/SignUp'
 import Login from '../components/Login'
+import StudentDashboard from '../components/StudentDashboard'
+import TeacherDashboard from '../components/TeacherDashboard'
 // import About from '@/pages/About'
 // import Contact from '@/pages/Contact'
 const router = createBrowserRouter([
@@ -32,6 +34,14 @@ const router = createBrowserRouter([
             path:"/login",
             element:<Login/>  
          },
+         {
+            path:"/student-dashboard",
+            element:<StudentDashboard/>
+         },
+         {
+            path:"/teacher-dashboard",
+            element:<TeacherDashboard/>
+         }
         ]
     }
 ])
