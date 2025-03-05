@@ -5,6 +5,7 @@ import Home from '../pages/Home'
 import Signup from '../components/Signup'
 // import SignUp from '@/pages/SignUp'
 import Login from '../components/Login'
+import AuthForm from '../components/AuthForm'
 import StudentDashboard from '../components/StudentDashboard'
 import TeacherDashboard from '../components/TeacherDashboard'
 // import About from '@/pages/About'
@@ -41,6 +42,10 @@ const router = createBrowserRouter([
          {
             path:"/teacher-dashboard",
             element:<TeacherDashboard/>
+         },
+         {
+            path:"/authform",
+            element:<AuthForm/>
          }
         ]
     }
