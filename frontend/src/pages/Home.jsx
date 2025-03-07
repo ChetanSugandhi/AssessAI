@@ -50,32 +50,34 @@ function Home() {
         </div>
 
         {/* Text content */}
-        <div className="relative z-10 text-center max-w-7xl mx-auto pt-20 pb-16">
-          <h1 className="text-5xl font-extrabold tracking-tight sm:text-6xl mb-6 text-white">AssessAI</h1>
-          <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-            Revolutionizing education with AI-powered feedback that helps teachers provide personalized, timely
-            assessments and empowers students to excel.
-          </p>
-          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="/authform"
-              className="inline-flex items-center justify-center px-6 py-3 rounded-md text-white bg-cyan-500 hover:bg-cyan-600 transition"
-            >
-              Student Portal
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </a>
-            <a
-              href="/teacher-login"
-              className="inline-flex items-center justify-center px-6 py-3 rounded-md text-cyan-500 bg-slate-800 hover:bg-slate-700 transition"
-            >
-              Teacher Portal
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </a>
+          <div className="relative z-10 text-center max-w-7xl mx-auto pt-20 pb-16">
+            <h1 className="text-5xl font-extrabold tracking-tight sm:text-6xl mb-6 text-white">
+              <span className="text-gray-200">Assess</span><span className="text-blue-400">AI</span>
+            </h1>
+            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+              Revolutionizing education with AI-powered feedback that helps teachers provide personalized, timely
+              assessments and empowers students to excel.
+            </p>
+            <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+              <a
+                href="/authform"
+                className="inline-flex items-center justify-center px-6 py-3 rounded-md text-white bg-cyan-500 hover:bg-cyan-600 transition"
+              >
+                Student Portal
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </a>
+              <a
+                href="/teacher-login"
+                className="inline-flex items-center justify-center px-6 py-3 rounded-md text-cyan-500 bg-slate-800 hover:bg-slate-700 transition"
+              >
+                Teacher Portal
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </a>
+            </div>
           </div>
-        </div>
-      </section>
+              </section>
 
-      {/* Features Section */}
+              {/* Features Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <h2 className="text-3xl font-bold text-center text-white mb-12">How AssessAI Transforms Education</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
