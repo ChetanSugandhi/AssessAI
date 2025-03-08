@@ -10,7 +10,7 @@ const Footer = () => {
                 <div className="col-span-1 md:col-span-1">
                 <div className="flex items-center">
                 <img 
-              src="education.svg" 
+              src="education.png" 
               alt="AssessAI Logo" 
               className="h-10 w-10"
             />

@@ -105,7 +105,7 @@ const AuthForm = () => {
         </div>
 
         {/* Toggle Container */}
-        <div className={`absolute top-0 left-1/2 w-1/2 h-full overflow-hidden transition-all duration-600 ease-in-out rounded-l-[150px] rounded-bl-[100px] z-[1000] ${isActive ? '-translate-x-full rounded-l-none rounded-r-[150px] rounded-br-[100px]' : ''}`}>
+        <div className={`absolute top-0 left-1/2 w-1/2 h-full overflow-hidden transition-all duration-600 ease-in-out rounded-l-[180px] rounded-bl-[150px] z-[1000] ${isActive ? '-translate-x-full rounded-l-xl rounded-r-[180px] rounded-br-[120px]' : ''}`}>
           <div className={`bg-gradient-to-b from-cyan-500 to-cyan-600 text-white relative -left-full h-full w-[200%] transform ${isActive ? 'translate-x-1/2' : 'translate-x-0'} transition-transform duration-600 ease-in-out`}>
             {/* Toggle Left Panel */}
             <div className={`absolute w-1/2 h-full flex flex-col items-center justify-center px-8 text-center transform ${isActive ? 'translate-x-0' : '-translate-x-[200%]'} transition-transform duration-600 ease-in-out`}>
@@ -120,10 +120,7 @@ const AuthForm = () => {
 
             {/* Toggle Right Panel */}
             <div className={`absolute right-0 w-1/2 h-full flex flex-col items-center justify-center px-8 text-center transform ${isActive ? 'translate-x-[200%]' : 'translate-x-0'} transition-transform duration-600 ease-in-out`}>
-              <video autoPlay muted loop className="w-auto h-[40%] rounded-[65px] shadow-lg">
-                <source src="https://assets.mixkit.co/videos/preview/mixkit-white-lines-on-a-black-background-97047-large.mp4" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
+              <img src="/assets/man.png" alt="Man" className="w-auto h-[40%] rounded-[65px] shadow-lg" />
               <button
                 onClick={() => setIsActive(true)}
                 className="bg-transparent border border-white text-white text-sm px-11 py-2.5 rounded-lg font-semibold tracking-wider uppercase mt-2.5 cursor-pointer hover:bg-white/10 transition-colors"
