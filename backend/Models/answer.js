@@ -14,15 +14,7 @@ const AnswerSchema = new mongoose.Schema({
         type: String,
         required: true
 
-    }, // Student's answer
-    isCorrect: {
-        type: Boolean
-    }, // True if correct (for MCQs)
-    marksObtained: {
-        type: Number,
-        default: 0
-
-    }, // Marks obtained for paragraph questions
+    }, 
     createdAt: {
         type: Date,
         default: Date.now
