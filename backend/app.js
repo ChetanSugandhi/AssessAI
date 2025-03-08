@@ -12,7 +12,7 @@ const quizRoutes = require("./routes/quizRoutes");
 
 const Student = require("./Models/student");
 const Teacher = require("./models/Teacher");
-const ClassroomCreate = require("./models/ClassroomCreate");
+const ClassroomCreate = require("./Models/classroomCreate");
 const ClassroomJoin = require("./Models/classroomJoin");
 const Topic = require("./Models/topic");
 const Question = require("./Models/question");
@@ -67,7 +67,7 @@ app.use("/quiz", quizRoutes)
 
 app.get("/test/:id", (req, res) => {
     let { id } = req.params;
-    res.send(received id from frontend is : ${id});
+    res.send(`received id from frontend is : ${id}`);
 })
 
 
@@ -224,5 +224,5 @@ app.post("/topics/:topicId/questions", async (req, res) => {
 const Port = process.env.PORT || 9999;
 
 app.listen(Port, (req, res) => {
-    console.log(Backend is running on port ${Port});
+    console.log(`Backend is running on port ${Port}`);
 })
