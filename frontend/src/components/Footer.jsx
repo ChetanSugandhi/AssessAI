@@ -11,7 +11,7 @@ const Footer = () => {
                 <div className="flex items-center">
                   <BookOpen className="h-8 w-8 text-yellow-500" />
                   <span className="ml-2 text-2xl font-bold text-gray-200">
-                  Assess<span className="text-blue-400">AI</span>
+                  Assess<span className="text-cyan-500">AI</span>
                   </span>
                 </div>
                 <p className="mt-4 text-gray-400">
@@ -21,7 +21,7 @@ const Footer = () => {
                 
                 {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-indigo-300">Quick Links</h3>
+            <h3 className="text-lg font-semibold mb-4 text-cyan-500">Quick Links</h3>
             <ul className="space-y-2">
               <li>
                 <a href="/" className="text-gray-400 hover:text-white transition-colors">
@@ -48,7 +48,7 @@ const Footer = () => {
           
           {/* Portal Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-indigo-300">Portals</h3>
+            <h3 className="text-lg font-semibold mb-4 text-cyan-500">Portals</h3>
             <ul className="space-y-2">
               <li>
                 <a href="/student-login" className="text-gray-400 hover:text-white transition-colors">
@@ -75,18 +75,18 @@ const Footer = () => {
           
           {/* Contact Info */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-indigo-300">Contact Us</h3>
+            <h3 className="text-lg font-semibold mb-4 text-cyan-500">Contact Us</h3>
             <ul className="space-y-2">
               <li className="flex items-center">
-                <MapPin className="h-5 w-5 text-indigo-400 mr-2" />
+                <MapPin className="h-5 w-5 text-cyan-500 mr-2" />
                 <span className="text-gray-400">123 Education Ave, Learning City</span>
               </li>
               <li className="flex items-center">
-                <Phone className="h-5 w-5 text-indigo-400 mr-2" />
+                <Phone className="h-5 w-5 text-cyan-500 mr-2" />
                 <span className="text-gray-400">(555) 123-4567</span>
               </li>
               <li className="flex items-center">
-                <Mail className="h-5 w-5 text-indigo-400 mr-2" />
+                <Mail className="h-5 w-5 text-cyan-500 mr-2" />
                 <a href="mailto:info@assessai.com" className="text-gray-400 hover:text-white transition-colors">
                   info@assessai.com
                 </a>

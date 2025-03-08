@@ -52,7 +52,7 @@ function Home() {
         {/* Text content */}
           <div className="relative z-10 text-center max-w-7xl mx-auto pt-20 pb-16">
             <h1 className="text-5xl font-extrabold tracking-tight sm:text-6xl mb-6 text-white">
-              <span className="text-gray-200">Assess</span><span className="text-blue-400">AI</span>
+              <span className="text-gray-200">Assess</span><span className="text-cyan-500">AI</span>
             </h1>
             <p className="text-xl text-gray-400 max-w-3xl mx-auto">
               Revolutionizing education with AI-powered feedback that helps teachers provide personalized, timely
@@ -60,14 +60,14 @@ function Home() {
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
               <a
-                href="/authform"
+                href="/student-dashboard"
                 className="inline-flex items-center justify-center px-6 py-3 rounded-md text-white bg-cyan-500 hover:bg-cyan-600 transition"
               >
                 Student Portal
                 <ArrowRight className="ml-2 h-4 w-4" />
               </a>
               <a
-                href="/teacher-login"
+                href="/teacher-dashboard"
                 className="inline-flex items-center justify-center px-6 py-3 rounded-md text-cyan-500 bg-slate-800 hover:bg-slate-700 transition"
               >
                 Teacher Portal

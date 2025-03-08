@@ -10,7 +10,7 @@ const Header = () => {
             <BookOpen className="h-8 w-8 text-yellow-500" />
             <span className="ml-2 text-2xl font-bold">
               <span className="bg-clip-text text-transparent bg-gray-200">Assess</span>
-              <span className="bg-clip-text text-transparent bg-blue-400">AI</span>
+              <span className="bg-clip-text text-transparent bg-cyan-500">AI</span>
             </span>
           </div>
           
@@ -32,13 +32,13 @@ const Header = () => {
           <div className="flex space-x-4">
             <a 
               href="/authform" 
-              className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md text-cyan-500 bg-indigo-50 hover:bg-indigo-100 transition duration-150 ease-in-out"
+              className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md text-indigo-50 bg-cyan-500 hover:bg-indigo-100 transition duration-150 ease-in-out"
             >
               Student Login
             </a>
             <a 
               href="/teacher-login" 
-              className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md text-white bg-cyan-500 hover:bg-blue-500 transition duration-150 ease-in-out"
+              className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md text-cyan-500 bg-slate-800 hover:bg-slate-700 transition duration-150 ease-in-out"
             >
               Teacher Login
               <ArrowRight className="ml-1 h-4 w-4" />
