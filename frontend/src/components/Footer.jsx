@@ -9,7 +9,11 @@ const Footer = () => {
           {/* Logo and Description */}
                 <div className="col-span-1 md:col-span-1">
                 <div className="flex items-center">
-                  <BookOpen className="h-8 w-8 text-yellow-500" />
+                <img 
+              src="education.svg" 
+              alt="AssessAI Logo" 
+              className="h-10 w-10"
+            />
                   <span className="ml-2 text-2xl font-bold text-gray-200">
                   Assess<span className="text-cyan-500">AI</span>
                   </span>

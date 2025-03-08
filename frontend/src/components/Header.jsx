@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, BookOpen } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 const Header = () => {
   return (
@@ -7,7 +7,11 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex justify-between items-center">
           <div className="flex items-center">
-            <BookOpen className="h-8 w-8 text-yellow-500" />
+            <img 
+            src="education.png"
+              alt="AssessAI Logo" 
+              className="h-10 w-10"
+            />
             <span className="ml-2 text-2xl font-bold">
               <span className="bg-clip-text text-transparent bg-gray-200">Assess</span>
               <span className="bg-clip-text text-transparent bg-cyan-500">AI</span>
