@@ -2,9 +2,11 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const quizRoutes = require("./routes/quizRoutes")
 
 const app = express();
 
+app.use(express.json())
 
 // connectivity backend frontend
 app.use(cors({
@@ -30,6 +32,7 @@ async function main() {
 app.get("/", (req, res) => {
     res.send("Backend Root path");
 })
+app.use("/quiz", quizRoutes)
 
 app.get("/test/:id", (req, res) => {
     let {id} = req.params;
