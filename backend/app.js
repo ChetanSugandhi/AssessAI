@@ -3,12 +3,16 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const cors = require("cors");
+const path = require("path");
 const ejs = require("ejs");
 const session = require("express-session");
 const flash = require("connect-flash");
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
 
 
-const quizRoutes = require("./routes/quizRoutes");
+
+// const quizRoutes = require("./routes/quizRoutes");
 
 const Student = require("./Models/student");
 const Teacher = require("./models/Teacher");
@@ -18,18 +22,50 @@ const Topic = require("./Models/topic");
 const Question = require("./Models/question");
 
 
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+
+
 const sessionOption = {
     secret: "secretCode",
     resave: false,
     saveUninitialized: true
 };
 
-app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
 
 app.use(express.json());
 app.use(session(sessionOption));
 app.use(flash());
+
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+// 1️⃣ Define Strategies for Both Student & Teacher
+passport.use("student", new LocalStrategy(Student.authenticate()));
+passport.use("teacher", new LocalStrategy(Teacher.authenticate()));
+
+
+// 2️⃣ Custom Serialize User
+passport.serializeUser((user, done) => {
+    done(null, { id: user._id, role: user.role || "student" });  // Ensure `_id` is used
+});
+
+// 3️⃣ Custom Deserialize User
+passport.deserializeUser(async (obj, done) => {
+    try {
+        const Model = obj.role === "teacher" ? Teacher : Student;  // Dynamically select model
+        const user = await Model.findById(obj.id);
+
+        if (!user) return done(null, false); // Handle case where user is not found
+
+        done(null, user);
+    } catch (err) {
+        done(err);
+    }
+});
+
+
 
 
 // connectivity backend frontend
@@ -37,6 +73,8 @@ app.use(cors({
     origin: "http://localhost:5173",       // frontend URL ( React )
     credentials: true
 }));
+
+
 
 
 // mongodb connection 
@@ -63,12 +101,103 @@ app.use((req, res, next) => {
 app.get("/", (req, res) => {
     res.send("Backend Root path");
 })
-app.use("/quiz", quizRoutes)
+// app.use("/quiz", quizRoutes)
 
 app.get("/test/:id", (req, res) => {
     let { id } = req.params;
     res.send(`received id from frontend is : ${id}`);
 })
+
+
+
+// get request on signup
+app.get("/student-signup", (req, res) => {
+    res.send("Send signup form here");
+})
+
+// post request on signup
+app.post("/student-signup", async (req, res) => {
+
+    let { name, email, username, password } = req.body;
+    email = email.toLowerCase().trim();
+
+    const existingStudent = await Student.findOne({ email });
+    if (existingStudent) {
+        return res.send("Student already exist");
+    }
+
+    const newStudent = new Student({
+        username: username,
+        name: name,
+        email: email
+    });
+
+
+    let saveStudent = await Student.register(newStudent, password);
+    console.log("Saved student is " + saveStudent);
+
+})
+
+
+// get request on login
+app.get("/student-login", (req, res) => {
+    res.send("Send student login form here...");    // username and email will be provided...
+})
+
+// ye check krega student login h ya nhi... username and email ke through
+app.post("/student-login", passport.authenticate("student", {
+    successRedirect: "/dashboard",
+    failureRedirect: "/student-login",
+    failureFlash: true
+}));
+
+
+
+
+
+
+// get request on signup
+app.get("/teacher-signup", (req, res) => {
+    res.send("Send Teacher signup form here");
+})
+
+// post request on signup
+app.post("/teacher-signup", async (req, res) => {
+
+    let { name, email, username, password } = req.body;
+    email = email.toLowerCase().trim();
+
+    const existingTeacher = await Teacher.findOne({ email });
+    if (existingTeacher) {
+        return res.send("Teacher already exist");
+    }
+
+    const newTeacher = new Teacher({
+        username: username,
+        name: name,
+        email: email
+    });
+
+
+    let saveTeacher = await Teacher.register(newTeacher, password);
+    console.log("Saved teacher is " + saveTeacher);
+})
+
+
+// get request on login
+app.get("/teacher-login", (req, res) => {
+    res.send("Send teacher login form here...");    // username and email will be provided...
+})
+
+// ye check krega student login h ya nhi... username and email ke through
+app.post("/teacher-login", passport.authenticate("teacher", {
+    successRedirect: "/dashboard",
+    failureRedirect: "/teacher-login",
+    failureFlash: true
+}));
+
+
+
 
 
 

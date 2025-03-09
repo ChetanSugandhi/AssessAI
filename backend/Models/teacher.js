@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const passportlocalmongoose = require("passport-local-mongoose");
 
 const TeacherSchema = new mongoose.Schema({
   name: { 
@@ -10,12 +11,11 @@ const TeacherSchema = new mongoose.Schema({
     type: String, 
     required: true, 
     unique: true 
-
   },
-  password: { 
-    type: String, 
-    required: true 
-
+  username: {
+    type: String,
+    unique: true,
+    required: true // Ensure username is always provided
   },
   createdClassrooms: [
     { 
@@ -27,6 +27,8 @@ const TeacherSchema = new mongoose.Schema({
     default: Date.now 
   }
 });
+
+TeacherSchema.plugin(passportlocalmongoose);
 
 const Teacher = mongoose.model("Teacher", TeacherSchema);
 module.exports = Teacher;
