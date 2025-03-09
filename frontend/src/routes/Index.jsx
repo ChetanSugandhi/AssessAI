@@ -8,6 +8,9 @@ import Home from '../pages/Home'
 import AuthForm from '../pages/AuthForm'
 import StudentDashboard from '../pages/StudentDashboard'
 import TeacherDashboard from '../pages/TeacherDashboard'
+import ClassroomDetailPage from '../pages/ClassDetails'
+import ClassDetails from '../pages/ClassDetails'
+import QuizForm from '../pages/QuizForm'
 // import About from '@/pages/About'
 // import Contact from '@/pages/Contact'
 const router = createBrowserRouter([
@@ -46,6 +49,14 @@ const router = createBrowserRouter([
          {
             path:"/authform",
             element:<AuthForm/>
+         },
+         {
+            path:"/classroom",
+            element:<ClassDetails/>
+         },
+         {
+            path:"/quizform",
+            element:<QuizForm/>
          }
         ]
     }

@@ -5,69 +5,97 @@ import {
   FileText, 
   Star, 
   BookOpen,
+  ArrowLeft,
   Activity,
   Zap,
   TrendingUp,
   Clock,
-  Award
+  Award,
+  UserPlus,
+  MessageSquare,
+  Brain,
+  Book,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  X
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const StudentDashboard = () => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [classroomCode, setClassroomCode] = useState('');
   const [studentProfile] = useState({
     name: 'Emma Thompson',
     grade: '11th',
-    subjects: [
+    classrooms: [
       {
-        name: 'Mathematics',
-        currentGrade: 87,
-        progressColor: 'bg-cyan-500',
-        detailedPerformance: {
-          algebraPerformance: 85,
-          calculusPerformance: 89,
-          trigPerformance: 86
-        },
-        assignments: [
+        id: 1,
+        name: 'Advanced Mathematics',
+        teacher: 'Dr. Robert Chen',
+        subject: 'Mathematics',
+        color: 'bg-cyan-500',
+        recentAssignments: [
           { 
             id: 1,
             name: 'Calculus Problem Set', 
             status: 'Completed', 
-            score: 92, 
-            difficulty: 'High' 
+            deadline: '2 days ago',
+            score: 92 
           },
           { 
             id: 2,
             name: 'Algebra Quiz', 
-            status: 'Reviewed', 
-            score: 85, 
-            difficulty: 'Medium' 
+            status: 'Not Started', 
+            deadline: 'Yesterday',
+            score: null 
           }
-        ]
+        ],
+        feedbackAvailable: true,
+        learningAssessmentCompleted: true
       },
       {
-        name: 'Computer Science',
-        currentGrade: 79,
-        progressColor: 'bg-purple-500',
-        detailedPerformance: {
-          pythonPerformance: 76,
-          algorithmPerformance: 82,
-          dataStructuresPerformance: 75
-        },
-        assignments: [
+        id: 2,
+        name: 'Programming Fundamentals',
+        teacher: 'Prof. Lisa Kumar',
+        subject: 'Computer Science',
+        color: 'bg-purple-500',
+        recentAssignments: [
           { 
             id: 3,
             name: 'Python Programming Project', 
-            status: 'In Progress', 
-            score: 0, 
-            difficulty: 'High' 
+            status: 'Completed', 
+            deadline: 'Tomorrow',
+            score: null 
           },
           { 
             id: 4,
             name: 'Algorithms Design', 
             status: 'Not Started', 
-            score: 0, 
-            difficulty: 'Advanced' 
+            deadline: '3 days',
+            score: null 
           }
-        ]
+        ],
+        feedbackAvailable: false,
+        learningAssessmentCompleted: false
+      },
+      {
+        id: 3,
+        name: 'Physics 101',
+        teacher: 'Dr. Sarah Johnson',
+        subject: 'Physics',
+        color: 'bg-orange-500',
+        recentAssignments: [
+          { 
+            id: 5,
+            name: 'Mechanics Lab Report', 
+            status: 'Completed', 
+            deadline: '1 week ago',
+            score: 88 
+          }
+        ],
+        feedbackAvailable: true,
+        learningAssessmentCompleted: false
       }
     ],
     learningGoals: [
@@ -102,76 +130,135 @@ const StudentDashboard = () => {
     ]
   });
 
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate('/classroom');
+  };
+
+  const goBack = () => {
+    navigate(-1);
+  };
+
+  const handleJoinClassroom = () => {
+    console.log('Joining classroom with code:', classroomCode);
+    setClassroomCode('');
+    setIsDialogOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-white p-6">
+      {isDialogOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-[1000]">
+          <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"></div>
+          <div className="relative bg-slate-900 rounded-xl p-6 w-full max-w-md border border-slate-800 shadow-xl">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-cyan-400">Join Classroom</h3>
+              <button 
+                onClick={() => setIsDialogOpen(false)}
+                className="text-slate-400 hover:text-white transition-colors"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            <form onSubmit={(e) => { e.preventDefault(); handleJoinClassroom(); }}>
+              <div className="mb-4">
+                <label htmlFor="classroomCode" className="block text-sm font-medium text-slate-300 mb-2">
+                  Enter Classroom Code
+                </label>
+                <input
+                  type="text"
+                  id="classroomCode"
+                  value={classroomCode}
+                  onChange={(e) => setClassroomCode(e.target.value)}
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                  placeholder="Enter code (e.g., ABC123)"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full bg-cyan-600 hover:bg-cyan-700 text-white py-2 rounded-lg transition-colors font-medium"
+              >
+                Join Classroom
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
       <div className="space-y-6">
-        {/* Academic Performance Overview */}
         <div className="bg-slate-900 rounded-xl shadow-2xl p-6 border border-slate-800 transform transition-all hover:scale-[1.02]">
           <div className="flex justify-between items-center mb-6">
+            <button onClick={goBack} className="bg-slate-800 p-2 rounded-full mr-4 hover:bg-slate-700 transition-colors">
+              <ArrowLeft />
+            </button>
             <h2 className="text-2xl font-bold text-cyan-400 flex items-center">
-              <BookOpen className="mr-3 text-cyan-500" /> Academic Performance
+              <BookOpen className="mr-3 text-cyan-500" /> My Classrooms
             </h2>
-            <span className="bg-slate-800 text-cyan-300 px-4 py-2 rounded-lg">
-              {studentProfile.grade} Grade
-            </span>
+            <button 
+              onClick={() => setIsDialogOpen(true)}
+              className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors"
+            >
+              <UserPlus className="mr-2" /> Join Classroom
+            </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {studentProfile.subjects.map((subject) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {studentProfile.classrooms.map((classroom) => (
               <div 
-                key={subject.name} 
-                className="bg-slate-800 rounded-lg p-4 hover:bg-slate-700 transition-colors"
+                key={classroom.id} 
+                className="bg-slate-800 rounded-lg p-4 hover:bg-slate-700 cursor-pointer transition-colors"
+                onClick={handleClick}
               >
                 <div className="flex justify-between items-center mb-3">
-                  <h3 className="text-xl font-semibold text-cyan-300">{subject.name}</h3>
-                  <span className="text-lg font-bold text-green-400">{subject.currentGrade}%</span>
+                  <h3 className="text-xl font-semibold text-cyan-300">{classroom.name}</h3>
+                  <div className={`w-3 h-3 rounded-full ${classroom.color}`}></div>
                 </div>
                 
-                <div className="grid grid-cols-3 gap-3 mb-3">
-                  {Object.entries(subject.detailedPerformance).map(([key, value]) => (
-                    <div key={key} className="bg-slate-900 p-3 rounded-lg text-center">
-                      <span className="text-sm text-slate-400 capitalize">
-                        {key.replace('Performance', '')}
-                      </span>
-                      <p className="text-lg font-bold text-blue-400">{value}%</p>
-                    </div>
-                  ))}
-                </div>
-
-                <div>
-                  <h4 className="text-sm text-slate-300 mb-2">Recent Assignments</h4>
-                  {subject.assignments.map((assignment) => (
+                <p className="text-sm text-slate-400 mb-4">Teacher: {classroom.teacher}</p>
+                
+                <div className="mb-4">
+                  <h4 className="text-sm text-slate-300 mb-2 flex items-center">
+                    <FileText className="mr-1 h-4 w-4" /> Recent Assignments
+                  </h4>
+                  {classroom.recentAssignments.slice(0, 2).map((assignment) => (
                     <div 
                       key={assignment.id} 
                       className="flex justify-between items-center bg-slate-700 p-2 rounded mb-2"
                     >
-                      <div>
-                        <span className="text-sm">{assignment.name}</span>
-                        <span className={`ml-2 text-xs px-2 py-1 rounded-full 
-                          ${assignment.difficulty === 'High' ? 'bg-red-500 text-white' : 
-                            assignment.difficulty === 'Medium' ? 'bg-yellow-500 text-black' : 
-                            'bg-green-500 text-white'}`}
-                        >
-                          {assignment.difficulty}
-                        </span>
+                      <div className="overflow-hidden">
+                        <span className="text-sm text-white truncate block">{assignment.name}</span>
+                        <span className="text-xs text-slate-400">Due: {assignment.deadline}</span>
                       </div>
                       <span className={`
-                        ${assignment.score >= 90 ? 'bg-green-500' : 
-                          assignment.score >= 80 ? 'bg-blue-500' : 
-                          assignment.score === 0 ? 'bg-slate-500' : 'bg-yellow-500'} 
+                        ${assignment.status === 'Completed' ? 'bg-green-500' : 
+                          assignment.status === 'In Progress' ? 'bg-blue-500' : 
+                          assignment.status === 'Pending Review' ? 'bg-yellow-500' :
+                          'bg-red-500'} 
                         text-white px-2 py-1 rounded-full text-xs`}
                       >
-                        {assignment.score > 0 ? `${assignment.score}%` : assignment.status}
+                        {assignment.status}
                       </span>
                     </div>
                   ))}
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 mt-3">
+                  <div className={`flex items-center justify-center p-2 rounded-lg ${classroom.feedbackAvailable ? 'bg-green-900 text-green-400' : 'bg-slate-700 text-slate-400'}`}>
+                    <MessageSquare className="mr-1 h-4 w-4" />
+                    <span className="text-xs">Feedback</span>
+                  </div>
+                  <div className={`flex items-center justify-center p-2 rounded-lg ${classroom.learningAssessmentCompleted ? 'bg-purple-900 text-purple-400' : 'bg-slate-700 text-slate-400'}`}>
+                    <Brain className="mr-1 h-4 w-4" />
+                    <span className="text-xs">Assessment</span>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Achievements & Insights */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-slate-900 rounded-xl shadow-2xl p-6 border border-slate-800 transform transition-all hover:scale-[1.02]">
             <h2 className="text-2xl font-bold text-cyan-400 flex items-center mb-6">
@@ -201,7 +288,6 @@ const StudentDashboard = () => {
             </button>
           </div>
 
-          {/* Learning Goals & Progress */}
           <div className="bg-slate-900 rounded-xl shadow-2xl p-6 border border-slate-800 transform transition-all hover:scale-[1.02]">
             <h2 className="text-2xl font-bold text-cyan-400 flex items-center mb-6">
               <Target className="mr-3 text-cyan-500" /> Learning Goals
