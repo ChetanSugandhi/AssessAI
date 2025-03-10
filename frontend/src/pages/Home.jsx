@@ -2,39 +2,57 @@
 
 import { useEffect, useRef } from "react"
 import { Brain, Lightbulb, Users, ArrowRight, Star, MessageCircle } from "lucide-react"
+import { useNavigate } from "react-router-dom"; // Make sure to import useNavigate
+import axios from "axios"; // Make sure to import axios
 
 function Home() {
-  const containerRef = useRef(null)
+  const containerRef = useRef(null);
+  const navigate = useNavigate(); // Move useNavigate here
 
   useEffect(() => {
     const handleMouseMove = (e) => {
-      if (!containerRef.current) return
+      if (!containerRef.current) return;
 
-      const { clientX, clientY } = e
-      const rect = containerRef.current.getBoundingClientRect()
-      const x = clientX - rect.left
-      const y = clientY - rect.top
+      const { clientX, clientY } = e;
+      const rect = containerRef.current.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
 
       // Subtle light movement based on mouse position
-      const lightElement = containerRef.current.querySelector(".light-beam")
+      const lightElement = containerRef.current.querySelector(".light-beam");
       if (lightElement) {
-        const moveX = (x / rect.width - 0.5) * 10
-        const moveY = (y / rect.height - 0.5) * 5
-        lightElement.style.transform = `translate(${moveX}px, ${moveY}px)`
+        const moveX = (x / rect.width - 0.5) * 10;
+        const moveY = (y / rect.height - 0.5) * 5;
+        lightElement.style.transform = `translate(${moveX}px, ${moveY}px)`;
       }
-    }
+    };
 
-    const container = containerRef.current
+    const container = containerRef.current;
     if (container) {
-      container.addEventListener("mousemove", handleMouseMove)
+      container.addEventListener("mousemove", handleMouseMove);
     }
 
     return () => {
       if (container) {
-        container.removeEventListener("mousemove", handleMouseMove)
+        container.removeEventListener("mousemove", handleMouseMove);
       }
+    };
+  }, []);
+
+  const handleStudentDashboard = async () => {
+    try {
+      const response = await axios.get("/auth/check");
+
+      if (response.data.authenticated) {
+        navigate("/student-dashboard");
+      } else {
+        navigate("/authform");
+      }
+    } catch (error) {
+      console.error("Error checking authentication:", error);
+      navigate("/authform"); // Redirect to signup if error occurs
     }
-  }, [])
+  };
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
@@ -50,34 +68,34 @@ function Home() {
         </div>
 
         {/* Text content */}
-          <div className="relative z-10 text-center max-w-7xl mx-auto pt-20 pb-16">
-            <h1 className="text-5xl font-extrabold tracking-tight sm:text-6xl mb-6 text-white">
-              <span className="text-gray-200">Assess</span><span className="text-cyan-500">AI</span>
-            </h1>
-            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-              Revolutionizing education with AI-powered feedback that helps teachers provide personalized, timely
-              assessments and empowers students to excel.
-            </p>
-            <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-              <a
-                href="/student-dashboard"
-                className="inline-flex items-center justify-center px-6 py-3 rounded-md text-white bg-cyan-500 hover:bg-cyan-600 transition"
-              >
-                Student Portal
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </a>
-              <a
-                href="/teacher-dashboard"
-                className="inline-flex items-center justify-center px-6 py-3 rounded-md text-cyan-500 bg-slate-800 hover:bg-slate-700 transition"
-              >
-                Teacher Portal
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </a>
-            </div>
+        <div className="relative z-10 text-center max-w-7xl mx-auto pt-20 pb-16">
+          <h1 className="text-5xl font-extrabold tracking-tight sm:text-6xl mb-6 text-white">
+            <span className="text-gray-200">Assess</span><span className="text-cyan-500">AI</span>
+          </h1>
+          <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+            Revolutionizing education with AI-powered feedback that helps teachers provide personalized, timely
+            assessments and empowers students to excel.
+          </p>
+          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+            <button
+              onClick={handleStudentDashboard}
+              className="inline-flex items-center justify-center px-6 py-3 rounded-md text-white bg-cyan-500 hover:bg-cyan-600 transition"
+            >
+              Student Portal
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </button>
+            <a
+              href="/teacher-dashboard"
+              className="inline-flex items-center justify-center px-6 py-3 rounded-md text-cyan-500 bg-slate-800 hover:bg-slate-700 transition"
+            >
+              Teacher Portal
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </a>
           </div>
-              </section>
+        </div>
+      </section>
 
-              {/* Features Section */}
+      {/* Features Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <h2 className="text-3xl font-bold text-center text-white mb-12">How AssessAI Transforms Education</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -141,12 +159,12 @@ function Home() {
             Join thousands of teachers and students already benefiting from AI-enhanced feedback.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="/student-signup"
+            <button
+              onClick={handleStudentDashboard}
               className="inline-flex items-center justify-center px-6 py-3 rounded-md text-cyan-500 bg-white hover:bg-gray-50 transition"
             >
               Sign Up as Student
-            </a>
+            </button>
             <a
               href="/teacher-signup"
               className="inline-flex items-center justify-center px-6 py-3 rounded-md text-white bg-cyan-900 hover:bg-cyan-800 transition"
@@ -157,7 +175,7 @@ function Home() {
         </div>
       </section>
     </div>
-  )
+  );
 }
 
 export default Home;
