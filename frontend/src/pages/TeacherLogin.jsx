@@ -14,6 +14,7 @@ const TeacherLogin = () => {
     const username = e.target.username.value;
     const email = e.target.email.value;
     const password = e.target.password.value;
+    const teacherCode = e.target.teacherCode.value;
 
     try {
       const response = await axios.post("http://localhost:7777/teacher-signup", {
@@ -21,7 +22,7 @@ const TeacherLogin = () => {
         username,
         email,
         password,
-        code
+        teacherCode
       });
 
       console.log("Response received:", response.data); // for checking
@@ -109,7 +110,7 @@ const TeacherLogin = () => {
             <input
               type="text"
               placeholder="Teacher's Code"
-              name="code"
+              name="teacherCode"
               className="bg-slate-700 border-none my-2 px-4 py-2 text-sm rounded-lg w-full outline-none text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500"
             />
             <input

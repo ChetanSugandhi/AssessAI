@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
 import {
   Users,
   ClipboardList,
@@ -25,7 +27,8 @@ const TeacherDashboard = () => {
   const [newClassroom, setNewClassroom] = useState({
     name: '',
     subject: '',
-    description: ''
+    description: '',
+    classroomCode : ''
   });
 
   const [classrooms, setClassrooms] = useState([
@@ -79,21 +82,39 @@ const TeacherDashboard = () => {
     }
   ]);
 
-  const handleCreateClassroom = (e) => {
+  const handleCreateClassroom = async (e) => {
     e.preventDefault();
-    const newClass = {
-      id: classrooms.length + 1,
-      ...newClassroom,
-      students: 0,
-      assignmentsCount: 0,
-      learningAssessment: false,
-      lastActive: 'Just created',
-      recentAssignments: []
-    };
-    setClassrooms([...classrooms, newClass]);
-    setNewClassroom({ name: '', subject: '', description: '' });
-    setIsDialogOpen(false);
-  };
+
+    try {
+        const response = await axios.post("http://localhost:7777/create", {
+            name: newClassroom.name,
+            subject: newClassroom.subject,
+            classroomCode: newClassroom.classroomCode, // Typo fix: "classsroomCode" → "classroomCode"
+            description: newClassroom.description,
+        }, { withCredentials: true }); // Ensures cookies/session is sent if using authentication
+
+        if (response.data.message === "Classroom created successfully") {
+            const newClass = {
+                id: classrooms.length + 1,
+                ...newClassroom,
+                students: 0,
+                assignmentsCount: 0,
+                learningAssessment: false,
+                lastActive: "Just created",
+                recentAssignments: [],
+            };
+
+            setClassrooms([...classrooms, newClass]);
+            setNewClassroom({ name: "", subject: "", description: "", classroomCode: "" });
+            setIsDialogOpen(false);
+        } else {
+            alert("Error: " + response.data.message);
+        }
+    } catch (error) {
+        alert(error.response?.data?.message || "Error creating classroom!");
+    }
+};
+
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -159,6 +180,17 @@ const TeacherDashboard = () => {
                   onChange={(e) => setNewClassroom({ ...newClassroom, description: e.target.value })}
                   className="w-full bg-slate-800 rounded-lg border border-slate-700 p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent h-24"
                   placeholder="Enter classroom description"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">
+                  Classroom Code
+                </label>
+                <textarea
+                  value={newClassroom.classroomCode}
+                  onChange={(e) => setNewClassroom({ ...newClassroom, classroomCode: e.target.value })}
+                  className="w-full bg-slate-800 rounded-lg border border-slate-700 p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent h-24"
+                  placeholder="Enter classroom Classroom Code"
                 />
               </div>
               <button

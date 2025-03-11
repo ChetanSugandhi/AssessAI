@@ -1,19 +1,15 @@
-const isLoggedIn = (req, res, next) => {
-    try {
-        if (!req.isAuthenticated()) {
-            return res.status(401).json({ 
-                authenticated: false, 
-                message: "Unauthorized: You must be logged in!" 
-            });
-        }
-        next(); // Proceed to the next middleware or route handler
-    } catch (error) {
-        console.error("Authentication Middleware Error:", error);
-        return res.status(500).json({ 
-            authenticated: false, 
-            message: "Internal Server Error" 
-        });
+// authenticateMiddleware.js
+module.exports = function isLoggedIn(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next();
     }
+    
+    // For API requests, return JSON
+    if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+        return res.status(401).json({ message: "Please login first", redirectTo: "/login" });
+    }
+    
+    // For regular requests, redirect
+    req.flash("error", "You must be logged in");
+    res.redirect("/login");
 };
-
-module.exports = isLoggedIn;
