@@ -41,18 +41,18 @@ function Home() {
 
   const handleStudentDashboard = async () => {
     try {
-      const response = await axios.get("/auth/check");
+        const response = await axios.get("http://localhost:7777/auth/check", { withCredentials: true });
 
-      if (response.data.authenticated) {
-        navigate("/student-dashboard");
-      } else {
-        navigate("/authform");
-      }
+        console.log("Auth Check Response:", response.data); // Debugging
+        navigate(response.data.redirectTo);
     } catch (error) {
-      console.error("Error checking authentication:", error);
-      navigate("/authform"); // Redirect to signup if error occurs
+        console.error("Error checking authentication:", error);
+        navigate("/authform"); // Redirect if error occurs
     }
-  };
+};
+
+
+
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">

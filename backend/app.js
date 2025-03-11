@@ -9,6 +9,7 @@ const session = require("express-session");
 const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
+const isLoggedIn = require("./authenticateMiddleware.js");
 
 const Student = require("./Models/student");
 const Teacher = require("./Models/teacher");
@@ -26,6 +27,12 @@ const sessionOption = {
     secret: "secretCode",
     resave: false,
     saveUninitialized: true,
+    cookie: {       // 1 day expiry
+        secure: false, 
+        httpOnly: true, 
+        maxAge: 24 * 60 * 60 * 1000 
+    } 
+
 };
 
 app.use(express.json());
@@ -101,24 +108,22 @@ app.get("/test/:id", (req, res) => {
     res.send(`received id from frontend is : ${id}`);
 });
 
-
-// to check authentication process for students.
-app.get("/auth/check", async (req, res) => {
+// maually check authentication
+app.get("/auth/check", (req, res) => {
     try {
-        if (!req.isAuthenticated()) {
-            return res.json({ authenticated: false, message: "Not Authenticated" });
-        }
+        console.log("Session Data:", req.session); // Debugging
 
-        // Assuming you have a Student schema/model
-        const student = await Student.findById(req.user._id);
-        if (student) {
-            return res.json({ authenticated: true, message: "Yes, Authenticated", user: student });
+        // Check if the user is authenticated
+        if (req.session.username) {
+            console.log("Authenticated User:", req.session.username);
+            return res.json({ redirectTo: "/student-dashboard" });
         } else {
-            return res.json({ authenticated: false, message: "Not Authenticated" });
+            console.log("User not authenticated, redirecting...");
+            return res.json({ redirectTo: "/authform" });
         }
     } catch (error) {
         console.error("Authentication Check Error:", error);
-        return res.status(500).json({ authenticated: false, message: "Internal Server Error" });
+        return res.status(500).json({ redirectTo: "/authform" });
     }
 });
 
@@ -162,35 +167,18 @@ app.get("/student-login", (req, res) => {
 });
 
 // ye check krega student login h ya nhi... username and email ke through
-app.post("/student-login", async (req, res, next) => {
-    const { username, password } = req.body;
-
-    try {
-        // Check if student exists
-        const student = await Student.findOne({ username });
-
-        if (!student) {
-            return res.status(400).json({ success: false, message: "Student does not exist. Please sign up first." });
-        }
-
-        // Authenticate using Passport
-        passport.authenticate("student", (err, user, info) => {
-            if (err) return next(err);
-            if (!user) {
-                return res.status(400).json({ success: false, message: "Invalid username or password." });
-            }
-
-            // If authentication is successful, log in the user
-            req.logIn(user, (err) => {
-                if (err) return next(err);
-                return res.json({ success: true, message: "Login successful!", redirect: "/student-dashboard" });
-            });
-        })(req, res, next);
-    } catch (error) {
-        console.error("Login error:", error);
-        res.status(500).json({ success: false, message: "Internal server error." });
+app.post(
+    "/student-login",
+    passport.authenticate("student", {
+        failureFlash: true,
+    }),
+    (req, res) => {
+        req.session.username = req.user.username; // Store username in session
+        console.log(req.session.username);
+        res.json({ success: true, message: "Login successful!", redirect: "/student-dashboard" });
     }
-});
+);
+
 
 
 // get request on signup

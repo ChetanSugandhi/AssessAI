@@ -29,7 +29,7 @@ const AuthForm = () => {
         alert("Student already exists. Please use a different email.");
       } else {
         alert("Signup successful!");
-        navigate("/student-dashboard");
+        navigate("/");
       }
     } catch (error) {
       console.error("Error signing up:", error);
@@ -51,7 +51,7 @@ const AuthForm = () => {
 
         if (response.data.success) {
             alert("Login successful!");
-            window.location.href = "/student-dashboard";  // Redirect to the dashboard
+            window.location.href = "/";  // Redirect to the dashboard
         }
     } catch (error) {
         alert(error.response?.data?.message || "Login failed! Please check your credentials.");
