@@ -169,7 +169,7 @@ const AuthForm = () => {
             <div className={`absolute w-1/2 h-full flex flex-col items-center justify-center px-8 text-center transform ${isActive ? 'translate-x-0' : '-translate-x-[200%]'
               } transition-transform duration-600 ease-in-out`}>
               <h1 className="text-2xl font-bold mb-4">Welcome Back!</h1>
-              <p className="mb-4 text-cyan-100">Enter your personal details to use all of site features</p>
+              <p className="mb-4 text-cyan-100">Enter your personal details to use all of these educational features.</p>
               <button
                 onClick={() => setIsActive(false)}
                 className="bg-transparent border border-white text-white text-sm px-11 py-2.5 rounded-lg font-semibold tracking-wider uppercase mt-2.5 cursor-pointer hover:bg-white/10 transition-colors"
@@ -181,10 +181,7 @@ const AuthForm = () => {
             {/* Toggle Right Panel */}
             <div className={`absolute right-0 w-1/2 h-full flex flex-col items-center justify-center px-8 text-center transform ${isActive ? 'translate-x-[200%]' : 'translate-x-0'
               } transition-transform duration-600 ease-in-out`}>
-              <video autoPlay muted loop className="w-auto h-[40%] rounded-[65px] shadow-lg">
-                <source src="https://assets.mixkit.co/videos/preview/mixkit-white-lines-on-a-black-background-97047-large.mp4" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
+              <img src='learning.png' alt="Learning" className="w-50 h-50" />
               <p className="my-4 text-cyan-100">Join us to get access to personalized learning experience</p>
               <button
                 onClick={() => setIsActive(true)}

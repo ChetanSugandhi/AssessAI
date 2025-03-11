@@ -1,12 +1,15 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
-
+import { useNavigate } from 'react-router-dom';
 const Header = () => {
+    const navigate=useNavigate();
+    const handleHome = () => {
+        navigate('/');};
   return (
     <header className="bg-slate-900 bg-opacity shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex justify-between items-center">
-          <div className="flex items-center">
+          <div onClick={handleHome}  className="flex items-center cursor-pointer">
             <img 
             src="education.png"
               alt="AssessAI Logo" 
@@ -27,9 +30,6 @@ const Header = () => {
             </a>
             <a href="/about" className="text-gray-100 hover:text-blue-500 transition-colors">
               About
-            </a>
-            <a href="/testimonials" className="text-gray-100 hover:text-blue-500 transition-colors">
-              Testimonials
             </a>
           </nav>
           

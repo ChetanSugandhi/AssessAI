@@ -11,37 +11,48 @@ import {
   Clock,
   TrendingUp,
   GitPullRequest,
-  FileCheck
+  FileCheck,
+  X,
+  BookOpen,
+  Brain,
+  Calendar,
+  ArrowLeft
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const TeacherDashboard = () => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [newClassroom, setNewClassroom] = useState({
+    name: '',
+    subject: '',
+    description: ''
+  });
+
   const [classrooms, setClassrooms] = useState([
     {
       id: 1,
       name: 'Advanced Mathematics',
+      subject: 'Mathematics',
       students: 28,
-      performanceMetrics: {
-        averageScore: 85.6,
-        topicCoverage: 72,
-        engagementRate: 88
-      },
-      recentActivities: [
-        { type: 'assignment', title: 'Calculus Problem Set', pending: 12 },
-        { type: 'quiz', title: 'Algebra Midterm', pending: 5 }
+      assignmentsCount: 15,
+      learningAssessment: true,
+      recentAssignments: [
+        { id: 1, title: 'Calculus Integration',  status: 'pending' },
+        { id: 2, title: 'Linear Algebra Quiz',  status: 'pending' },
+        { id: 3, title: 'Differential Equations',  status: 'completed' }
       ]
     },
     {
       id: 2,
       name: 'Computer Science Fundamentals',
+      subject: 'Computer Science',
       students: 35,
-      performanceMetrics: {
-        averageScore: 79.3,
-        topicCoverage: 65,
-        engagementRate: 82
-      },
-      recentActivities: [
-        { type: 'project', title: 'Python Programming', pending: 15 },
-        { type: 'assignment', title: 'Algorithms Design', pending: 8 }
+      assignmentsCount: 12,
+      learningAssessment: false,
+      recentAssignments: [
+        { id: 1, title: 'Python Programming',  status: 'pending' },
+        { id: 2, title: 'Data Structures',  status: 'completed' },
+        { id: 3, title: 'Algorithm Analysis', status: 'completed' }
       ]
     }
   ]);
@@ -68,14 +79,108 @@ const TeacherDashboard = () => {
     }
   ]);
 
+  const handleCreateClassroom = (e) => {
+    e.preventDefault();
+    const newClass = {
+      id: classrooms.length + 1,
+      ...newClassroom,
+      students: 0,
+      assignmentsCount: 0,
+      learningAssessment: false,
+      lastActive: 'Just created',
+      recentAssignments: []
+    };
+    setClassrooms([...classrooms, newClass]);
+    setNewClassroom({ name: '', subject: '', description: '' });
+    setIsDialogOpen(false);
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'active':
+        return 'bg-blue-500/20 text-blue-400';
+      case 'upcoming':
+        return 'bg-purple-500/20 text-purple-400';
+      case 'completed':
+        return 'bg-green-500/20 text-green-400';
+      default:
+        return 'bg-red-500/20 text-red-400';
+    }
+  };
+
+    const navigate = useNavigate();
+    const handleHome = () => { navigate(-1)}
   return (
     <div className="min-h-screen bg-slate-950 text-white p-6">
+      {/* Create Classroom Dialog */}
+      {isDialogOpen && (
+        <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-slate-900 rounded-xl p-6 w-full max-w-md relative">
+            <button
+              onClick={() => setIsDialogOpen(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white"
+            >
+              <X size={24} />
+            </button>
+            <h2 className="text-2xl font-bold text-cyan-400 mb-6">Create New Classroom</h2>
+            <form onSubmit={handleCreateClassroom} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">
+                  Classroom Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={newClassroom.name}
+                  onChange={(e) => setNewClassroom({ ...newClassroom, name: e.target.value })}
+                  className="w-full bg-slate-800 rounded-lg border border-slate-700 p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                  placeholder="Enter classroom name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">
+                  Subject
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={newClassroom.subject}
+                  onChange={(e) => setNewClassroom({ ...newClassroom, subject: e.target.value })}
+                  className="w-full bg-slate-800 rounded-lg border border-slate-700 p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                  placeholder="Enter subject"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">
+                  Description
+                </label>
+                <textarea
+                  value={newClassroom.description}
+                  onChange={(e) => setNewClassroom({ ...newClassroom, description: e.target.value })}
+                  className="w-full bg-slate-800 rounded-lg border border-slate-700 p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent h-24"
+                  placeholder="Enter classroom description"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full bg-cyan-600 hover:bg-cyan-700 text-white py-2 rounded-lg transition-colors"
+              >
+                Create Classroom
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Main Content Area (3 columns) */}
         <div className="lg:col-span-3 space-y-6">
           {/* AI Insights & Analytics */}
           <div className="bg-slate-900 rounded-xl shadow-2xl p-6 border border-slate-800 transform transition-all hover:scale-[1.02]">
             <h2 className="text-2xl font-bold text-cyan-400 flex items-center mb-6">
+            <button onClick={handleHome} className="bg-slate-800 p-2 rounded-full mr-4 hover:bg-slate-700 transition-colors">
+              <ArrowLeft />
+            </button>
               <BarChart2 className="mr-3 text-cyan-500" /> AI Grading Insights
             </h2>
 
@@ -122,7 +227,10 @@ const TeacherDashboard = () => {
               <h2 className="text-2xl font-bold text-cyan-400 flex items-center">
                 <Users className="mr-3 text-cyan-500" /> Classroom Management
               </h2>
-              <button className="bg-slate-800 hover:bg-slate-700 text-cyan-300 px-4 py-2 rounded-lg transition-colors">
+              <button
+                onClick={() => setIsDialogOpen(true)}
+                className="bg-slate-800 hover:bg-slate-700 text-cyan-300 px-4 py-2 rounded-lg transition-colors"
+              >
                 <UserPlus className="inline-block mr-2" /> Create Classroom
               </button>
             </div>
@@ -131,41 +239,67 @@ const TeacherDashboard = () => {
               {classrooms.map((classroom) => (
                 <div
                   key={classroom.id}
-                  className="bg-slate-800 rounded-lg p-4 hover:bg-slate-700 transition-colors"
+                  onClick={() => navigate(`/teacher-class`)}
+                  className="bg-slate-800 rounded-lg p-6 hover:bg-slate-700 transition-colors"
                 >
-                  <div className="flex justify-between items-center mb-3">
-                    <h3 className="text-xl font-semibold text-cyan-300">{classroom.name}</h3>
-                    <span className="text-sm text-slate-400">{classroom.students} Students</span>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-3 mb-3">
-                    <div className="bg-slate-900 p-3 rounded-lg text-center">
-                      <span className="text-sm text-slate-400">Avg. Score</span>
-                      <p className="text-lg font-bold text-green-400">{classroom.performanceMetrics.averageScore}%</p>
-                    </div>
-                    <div className="bg-slate-900 p-3 rounded-lg text-center">
-                      <span className="text-sm text-slate-400">Topic Coverage</span>
-                      <p className="text-lg font-bold text-blue-400">{classroom.performanceMetrics.topicCoverage}%</p>
-                    </div>
-                    <div className="bg-slate-900 p-3 rounded-lg text-center">
-                      <span className="text-sm text-slate-400">Engagement</span>
-                      <p className="text-lg font-bold text-purple-400">{classroom.performanceMetrics.engagementRate}%</p>
+                  <div className="flex justify-between items-center mb-4">
+                    <div>
+                      <h3 className="text-xl font-semibold text-cyan-300">{classroom.name}</h3>
+                      <p className="text-sm text-slate-400">{classroom.subject}</p>
                     </div>
                   </div>
 
-                  <div>
-                    <h4 className="text-sm text-slate-300 mb-2">Recent Activities</h4>
-                    {classroom.recentActivities.map((activity) => (
-                      <div
-                        key={activity.title}
-                        className="flex justify-between items-center bg-slate-700 p-2 rounded mb-2"
-                      >
-                        <span className="text-sm">{activity.title}</span>
-                        <span className="bg-yellow-500 text-black px-2 py-1 rounded-full text-xs">
-                          {activity.pending} Pending
-                        </span>
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="bg-slate-900 p-4 rounded-lg flex items-center">
+                      <Users className="text-blue-400 mr-3" />
+                      <div>
+                        <p className="text-sm text-slate-400">Students</p>
+                        <p className="text-lg font-bold">{classroom.students}</p>
                       </div>
-                    ))}
+                    </div>
+                    <div className="bg-slate-900 p-4 rounded-lg flex items-center">
+                      <BookOpen className="text-green-400 mr-3" />
+                      <div>
+                        <p className="text-sm text-slate-400">Assignments</p>
+                        <p className="text-lg font-bold">{classroom.assignmentsCount}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between bg-slate-900 p-4 rounded-lg mb-4">
+                    <div className="flex items-center">
+                      <Brain className="text-purple-400 mr-3" />
+                      <span className="text-sm">Learning Assessment</span>
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-xs ${
+                      classroom.learningAssessment
+                        ? 'bg-green-500/20 text-green-400'
+                        : 'bg-red-500/20 text-red-400'
+                    }`}>
+                      {classroom.learningAssessment ? 'Available' : 'Not Available'}
+                    </span>
+                  </div>
+
+                  {/* Recent Assignments Section */}
+                  <div className="mt-4">
+                    <h4 className="text-sm font-medium text-slate-300 mb-3 flex items-center">
+                      <Calendar className="mr-2 h-4 w-4" /> Recent Assignments
+                    </h4>
+                    <div className="space-y-2">
+                      {classroom.recentAssignments.map((assignment) => (
+                        <div
+                          key={assignment.id}
+                          className="bg-slate-900 p-3 rounded-lg flex items-center justify-between"
+                        >
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">{assignment.title}</p>
+                          </div>
+                          <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(assignment.status)}`}>
+                            {assignment.status.charAt(0).toUpperCase() + assignment.status.slice(1)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               ))}
