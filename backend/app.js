@@ -19,6 +19,7 @@ const Topic = require("./Models/topic");
 const Question = require("./Models/question");
 
 const geminiRoutes = require("./routes/geminiRoutes");
+const UniqueCodeTeacher = "#Education";
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -189,22 +190,28 @@ app.get("/teacher-signup", (req, res) => {
 
 // post request on signup
 app.post("/teacher-signup", async (req, res) => {
-    let { name, email, username, password } = req.body;
+    let { name, email, username, password, teacherCode } = req.body;
     email = email.toLowerCase().trim();
 
-    const existingTeacher = await Teacher.findOne({ email });
-    if (existingTeacher) {
-        return res.send("Teacher already exist");
+    if (teacherCode === UniqueCodeTeacher) {
+
+        const existingTeacher = await Teacher.findOne({ email });
+        if (existingTeacher) {
+            return res.send("Teacher already exist");
+        }
+
+        const newTeacher = new Teacher({
+            username: username,
+            name: name,
+            email: email,
+        });
+
+        let saveTeacher = await Teacher.register(newTeacher, password);
+        console.log("Saved teacher is " + saveTeacher);
     }
-
-    const newTeacher = new Teacher({
-        username: username,
-        name: name,
-        email: email,
-    });
-
-    let saveTeacher = await Teacher.register(newTeacher, password);
-    console.log("Saved teacher is " + saveTeacher);
+    else{
+        console.log("You are not authorized !!");
+    }
 });
 
 // get request on login
