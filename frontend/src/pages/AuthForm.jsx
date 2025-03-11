@@ -51,7 +51,7 @@ const AuthForm = () => {
 
         if (response.data.success) {
             alert("Login successful!");
-            window.location.href = "/";  // Redirect to the dashboard
+            window.location.href = "/student-dashboard";  // Redirect to the dashboard
         }
     } catch (error) {
         alert(error.response?.data?.message || "Login failed! Please check your credentials.");

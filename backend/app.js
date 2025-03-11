@@ -28,10 +28,10 @@ const sessionOption = {
     resave: false,
     saveUninitialized: true,
     cookie: {       // 1 day expiry
-        secure: false, 
-        httpOnly: true, 
-        maxAge: 24 * 60 * 60 * 1000 
-    } 
+        secure: false,
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000
+    }
 
 };
 
@@ -46,7 +46,7 @@ app.use(passport.session());
 passport.use("student", new LocalStrategy(Student.authenticate()));
 passport.use("teacher", new LocalStrategy(Teacher.authenticate()));
 
-// 2️⃣ Custom Serialize User
+/// 2️⃣ Custom Serialize User
 passport.serializeUser((user, done) => {
     done(null, { id: user._id, role: user.role || "student" }); // Ensure `_id` is used
 });
@@ -54,9 +54,12 @@ passport.serializeUser((user, done) => {
 // 3️⃣ Custom Deserialize User
 passport.deserializeUser(async (obj, done) => {
     try {
-        const Model = obj.role === "teacher" ? Teacher : Student; // Dynamically select model
-        const user = await Model.findById(obj.id);
+        if (!obj.role) return done(new Error("Invalid user role"), null); // Handle missing role
 
+        const Model = obj.role === "teacher" ? Teacher : obj.role === "student" ? Student : null;
+        if (!Model) return done(new Error("Unknown role"), null); // Reject if role is invalid
+
+        const user = await Model.findById(obj.id);
         if (!user) return done(null, false); // Handle case where user is not found
 
         done(null, user);
@@ -64,6 +67,7 @@ passport.deserializeUser(async (obj, done) => {
         done(err);
     }
 });
+
 
 // connectivity backend frontend
 app.use(
@@ -111,14 +115,11 @@ app.get("/test/:id", (req, res) => {
 // maually check authentication
 app.get("/auth/check", (req, res) => {
     try {
-        console.log("Session Data:", req.session); // Debugging
 
         // Check if the user is authenticated
         if (req.session.username) {
-            console.log("Authenticated User:", req.session.username);
             return res.json({ redirectTo: "/student-dashboard" });
         } else {
-            console.log("User not authenticated, redirecting...");
             return res.json({ redirectTo: "/authform" });
         }
     } catch (error) {
@@ -222,33 +223,36 @@ app.post(
 );
 
 // Route to create a new classroom (by teachers)
-app.post("/create", (req, res) => {
-    if (!req.user) {
-        return res.status(401).json({ message: "Unauthorized. Please log in." });
+app.post("/create", async (req, res) => {
+    if (!req.user || req.user.role !== "teacher") {
+        return res.status(401).json({ message: "Unauthorized. Only teachers can create classrooms." });
     }
 
     try {
         const teacherId = req.user._id;
-        const { name, subject, classroomCode } = req.body;
+        const { name, subject, classroomCode, description } = req.body;
 
         const newClassroom = new ClassroomCreate({
             name,
             subject,
             classroomCode,
+            description,
             teacherId,
         });
 
-        newClassroom.save().then(async (savedClassroom) => {
-            const teacher = await Teacher.findById(teacherId);
-            if (teacher) {
-                teacher.createdClassrooms.push(savedClassroom._id);
-                await teacher.save();
-            }
+        // Save classroom inside a try/catch
+        const savedClassroom = await newClassroom.save();
 
-            res.status(201).json({
-                message: "Classroom created successfully",
-                classroom: savedClassroom,
-            });
+        // Find the teacher and update classrooms
+        const teacher = await Teacher.findById(teacherId);
+        if (teacher) {
+            teacher.createdClassrooms.push(savedClassroom._id);
+            await teacher.save();
+        }
+
+        res.status(201).json({
+            message: "Classroom created successfully",
+            classroom: savedClassroom,
         });
     } catch (error) {
         res.status(500).json({ message: "Server error", error: error.message });
@@ -293,6 +297,13 @@ app.post("/join", async (req, res) => {
             student.joinedClassrooms.push(classroom._id);
             await student.save();
         }
+
+        // ✅ Update Classroom Schema: Push Student ID to `joinedStudents`
+        if (!ClassroomCreate.joinedStudents.includes(studentId)) {
+            ClassroomCreate.joinedStudents.push(studentId);
+            await classroom.save();
+        }
+
 
         res.status(201).json({
             message: "Successfully joined the classroom",

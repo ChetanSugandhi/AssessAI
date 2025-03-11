@@ -1,36 +1,40 @@
 const mongoose = require("mongoose");
 
 const ClassroomCreateSchema = new mongoose.Schema({
-    name: {     // Classroom name
+    name: {     
         type: String,
         required: true
     },      
-    subject: {      // Subject name
+    subject: {      
         type: String,
         required: true
-
     }, 
-    classroomCode: {        // Unique code for students to join
+    classroomCode: {        
         type: String,
         required: true,
         unique: true
-
     }, 
-    teacherId: {        // Reference to the teacher
+    description: { 
+        type: String, 
+        required: true  // ✅ Fixed typo
+    },
+    teacherId: {        
         type: mongoose.Schema.Types.ObjectId,
         ref: "Teacher",
     }, 
-    topics: [       // Topics added to the classroom
+    topics: [       
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Topic"
-
         }
     ], 
+    joinedStudents: [{  // ✅ Added this to track students joining
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student"
+    }],
     createdAt: {
         type: Date,
         default: Date.now
-
     }
 });
 
