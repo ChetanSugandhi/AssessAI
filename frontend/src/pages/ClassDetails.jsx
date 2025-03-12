@@ -16,9 +16,14 @@ import {
   ExternalLink,
   Award,
   BarChart,
-  Eye
+  Eye,
+  TrendingUp,
+  Target,
+  Lightbulb,
+  BookMarked
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+
 const ClassDetails = () => {
   // Mock data for the selected classroom
   const [classroom] = useState({
@@ -30,6 +35,56 @@ const ClassDetails = () => {
     color: 'bg-cyan-500',
     students: 28,
     startDate: 'Sep 5, 2024',
+    overallFeedback: {
+      performance: {
+        score: 88,
+        trend: 'improving',
+        strengths: [
+          'Exceptional problem-solving skills in calculus',
+          'Strong grasp of algebraic concepts',
+          'Consistent completion of assignments'
+        ],
+        areasForImprovement: [
+          'Time management during quizzes',
+          'Showing detailed work in solutions',
+          'Complex integration techniques'
+        ]
+      },
+      progressInsights: [
+        {
+          topic: 'Calculus',
+          proficiency: 90,
+          comment: 'Excellent understanding of derivatives and basic integration'
+        },
+        {
+          topic: 'Algebra',
+          proficiency: 85,
+          comment: 'Good grasp of matrix operations, needs work on complex equations'
+        },
+        {
+          topic: 'Trigonometry',
+          proficiency: 88,
+          comment: 'Strong foundation in identities, room for improvement in applications'
+        }
+      ],
+      recommendations: [
+        'Focus on time management strategies during problem-solving',
+        'Practice showing detailed steps in solutions',
+        'Dedicate extra time to complex integration techniques',
+        'Continue strong performance in calculus fundamentals'
+      ],
+      detailedFeedback: `Your performance in Advanced Mathematics has been consistently strong, demonstrating a particularly impressive grasp of calculus concepts and problem-solving techniques. Your work shows a natural aptitude for mathematical thinking and a dedicated approach to learning.
+
+In calculus, your understanding of derivatives and basic integration is exemplary, scoring in the top percentile of the class. Your solutions demonstrate clear logical progression and strong analytical skills. However, when dealing with complex integration problems, there's room for improvement in showing detailed step-by-step work.
+
+Your algebra skills are solid, particularly in matrix operations and linear systems. The occasional challenges with complex equations could be addressed through more focused practice on breaking down multi-step problems into smaller, manageable components.
+
+Regarding trigonometry, you've built a strong foundation in fundamental identities. To enhance your performance further, focus on applying these concepts to real-world problems and complex mathematical scenarios.
+
+Time management during assessments has been identified as an area for development. Consider practicing with timed exercises to improve efficiency while maintaining accuracy. Remember, showing your work clearly not only helps in grading but also in identifying any misconceptions or areas needing clarification.
+
+Overall, your trajectory in this course is positive, with your dedication to learning and strong problem-solving abilities setting you up for continued success. Keep focusing on the recommended improvement areas while maintaining your strengths, and you're well-positioned to excel in advanced mathematical concepts.`
+    },
     assignments: [
       { 
         id: 1,
@@ -85,11 +140,12 @@ const ClassDetails = () => {
     }
   });
 
-  const navigate=useNavigate();
-  // State to track which tab is active
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('assignments');
-  const takeQuiz=()=>{navigate('/quizform');}
-  const goBack=()=>{ navigate(-1);}
+  
+  const takeQuiz = () => { navigate('/quizform'); }
+  const goBack = () => { navigate(-1); }
+  const goSolution = () => { navigate('/quiz-solution'); }
   return (
     <div className="min-h-screen bg-slate-950 text-white p-6">
       {/* Header with back button */}
@@ -147,6 +203,12 @@ const ClassDetails = () => {
           onClick={() => setActiveTab('learning')}
         >
           Learning Assessment
+        </button>
+        <button 
+          className={`px-4 py-2 font-medium ${activeTab === 'feedback' ? 'text-cyan-400 border-b-2 border-cyan-400' : 'text-slate-400 hover:text-slate-300'}`}
+          onClick={() => setActiveTab('feedback')}
+        >
+          Class Feedback
         </button>
       </div>
       
@@ -231,7 +293,7 @@ const ClassDetails = () => {
                       </button>
                     ) : (
                       <>
-                        <button className="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm flex items-center transition-colors">
+                        <button onClick={goSolution} className="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm flex items-center transition-colors">
                           <Eye className="mr-2 h-4 w-4" /> View Solution
                         </button>
                         <button className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg text-sm flex items-center transition-colors">
@@ -327,6 +389,106 @@ const ClassDetails = () => {
                 </button>
               </div>
             )}
+          </div>
+        )}
+
+        {activeTab === 'feedback' && (
+          <div>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-cyan-400">Overall Class Performance</h2>
+              <div className="flex items-center bg-slate-800 px-4 py-2 rounded-lg">
+                <Award className="h-5 w-5 text-yellow-400 mr-2" />
+                <span className="text-lg font-bold">{classroom.overallFeedback.performance.score}%</span>
+                <TrendingUp className="h-5 w-5 text-green-400 ml-2" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              {/* Strengths */}
+              <div className="bg-slate-800 p-6 rounded-lg">
+                <h3 className="text-lg font-semibold text-green-400 mb-4 flex items-center">
+                  <Target className="mr-2 h-5 w-5" /> Key Strengths
+                </h3>
+                <ul className="space-y-3">
+                  {classroom.overallFeedback.performance.strengths.map((strength, index) => (
+                    <li key={index} className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-green-400 mr-2 mt-0.5 flex-shrink-0" />
+                      <span className="text-slate-300">{strength}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Areas for Improvement */}
+              <div className="bg-slate-800 p-6 rounded-lg">
+                <h3 className="text-lg font-semibold text-yellow-400 mb-4 flex items-center">
+                  <Target className="mr-2 h-5 w-5" /> Areas for Improvement
+                </h3>
+                <ul className="space-y-3">
+                  {classroom.overallFeedback.performance.areasForImprovement.map((area, index) => (
+                    <li key={index} className="flex items-start">
+                      <AlertCircle className="h-5 w-5 text-yellow-400 mr-2 mt-0.5 flex-shrink-0" />
+                      <span className="text-slate-300">{area}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {/* Topic Progress */}
+            <div className="bg-slate-800 p-6 rounded-lg mb-6">
+              <h3 className="text-lg font-semibold text-cyan-400 mb-4 flex items-center">
+                <BookMarked className="mr-2 h-5 w-5" /> Topic Progress
+              </h3>
+              <div className="space-y-4">
+                {classroom.overallFeedback.progressInsights.map((topic, index) => (
+                  <div key={index} className="bg-slate-700 p-4 rounded-lg">
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="font-medium text-white">{topic.topic}</h4>
+                      <span className="text-cyan-400 font-semibold">{topic.proficiency}%</span>
+                    </div>
+                    <div className="w-full bg-slate-600 rounded-full h-2 mb-2">
+                      <div 
+                        className="bg-cyan-400 h-2 rounded-full" 
+                        style={{ width: `${topic.proficiency}%` }}
+                      ></div>
+                    </div>
+                    <p className="text-sm text-slate-300">{topic.comment}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Recommendations */}
+            <div className="bg-slate-800 p-6 rounded-lg mb-6">
+              <h3 className="text-lg font-semibold text-purple-400 mb-4 flex items-center">
+                <Lightbulb className="mr-2 h-5 w-5" /> Recommendations for Improvement
+              </h3>
+              <div className="grid gap-3">
+                {classroom.overallFeedback.recommendations.map((recommendation, index) => (
+                  <div key={index} className="bg-slate-700 p-4 rounded-lg flex items-start">
+                    <div className="h-6 w-6 bg-purple-900 rounded-full flex items-center justify-center text-purple-400 mr-3 flex-shrink-0">
+                      {index + 1}
+                    </div>
+                    <p className="text-slate-300">{recommendation}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Detailed Written Feedback */}
+            <div className="bg-slate-800 p-6 rounded-lg">
+              <h3 className="text-lg font-semibold text-cyan-400 mb-4 flex items-center">
+                <MessageSquare className="mr-2 h-5 w-5" /> Detailed Feedback
+              </h3>
+              <div className="prose prose-invert max-w-none">
+                {classroom.overallFeedback.detailedFeedback.split('\n\n').map((paragraph, index) => (
+                  <p key={index} className="text-slate-300 mb-4 leading-relaxed">
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
+            </div>
           </div>
         )}
       </div>

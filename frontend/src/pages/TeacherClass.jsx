@@ -347,7 +347,6 @@ const TeacherClass = ({ classroom, onBack = () => {} }) => {
                   <div>
                     <h3 className="font-medium text-lg text-cyan-300">{assignment.title}</h3>
                     <p className="text-slate-400 text-sm">{assignment.description}</p>
-                    <p className="text-slate-400 text-sm">Due Date: {assignment.dueDate}</p>
                   </div>
                   <div className="text-right">
                     <span className={`px-3 py-1 rounded-full text-xs ${getStatusColor(assignment.status)}`}>

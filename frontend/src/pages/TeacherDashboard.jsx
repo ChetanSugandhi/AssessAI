@@ -155,7 +155,19 @@ const TeacherDashboard = () => {
                   value={newClassroom.name}
                   onChange={(e) => setNewClassroom({ ...newClassroom, name: e.target.value })}
                   className="w-full bg-slate-800 rounded-lg border border-slate-700 p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                  placeholder="Enter classroom name"
+                  placeholder="Enter Classroom Name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">
+                  Classroom Code
+                </label>
+                <input
+                type='text'
+                  value={newClassroom.classroomCode}
+                  onChange={(e) => setNewClassroom({ ...newClassroom, classroomCode: e.target.value })}
+                  className="w-full bg-slate-800 rounded-lg border border-slate-700 p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                  placeholder="Enter Classroom Code"
                 />
               </div>
               <div>
@@ -168,7 +180,7 @@ const TeacherDashboard = () => {
                   value={newClassroom.subject}
                   onChange={(e) => setNewClassroom({ ...newClassroom, subject: e.target.value })}
                   className="w-full bg-slate-800 rounded-lg border border-slate-700 p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                  placeholder="Enter subject"
+                  placeholder="Enter Subject"
                 />
               </div>
               <div>
@@ -179,20 +191,10 @@ const TeacherDashboard = () => {
                   value={newClassroom.description}
                   onChange={(e) => setNewClassroom({ ...newClassroom, description: e.target.value })}
                   className="w-full bg-slate-800 rounded-lg border border-slate-700 p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent h-24"
-                  placeholder="Enter classroom description"
+                  placeholder="Enter Classroom Description"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">
-                  Classroom Code
-                </label>
-                <textarea
-                  value={newClassroom.classroomCode}
-                  onChange={(e) => setNewClassroom({ ...newClassroom, classroomCode: e.target.value })}
-                  className="w-full bg-slate-800 rounded-lg border border-slate-700 p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent h-24"
-                  placeholder="Enter classroom Classroom Code"
-                />
-              </div>
+              
               <button
                 type="submit"
                 className="w-full bg-cyan-600 hover:bg-cyan-700 text-white py-2 rounded-lg transition-colors"

@@ -13,6 +13,7 @@ import ClassDetails from '../pages/ClassDetails'
 import QuizForm from '../pages/QuizForm'
 import TeacherClass from '../pages/TeacherClass'
 import TeacherLogin from '../pages/TeacherLogin'
+import QuizSolution from '../pages/QuizSolution'
 // import About from '@/pages/About'
 // import Contact from '@/pages/Contact'
 const router = createBrowserRouter([
@@ -67,6 +68,10 @@ const router = createBrowserRouter([
          {
             path:"/teacher-login",
             element:<TeacherLogin/>
+         },
+         {
+            path:"/quiz-solution",
+            element:<QuizSolution/>
          }
         ]
     }

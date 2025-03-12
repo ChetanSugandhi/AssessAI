@@ -40,14 +40,12 @@ const StudentDashboard = () => {
             id: 1,
             name: 'Calculus Problem Set', 
             status: 'Completed', 
-            deadline: '2 days ago',
             score: 92 
           },
           { 
             id: 2,
             name: 'Algebra Quiz', 
             status: 'Not Started', 
-            deadline: 'Yesterday',
             score: null 
           }
         ],
@@ -65,14 +63,12 @@ const StudentDashboard = () => {
             id: 3,
             name: 'Python Programming Project', 
             status: 'Completed', 
-            deadline: 'Tomorrow',
             score: null 
           },
           { 
             id: 4,
             name: 'Algorithms Design', 
             status: 'Not Started', 
-            deadline: '3 days',
             score: null 
           }
         ],
@@ -90,7 +86,6 @@ const StudentDashboard = () => {
             id: 5,
             name: 'Mechanics Lab Report', 
             status: 'Completed', 
-            deadline: '1 week ago',
             score: 88 
           }
         ],
@@ -229,7 +224,6 @@ const StudentDashboard = () => {
                     >
                       <div className="overflow-hidden">
                         <span className="text-sm text-white truncate block">{assignment.name}</span>
-                        <span className="text-xs text-slate-400">Due: {assignment.deadline}</span>
                       </div>
                       <span className={`
                         ${assignment.status === 'Completed' ? 'bg-green-500' : 
