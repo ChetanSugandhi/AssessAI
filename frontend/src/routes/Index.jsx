@@ -14,6 +14,8 @@ import QuizForm from '../pages/QuizForm'
 import TeacherClass from '../pages/TeacherClass'
 import TeacherLogin from '../pages/TeacherLogin'
 import QuizSolution from '../pages/QuizSolution'
+import Features from '../pages/Features'
+import About from '../pages/About'
 // import About from '@/pages/About'
 // import Contact from '@/pages/Contact'
 const router = createBrowserRouter([
@@ -72,6 +74,14 @@ const router = createBrowserRouter([
          {
             path:"/quiz-solution",
             element:<QuizSolution/>
+         },
+         {
+            path:"/features",
+            element:<Features/>
+         },
+         {
+            path:"/about",
+            element:<About/>
          }
         ]
     }
