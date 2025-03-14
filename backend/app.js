@@ -317,7 +317,7 @@ app.post("/teacher-signup", async (req, res) => {
         email = email.toLowerCase().trim();
 
         // Check if teacherCode is correct
-        if (teacherCode !== UniqueCodeTeacher) {
+        if (teacherCode !== process.env.UNIQUE_CODE_TEACHER) {
             console.log("Unauthorized signup attempt.");
             return res.status(403).send("You are not authorized...");
         }
