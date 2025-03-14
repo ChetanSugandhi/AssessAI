@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Test from "./Test.jsx";
+import RoleSelectionForm from "./RoleSelectionForm.jsx";
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
       <Outlet />
       <Footer />
       <Test />
+      <RoleSelectionForm />
     </>
   );
 }

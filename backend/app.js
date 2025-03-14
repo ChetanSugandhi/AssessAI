@@ -8,6 +8,7 @@ const ejs = require("ejs");
 const session = require("express-session");
 const flash = require("connect-flash");
 const passport = require("passport");
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const LocalStrategy = require("passport-local");
 const isLoggedIn = require("./authenticateMiddleware.js");
 
@@ -19,7 +20,7 @@ const Topic = require("./Models/topic");
 const Question = require("./Models/question");
 
 const geminiRoutes = require("./routes/geminiRoutes");
-const UniqueCodeTeacher = "#Education";
+// const UniqueCodeTeacher = "#Education";
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -43,14 +44,14 @@ app.use(session(sessionOption));
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.use("student", new LocalStrategy(Student.authenticate()));
-passport.use("teacher", new LocalStrategy(Teacher.authenticate()));
+// passport.use("student", new LocalStrategy(Student.authenticate()));
+// passport.use("teacher", new LocalStrategy(Teacher.authenticate()));
 
-passport.serializeUser((user, done) => done(null, { id: user._id, role: user.role }));  
-passport.deserializeUser(async (obj, done) => {
-    const user = await (obj.role === "teacher" ? Teacher.findById(obj.id) : Student.findById(obj.id));
-    done(null, user);
-});
+// passport.serializeUser((user, done) => done(null, { id: user._id, role: user.role }));  
+// passport.deserializeUser(async (obj, done) => {
+//     const user = await (obj.role === "teacher" ? Teacher.findById(obj.id) : Student.findById(obj.id));
+//     done(null, user);
+// });
 
 
 
@@ -84,6 +85,143 @@ app.use((req, res, next) => {
     res.locals.currUser = req.user;
     next();
 })
+
+
+// Store role and teacher code in session before authentication
+app.post("/role-data", (req, res) => {
+    const { role, code } = req.body;
+
+    if (!role) {
+        return res.status(400).send("Role is required.");
+    }
+
+    req.session.role = role;
+    if (role === "teacher") {
+        req.session.teacherCode = code || ""; // Store teacher code if provided
+        console.log(req.session.role);
+        console.log(req.session.teacherCode);
+    }
+
+    res.send("Role stored successfully.");
+});
+
+// Google Authentication Route (Single for Both Student & Teacher)
+app.get("/auth/google", (req, res, next) => {
+    if (!req.session.role) {
+        return res.redirect("/"); // Redirect if role is not set
+    }
+
+    passport.authenticate("google", { scope: ["profile", "email"] })(req, res, next);
+});
+
+// Google OAuth Strategy
+passport.use(
+    new GoogleStrategy(
+        {
+            clientID: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            callbackURL: "http://localhost:7777/auth/google/callback",
+            scope: ["profile", "email"],
+            passReqToCallback: true,
+        },
+        async (req, accessToken, refreshToken, profile, done) => {
+            try {
+                const email = profile.emails[0].value;
+                const name = profile.displayName;
+                const role = req.session.role;
+                const enteredCode = req.session.teacherCode;
+
+                console.log("OAuth Callback - Role:", role);
+                console.log("OAuth Callback - Teacher Code:", enteredCode);
+
+                if (!role) {
+                    return done(null, false, { message: "Role not set before authentication" });
+                }
+
+                if (role === "teacher") {
+                    if (enteredCode !== process.env.UNIQUE_CODE_TEACHER) {
+                        return done(null, false, { message: "Invalid teacher code" });
+                    }
+
+                    let teacher = await Teacher.findOne({ email });
+
+                    if (!teacher) {
+                        teacher = new Teacher({ name, email, username: name });
+                        await teacher.save();
+                    }
+                    return done(null, { ...teacher.toObject(), role: "teacher" });
+                } else if (role === "student") {
+                    let student = await Student.findOne({ email });
+
+                    if (!student) {
+                        student = new Student({ name, email, username: name });
+                        await student.save();
+                    }
+                    return done(null, { ...student.toObject(), role: "student" });
+                } else {
+                    return done(null, false, { message: "Invalid role" });
+                }
+            } catch (error) {
+                return done(error, false);
+            }
+        }
+    )
+);
+
+
+
+// Serialize & Deserialize User
+passport.serializeUser((user, done) => {
+    done(null, { id: user.id, role: user.role || "student" });
+});
+
+passport.deserializeUser(async (obj, done) => {
+    try {
+        if (obj.role === "teacher") {
+            const teacher = await Teacher.findById(obj.id);
+            done(null, teacher);
+        } else {
+            const student = await Student.findById(obj.id);
+            done(null, student);
+        }
+    } catch (error) {
+        done(error, null);
+    }
+});
+
+// Google OAuth Callback
+app.get(
+    "/auth/google/callback",
+    passport.authenticate("google", { failureRedirect: "/unauthorized" }), // Redirect to a custom page if unauthorized
+    (req, res) => {
+        const role = req.user?.role; // Role is now stored in req.user
+
+        if (role === "teacher") {
+            return res.redirect("http://localhost:5173/teacher-dashboard");
+        } else {
+            return res.redirect("http://localhost:5173/student-dashboard");
+        }
+    }
+);
+
+
+// Logout Route
+app.get("/logout", (req, res) => {
+    req.logout(() => {
+        req.session.destroy();
+        res.redirect("/");
+    });
+});
+
+
+app.get("/unauthorized", (req, res) => {
+    res.status(403).send(`
+      <h2>You are not authorized to access this page.</h2>
+      <h4><a href="http://localhost:5173/">Go to Home Page</a></h4>
+    `);
+});
+
+
 
 app.get("/", (req, res) => {
     res.send("Backend Root path");
@@ -244,12 +382,12 @@ app.post("/create", isLoggedIn, async (req, res) => {
 
         const { name, subject, classroomCode, description } = req.body;
 
-        const newClassroom = new ClassroomCreate({ 
-            name, 
-            subject, 
-            classroomCode, 
-            description, 
-            teacherId 
+        const newClassroom = new ClassroomCreate({
+            name,
+            subject,
+            classroomCode,
+            description,
+            teacherId
         });
 
         const savedClassroom = await newClassroom.save();
