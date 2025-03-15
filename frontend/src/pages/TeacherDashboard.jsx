@@ -91,6 +91,8 @@ const TeacherDashboard = () => {
             subject: newClassroom.subject,
             classroomCode: newClassroom.classroomCode, // Typo fix: "classsroomCode" → "classroomCode"
             description: newClassroom.description,
+          // add user here
+
         }, { withCredentials: true }); // Ensures cookies/session is sent if using authentication
 
         if (response.data.message === "Classroom created successfully") {

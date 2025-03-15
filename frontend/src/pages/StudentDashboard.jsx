@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { 
-  Trophy, 
-  Target, 
-  FileText, 
-  Star, 
+import {
+  Trophy,
+  Target,
+  FileText,
+  Star,
   BookOpen,
   ArrowLeft,
   Activity,
@@ -36,17 +36,17 @@ const StudentDashboard = () => {
         subject: 'Mathematics',
         color: 'bg-cyan-500',
         recentAssignments: [
-          { 
+          {
             id: 1,
-            name: 'Calculus Problem Set', 
-            status: 'Completed', 
-            score: 92 
+            name: 'Calculus Problem Set',
+            status: 'Completed',
+            score: 92
           },
-          { 
+          {
             id: 2,
-            name: 'Algebra Quiz', 
-            status: 'Not Started', 
-            score: null 
+            name: 'Algebra Quiz',
+            status: 'Not Started',
+            score: null
           }
         ],
         feedbackAvailable: true,
@@ -59,17 +59,17 @@ const StudentDashboard = () => {
         subject: 'Computer Science',
         color: 'bg-purple-500',
         recentAssignments: [
-          { 
+          {
             id: 3,
-            name: 'Python Programming Project', 
-            status: 'Completed', 
-            score: null 
+            name: 'Python Programming Project',
+            status: 'Completed',
+            score: null
           },
-          { 
+          {
             id: 4,
-            name: 'Algorithms Design', 
-            status: 'Not Started', 
-            score: null 
+            name: 'Algorithms Design',
+            status: 'Not Started',
+            score: null
           }
         ],
         feedbackAvailable: false,
@@ -82,11 +82,11 @@ const StudentDashboard = () => {
         subject: 'Physics',
         color: 'bg-orange-500',
         recentAssignments: [
-          { 
+          {
             id: 5,
-            name: 'Mechanics Lab Report', 
-            status: 'Completed', 
-            score: 88 
+            name: 'Mechanics Lab Report',
+            status: 'Completed',
+            score: 88
           }
         ],
         feedbackAvailable: true,
@@ -94,33 +94,33 @@ const StudentDashboard = () => {
       }
     ],
     learningGoals: [
-      { 
-        id: 1, 
-        title: 'Master Advanced Calculus', 
+      {
+        id: 1,
+        title: 'Master Advanced Calculus',
         progress: 60,
         description: 'Complete advanced integration techniques',
         reward: 'Advanced Mathematician Badge'
       },
-      { 
-        id: 2, 
-        title: 'ML Project Completion', 
+      {
+        id: 2,
+        title: 'ML Project Completion',
         progress: 40,
         description: 'Develop a machine learning application',
         reward: 'Tech Innovator Certificate'
       }
     ],
     achievements: [
-      { 
+      {
         id: 1,
-        name: 'Perfect Attendance', 
-        icon: <Star className="text-yellow-400" />, 
-        level: 'Gold' 
+        name: 'Perfect Attendance',
+        icon: <Star className="text-yellow-400" />,
+        level: 'Gold'
       },
-      { 
+      {
         id: 2,
-        name: 'Top Performer', 
-        icon: <Trophy className="text-purple-500" />, 
-        level: 'Platinum' 
+        name: 'Top Performer',
+        icon: <Trophy className="text-purple-500" />,
+        level: 'Platinum'
       }
     ]
   });
@@ -135,8 +135,20 @@ const StudentDashboard = () => {
     navigate(-1);
   };
 
-  const handleJoinClassroom = () => {
+  const handleJoinClassroom = async () => {
     console.log('Joining classroom with code:', classroomCode);
+
+    try {
+      const response = await axios.post("http://localhost:7777/join", {
+        classroomCode: classroomCode, // Typo fix: "classsroomCode" → "classroomCode"
+        // add user here
+
+      }, { withCredentials: true }); // Ensures cookies/session is sent if using authentication
+    }
+    catch (error) {
+      alert(error.response?.data?.message || "Error creating classroom!");
+    }
+
     setClassroomCode('');
     setIsDialogOpen(false);
   };
@@ -149,7 +161,7 @@ const StudentDashboard = () => {
           <div className="relative bg-slate-900 rounded-xl p-6 w-full max-w-md border border-slate-800 shadow-xl">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold text-cyan-400">Join Classroom</h3>
-              <button 
+              <button
                 onClick={() => setIsDialogOpen(false)}
                 className="text-slate-400 hover:text-white transition-colors"
               >
@@ -191,7 +203,7 @@ const StudentDashboard = () => {
             <h2 className="text-2xl font-bold text-cyan-400 flex items-center">
               <BookOpen className="mr-3 text-cyan-500" /> My Classrooms
             </h2>
-            <button 
+            <button
               onClick={() => setIsDialogOpen(true)}
               className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors"
             >
@@ -201,8 +213,8 @@ const StudentDashboard = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {studentProfile.classrooms.map((classroom) => (
-              <div 
-                key={classroom.id} 
+              <div
+                key={classroom.id}
                 className="bg-slate-800 rounded-lg p-4 hover:bg-slate-700 cursor-pointer transition-colors"
                 onClick={handleClick}
               >
@@ -210,26 +222,26 @@ const StudentDashboard = () => {
                   <h3 className="text-xl font-semibold text-cyan-300">{classroom.name}</h3>
                   <div className={`w-3 h-3 rounded-full ${classroom.color}`}></div>
                 </div>
-                
+
                 <p className="text-sm text-slate-400 mb-4">Teacher: {classroom.teacher}</p>
-                
+
                 <div className="mb-4">
                   <h4 className="text-sm text-slate-300 mb-2 flex items-center">
                     <FileText className="mr-1 h-4 w-4" /> Recent Assignments
                   </h4>
                   {classroom.recentAssignments.slice(0, 2).map((assignment) => (
-                    <div 
-                      key={assignment.id} 
+                    <div
+                      key={assignment.id}
                       className="flex justify-between items-center bg-slate-700 p-2 rounded mb-2"
                     >
                       <div className="overflow-hidden">
                         <span className="text-sm text-white truncate block">{assignment.name}</span>
                       </div>
                       <span className={`
-                        ${assignment.status === 'Completed' ? 'bg-green-500' : 
-                          assignment.status === 'In Progress' ? 'bg-blue-500' : 
-                          assignment.status === 'Pending Review' ? 'bg-yellow-500' :
-                          'bg-red-500'} 
+                        ${assignment.status === 'Completed' ? 'bg-green-500' :
+                          assignment.status === 'In Progress' ? 'bg-blue-500' :
+                            assignment.status === 'Pending Review' ? 'bg-yellow-500' :
+                              'bg-red-500'} 
                         text-white px-2 py-1 rounded-full text-xs`}
                       >
                         {assignment.status}
@@ -261,8 +273,8 @@ const StudentDashboard = () => {
 
             <div className="space-y-4">
               {studentProfile.achievements.map((achievement) => (
-                <div 
-                  key={achievement.id} 
+                <div
+                  key={achievement.id}
                   className="bg-slate-800 rounded-lg p-4 flex items-center justify-between hover:bg-slate-700 transition-colors"
                 >
                   <div className="flex items-center">
@@ -289,8 +301,8 @@ const StudentDashboard = () => {
 
             <div className="space-y-4">
               {studentProfile.learningGoals.map((goal) => (
-                <div 
-                  key={goal.id} 
+                <div
+                  key={goal.id}
                   className="bg-slate-800 rounded-lg p-4 hover:bg-slate-700 transition-colors"
                 >
                   <div className="flex justify-between items-center mb-2">
@@ -298,9 +310,9 @@ const StudentDashboard = () => {
                     <span className="text-sm text-slate-400">{goal.progress}%</span>
                   </div>
                   <div className="w-full bg-slate-700 rounded-full h-2.5 mb-2">
-                    <div 
-                      className="bg-cyan-500 h-2.5 rounded-full" 
-                      style={{width: `${goal.progress}%`}}
+                    <div
+                      className="bg-cyan-500 h-2.5 rounded-full"
+                      style={{ width: `${goal.progress}%` }}
                     ></div>
                   </div>
                   <p className="text-sm text-slate-300">{goal.description}</p>
