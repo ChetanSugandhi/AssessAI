@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt")
 const passportlocalmongoose = require("passport-local-mongoose");
 
 const TeacherSchema = new mongoose.Schema({
@@ -17,6 +18,10 @@ const TeacherSchema = new mongoose.Schema({
     unique: true,
     required: true // Ensure username is always provided
   },
+    password: {
+        type:String,
+        required:true
+    },
   createdClassrooms: [
     { 
       type: mongoose.Schema.Types.ObjectId, 
@@ -28,7 +33,17 @@ const TeacherSchema = new mongoose.Schema({
   }
 });
 
-TeacherSchema.plugin(passportlocalmongoose);
+// Hash password before saving
+TeacherSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
+});
+
+// Compare password for login
+TeacherSchema.methods.comparePassword = async function (candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.password);
+};
 
 const Teacher = mongoose.model("Teacher", TeacherSchema);
 module.exports = Teacher;
