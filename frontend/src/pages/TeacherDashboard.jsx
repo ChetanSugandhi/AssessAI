@@ -86,12 +86,12 @@ const TeacherDashboard = () => {
     e.preventDefault();
 
     try {
-        const response = await axios.post("http://localhost:7777/create", {
+        const response = await axios.post("http://localhost:7777/api/classroom/create", {
             name: newClassroom.name,
             subject: newClassroom.subject,
             classroomCode: newClassroom.classroomCode, // Typo fix: "classsroomCode" → "classroomCode"
             description: newClassroom.description,
-        }, { withCredentials: true }); // Ensures cookies/session is sent if using authentication
+        }, {headers: {Authorization: `Bearer ${localStorage.getItem("token")}`}});
 
         if (response.data.message === "Classroom created successfully") {
             const newClass = {

@@ -50,10 +50,10 @@ const TeacherLogin = () => {
             username,
             password
         });
-        console.log("initiating login teacher")
 
-        if (response.ok) {
+        if (response.data.token) {
             alert("Login successful!");
+            localStorage.setItem("token", response.data.token)
             window.location.href = "/teacher-dashboard";  // Redirect to the dashboard
         }
     } catch (error) {
