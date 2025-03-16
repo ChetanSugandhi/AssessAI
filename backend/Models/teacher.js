@@ -2,32 +2,32 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt")
 
 const TeacherSchema = new mongoose.Schema({
-  name: { 
-    type: String, 
-    required: true 
+  name: {
+    type: String,
+    required: true
 
   },
-  email: { 
-    type: String, 
-    required: true, 
-    unique: true 
+  email: {
+    type: String,
+    required: true,
+    unique: true
   },
   username: {
     type: String,
     unique: true,
     required: true // Ensure username is always provided
   },
-    password: {
+  password: {
     type: String,
-    required: true},
+  },
   createdClassrooms: [
-    { 
-      type: mongoose.Schema.Types.ObjectId, 
-      ref: "ClassroomCreate" 
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ClassroomCreate"
     }], // References classrooms created by teacher
-  createdAt: { 
-    type: Date, 
-    default: Date.now 
+  createdAt: {
+    type: Date,
+    default: Date.now
   }
 });
 

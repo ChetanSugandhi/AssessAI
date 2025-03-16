@@ -55,57 +55,57 @@ router.post("/create", auth, async (req, res) => {
 });
 
 router.post("/join", auth, async (req, res) => {
-    try {
-        const studentId = req.user._id;
+  try {
+    const studentId = req.user._id;
 
-        const { classroomCode } = req.body;
+    const { classroomCode } = req.body;
 
-        // Find the classroom using the provided code
-        const classroom = await ClassroomCreate.findOne({ classroomCode });
-        if (!classroom) {
-            return res.status(404).json({ message: "Invalid classroom code" });
-        }
-
-        // Check if the student has already joined this classroom
-        const existingEntry = await ClassroomJoin.findOne({
-            studentId,
-            classroomCode,
-        });
-        if (existingEntry) {
-            return res
-                .status(400)
-                .json({ message: "You have already joined this classroom" });
-        }
-
-        const newClassroomJoin = new ClassroomJoin({
-            studentId,
-            subject: classroom.subject,
-            classroomCode,
-        });
-
-        await newClassroomJoin.save();
-
-        // Update Student Schema: Push Classroom ID to `joinedClassrooms`
-        const student = await Student.findById(studentId);
-        if (student) {
-            student.joinedClassrooms.push(classroom._id);
-            await student.save();
-        }
-
-        // ✅ Update Classroom Schema: Push Student ID to `joinedStudents`
-        if (!ClassroomCreate.joinedStudents.includes(studentId)) {
-            ClassroomCreate.joinedStudents.push(studentId);
-            await classroom.save();
-        }
-
-
-        res.status(201).json({
-            message: "Successfully joined the classroom",
-            classroom: newClassroomJoin,
-        });
-    } catch (error) {
-        res.status(500).json({ message: "Server error", error: error.message });
+    // Find the classroom using the provided code
+    const classroom = await ClassroomCreate.findOne({ classroomCode });
+    if (!classroom) {
+      return res.status(404).json({ message: "Invalid classroom code" });
     }
+
+    // Check if the student has already joined this classroom
+    const existingEntry = await ClassroomJoin.findOne({
+      studentId,
+      classroomCode,
+    });
+    if (existingEntry) {
+      return res
+        .status(400)
+        .json({ message: "You have already joined this classroom" });
+    }
+
+    const newClassroomJoin = new ClassroomJoin({
+      studentId,
+      subject: classroom.subject,
+      classroomCode,
+    });
+
+    await newClassroomJoin.save();
+
+    // Update Student Schema: Push Classroom ID to `joinedClassrooms`
+    const student = await Student.findById(studentId);
+    if (student) {
+      student.joinedClassrooms.push(classroom._id);
+      await student.save();
+    }
+
+    // ✅ Update Classroom Schema: Push Student ID to `joinedStudents`
+    if (!ClassroomCreate.joinedStudents.includes(studentId)) {
+      ClassroomCreate.joinedStudents.push(studentId);
+      await classroom.save();
+    }
+
+
+    res.status(201).json({
+      message: "Successfully joined the classroom",
+      classroom: newClassroomJoin,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
 });
 
 module.exports = router;

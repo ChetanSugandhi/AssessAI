@@ -6,6 +6,7 @@ const cors = require("cors");
 const path = require("path");
 const ejs = require("ejs");
 const session = require("express-session");
+const MongoStore = require("connect-mongo"); 
 const flash = require("connect-flash");
 const passport = require("./config/passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
@@ -27,21 +28,24 @@ const geminiRoutes = require("./routes/geminiRoutes");
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-const sessionOption = {
-    secret: "secretCode",
-    resave: false,
-    saveUninitialized: true,
-    cookie: {       // 1 day expiry
-        secure: false,
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000
-    }
-
-};
-
 app.use(flash());
 app.use(express.json());
-app.use(session(sessionOption));
+
+
+
+app.use(session({
+    secret: process.env.SESSION_SECRET_KEY,
+    resave: true, // Ensure session is saved on every request
+    saveUninitialized: true, // Save new sessions even if unmodified
+    store: MongoStore.create({ mongoUrl: "mongodb://localhost:27017/sessiondb" }), // Store session in MongoDB
+    cookie: {
+        secure: false, // Set to true in production with HTTPS
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000, // 1 day
+    }
+}));
+
+
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -99,23 +103,52 @@ app.use((req, res, next) => {
 //    res.send("Role stored successfully.");
 //});
 
-// Google Authentication Route (Single for Both Student & Teacher)
+
+// 🔹 Step 1: Set Role in Session (Before Google Auth)
+app.post("/set-role/student", (req, res) => {
+    req.session.role = "student";
+    console.log("🔹 Role set in session:", req.session.role, " | Session ID:", req.session.id);
+    console.log("🔹 Full Session Data:", req.session); // Debug full session
+
+    res.json({ success: true, role: "student" });
+});
+
+app.post("/set-role/teacher", (req, res) => {
+    const { teacherCode } = req.body;
+
+    if (teacherCode !== process.env.UNIQUE_CODE_TEACHER) {
+        console.log("❌ Invalid teacher code attempt");
+        return res.status(403).json({ success: false, message: "Invalid teacher code" });
+    }
+
+    req.session.role = "teacher";
+    req.session.teacherCode = teacherCode;
+    console.log("🔹 Role set in session:", req.session.role, " | Session ID:", req.session.id);
+    console.log("🔹 Full Session Data:", req.session); // Debug full session
+
+    res.json({ success: true, role: "teacher" });
+});
+
+// 🔹 Step 2: Google Authentication Route
 app.get("/auth/google", (req, res, next) => {
+    console.log("🔹 Session data before Google Auth:", req.session);
+    console.log("🔹 Session ID before Google Auth:", req.session.id);
+
     if (!req.session.role) {
+        console.log("❌ No role found in session, redirecting to home");
         return res.redirect("/"); // Redirect if role is not set
     }
 
     passport.authenticate("google", { scope: ["profile", "email"] })(req, res, next);
 });
 
-// Google OAuth Strategy
+// 🔹 Step 3: Google OAuth Strategy
 passport.use(
     new GoogleStrategy(
         {
             clientID: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
             callbackURL: "http://localhost:7777/auth/google/callback",
-            scope: ["profile", "email"],
             passReqToCallback: true,
         },
         async (req, accessToken, refreshToken, profile, done) => {
@@ -125,36 +158,35 @@ passport.use(
                 const role = req.session.role;
                 const enteredCode = req.session.teacherCode;
 
-                console.log("OAuth Callback - Role:", role);
-                console.log("OAuth Callback - Teacher Code:", enteredCode);
-
                 if (!role) {
                     return done(null, false, { message: "Role not set before authentication" });
                 }
+
+                let user;
 
                 if (role === "teacher") {
                     if (enteredCode !== process.env.UNIQUE_CODE_TEACHER) {
                         return done(null, false, { message: "Invalid teacher code" });
                     }
 
-                    let teacher = await Teacher.findOne({ email });
-
-                    if (!teacher) {
-                        teacher = new Teacher({ name, email, username: name });
-                        await teacher.save();
+                    user = await Teacher.findOne({ email });
+                    if (!user) {
+                        user = new Teacher({ name, email, username: name });
+                        await user.save();
                     }
-                    return done(null, { ...teacher.toObject(), role: "teacher" });
                 } else if (role === "student") {
-                    let student = await Student.findOne({ email });
-
-                    if (!student) {
-                        student = new Student({ name, email, username: name });
-                        await student.save();
+                    user = await Student.findOne({ email });
+                    if (!user) {
+                        user = new Student({ name, email, username: name });
+                        await user.save();
                     }
-                    return done(null, { ...student.toObject(), role: "student" });
                 } else {
                     return done(null, false, { message: "Invalid role" });
                 }
+
+                console.log("✅ User found/created - ID:", user._id, "Role:", role);
+
+                return done(null, { id: user._id.toString(), role }); // Explicitly pass user ID as a string
             } catch (error) {
                 return done(error, false);
             }
@@ -162,35 +194,44 @@ passport.use(
     )
 );
 
-
-
-// Serialize & Deserialize User
+// 🔹 Step 4: Serialize & Deserialize User
 passport.serializeUser((user, done) => {
-    done(null, { id: user.id, role: user.role || "student" });
+    console.log("🔹 Serializing User - ID:", user.id, "Role:", user.role);
+    done(null, { id: user.id, role: user.role });
 });
-
 passport.deserializeUser(async (obj, done) => {
     try {
+        let user;
         if (obj.role === "teacher") {
-            const teacher = await Teacher.findById(obj.id);
-            done(null, teacher);
+            user = await Teacher.findById(obj.id);
         } else {
-            const student = await Student.findById(obj.id);
-            done(null, student);
+            user = await Student.findById(obj.id);
         }
+
+        if (!user) {
+            return done(null, false);
+        }
+
+        console.log("🔹 Deserializing User - ID:", user._id, "Role:", obj.role);
+        done(null, user);
     } catch (error) {
         done(error, null);
     }
 });
 
-// Google OAuth Callback
+
+// 🔹 Step 5: Google OAuth Callback
 app.get(
     "/auth/google/callback",
-    passport.authenticate("google", { failureRedirect: "/unauthorized" }), // Redirect to a custom page if unauthorized
+    passport.authenticate("google", { failureRedirect: "/unauthorized" }),
     (req, res) => {
-        const role = req.user?.role; // Role is now stored in req.user
+        console.log("✅ User logged in - ID:", req.user._id || req.user.id);
+        console.log("🔹 Role:", req.user.role);
 
-        if (role === "teacher") {
+        req.session.userId = req.user._id || req.user.id; // Store user ID in session
+        req.session.role = req.user.role; 
+
+        if (req.user.role === "teacher") {
             return res.redirect("http://localhost:5173/teacher-dashboard");
         } else {
             return res.redirect("http://localhost:5173/student-dashboard");
@@ -199,7 +240,7 @@ app.get(
 );
 
 
-// Logout Route
+// 🔹 Step 6: Logout Route
 app.get("/logout", (req, res) => {
     req.logout(() => {
         req.session.destroy();
@@ -207,13 +248,14 @@ app.get("/logout", (req, res) => {
     });
 });
 
-
+// Unauthorized Page
 app.get("/unauthorized", (req, res) => {
     res.status(403).send(`
       <h2>You are not authorized to access this page.</h2>
       <h4><a href="http://localhost:5173/">Go to Home Page</a></h4>
     `);
 });
+
 
 
 
@@ -229,6 +271,12 @@ app.get("/test/:id", (req, res) => {
     let { id } = req.params;
     res.send(`received id from frontend is : ${id}`);
 });
+
+
+app.get("/sessionId", (req, res) => {
+    console.log(req.session.userId)
+})
+
 
 // maually check authentication
 app.get("/auth/check", (req, res) => {
