@@ -7,7 +7,7 @@ const path = require("path");
 const ejs = require("ejs");
 const session = require("express-session");
 const flash = require("connect-flash");
-const passport = require("passport");
+const passport = require("./config/passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const LocalStrategy = require("passport-local");
 const isLoggedIn = require("./authenticateMiddleware.js");
@@ -19,6 +19,8 @@ const ClassroomJoin = require("./Models/classroomJoin");
 const Topic = require("./Models/topic");
 const Question = require("./Models/question");
 
+const authRoutes = require("./routes/authRoutes");
+const classroomRoutes = require("./routes/classroomRoutes");
 const geminiRoutes = require("./routes/geminiRoutes");
 // const UniqueCodeTeacher = "#Education";
 
@@ -46,14 +48,6 @@ app.use(passport.session());
 
 // passport.use("student", new LocalStrategy(Student.authenticate()));
 // passport.use("teacher", new LocalStrategy(Teacher.authenticate()));
-
-// passport.serializeUser((user, done) => done(null, { id: user._id, role: user.role }));  
-// passport.deserializeUser(async (obj, done) => {
-//     const user = await (obj.role === "teacher" ? Teacher.findById(obj.id) : Student.findById(obj.id));
-//     done(null, user);
-// });
-
-
 
 // connectivity backend frontend
 app.use(
@@ -88,22 +82,22 @@ app.use((req, res, next) => {
 
 
 // Store role and teacher code in session before authentication
-app.post("/role-data", (req, res) => {
-    const { role, code } = req.body;
-
-    if (!role) {
-        return res.status(400).send("Role is required.");
-    }
-
-    req.session.role = role;
-    if (role === "teacher") {
-        req.session.teacherCode = code || ""; // Store teacher code if provided
-        console.log(req.session.role);
-        console.log(req.session.teacherCode);
-    }
-
-    res.send("Role stored successfully.");
-});
+//app.post("/role-data", (req, res) => {
+//    const { role, code } = req.body;
+//
+//    if (!role) {
+//        return res.status(400).send("Role is required.");
+//    }
+//
+//    req.session.role = role;
+//    if (role === "teacher") {
+//        req.session.teacherCode = code || ""; // Store teacher code if provided
+//        console.log(req.session.role);
+//        console.log(req.session.teacherCode);
+//    }
+//
+//    res.send("Role stored successfully.");
+//});
 
 // Google Authentication Route (Single for Both Student & Teacher)
 app.get("/auth/google", (req, res, next) => {
@@ -227,8 +221,9 @@ app.get("/", (req, res) => {
     res.send("Backend Root path");
 });
 
-// for experimentation
-app.use("/gemini", geminiRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/classroom", classroomRoutes);
+app.use("/api/gemini", geminiRoutes);
 
 app.get("/test/:id", (req, res) => {
     let { id } = req.params;
@@ -250,159 +245,6 @@ app.get("/auth/check", (req, res) => {
         return res.status(500).json({ redirectTo: "/authform" });
     }
 });
-
-
-
-// get request on signup
-app.get("/student-signup", (req, res) => {
-    res.send("Send signup form here");
-});
-
-// post request on signup
-app.post("/student-signup", async (req, res) => {
-    try {
-        let { name, email, username, password } = req.body;
-        email = email.toLowerCase().trim();
-
-        const existingStudent = await Student.findOne({ email });
-        if (existingStudent) {
-            return res.status(400).json({ message: "Student already exists" });
-        }
-
-        const newStudent = new Student({
-            username: username,
-            name: name,
-            email: email,
-        });
-
-        const saveStudent = await Student.register(newStudent, password);
-        console.log("Saved student:", saveStudent);
-
-        res.status(201).json({ message: "Signup successful!", user: saveStudent });
-    } catch (error) {
-        console.error("Signup error:", error);
-        res.status(500).json({ message: "Internal Server Error" });
-    }
-});
-
-// get request on login
-app.get("/student-login", (req, res) => {
-    res.send("Send student login form here..."); // username and email will be provided...
-});
-
-// ye check krega student login h ya nhi... username and email ke through
-app.post(
-    "/student-login",
-    passport.authenticate("student", {
-        failureFlash: true,
-    }),
-    (req, res) => {
-        req.session.username = req.user.username; // Store username in session
-        console.log(req.session.username);
-        res.json({ success: true, message: "Login successful!", redirect: "/student-dashboard" });
-    }
-);
-
-
-
-// get request on signup
-app.get("/teacher-signup", (req, res) => {
-    res.send("Send Teacher signup form here");
-});
-
-// post request on signup
-app.post("/teacher-signup", async (req, res) => {
-    try {
-        let { name, email, username, password, teacherCode } = req.body;
-        email = email.toLowerCase().trim();
-
-        // Check if teacherCode is correct
-        if (teacherCode !== process.env.UNIQUE_CODE_TEACHER) {
-            console.log("Unauthorized signup attempt.");
-            return res.status(403).send("You are not authorized...");
-        }
-
-        // Check if teacher already exists
-        const existingTeacher = await Teacher.findOne({ email });
-        if (existingTeacher) {
-            return res.status(400).send("Teacher already exists");
-        }
-
-        // Create new teacher instance (without password)
-        const newTeacher = new Teacher({ username, name, email });
-
-        // Register the teacher (passport-local-mongoose handles password hashing)
-        let savedTeacher = await Teacher.register(newTeacher, password);
-        console.log("Saved teacher:", savedTeacher);
-
-        return res.status(201).send("Signup successful!");
-    } catch (error) {
-        console.error("Signup Error:", error);
-        return res.status(500).send("Error signing up.");
-    }
-});
-
-// get request on login
-app.get("/teacher-login", (req, res) => {
-    res.send("Send teacher login form here..."); // username and email will be provided...
-});
-
-// ye check krega student login h ya nhi... username and email ke through Post request on login
-app.post(
-    "/teacher-login",
-    passport.authenticate("teacher", {
-        failureFlash: true,
-    }),
-    (req, res) => {
-        req.session.username = req.user.username; // Store username in session
-        console.log(req.session.username);
-        res.json({ success: true, message: "Login successful!", redirect: "/student-dashboard" });
-    }
-);
-// Route to create a new classroom (by teachers)
-// Route to create a new classroom (by teachers)
-app.post("/create", isLoggedIn, async (req, res) => {
-    try {
-        console.log("Session ID:", req.sessionID);
-        console.log("Is authenticated:", req.isAuthenticated());
-        console.log("User object:", req.user);
-
-        // Ensure the user is authenticated and is a teacher
-        if (!req.user || !req.user._id) {
-            return res.status(401).json({ message: "Unauthorized: Please log in." });
-        }
-
-        const teacherId = req.user._id;
-
-        // Check if the user is actually a teacher
-        const teacher = await Teacher.findById(teacherId);
-        if (!teacher) {
-            return res.status(403).json({ message: "Only teachers can create classrooms." });
-        }
-
-        const { name, subject, classroomCode, description } = req.body;
-
-        const newClassroom = new ClassroomCreate({
-            name,
-            subject,
-            classroomCode,
-            description,
-            teacherId
-        });
-
-        const savedClassroom = await newClassroom.save();
-
-        // Store classroom in the teacher's createdClassrooms array
-        teacher.createdClassrooms.push(savedClassroom._id);
-        await teacher.save();
-
-        res.status(201).json({ message: "Classroom created successfully", classroom: savedClassroom });
-    } catch (error) {
-        console.error("Classroom creation error:", error);
-        res.status(500).json({ message: "Server error", error: error.message });
-    }
-});
-
 
 // route to join the classroom (By students)
 app.post("/join", async (req, res) => {
