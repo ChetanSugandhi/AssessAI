@@ -12,11 +12,11 @@ router.post("/create", auth, async (req, res) => {
     console.log("User object:", req.user);
 
     // Ensure the user is authenticated and is a teacher
-    if (!req.user || !req.user._id) {
+    if (!req.session.userId) {
       return res.status(401).json({ message: "Unauthorized: Please log in." });
     }
 
-    const teacherId = req.user._id;
+    const teacherId = req.session.userId;
 
     // Check if the user is actually a teacher
     const teacher = await Teacher.findById(teacherId);

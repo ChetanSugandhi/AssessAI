@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+
 import {
   Trophy,
   Target,
@@ -136,22 +138,31 @@ const StudentDashboard = () => {
   };
 
   const handleJoinClassroom = async () => {
-    console.log('Joining classroom with code:', classroomCode);
+    console.log("🔍 Debug: Function called!"); // Ensure function triggers
+
+    const classroomCode = document.getElementById("classroomCode")?.value.trim();
+    console.log("📩 Classroom code:", classroomCode); // Debug input value
+
+    if (!classroomCode) {
+        alert("⚠️ Please enter a valid classroom code.");
+        console.log("❌ Classroom code is empty");
+        return;
+    }
 
     try {
-      const response = await axios.post("http://localhost:7777/join", {
-        classroomCode: classroomCode, // Typo fix: "classsroomCode" → "classroomCode"
-        // add user here
+        const response = await axios.post("http://localhost:7777/join", 
+        { classroomCode }, 
+        { withCredentials: true });
 
-      }, { withCredentials: true }); // Ensures cookies/session is sent if using authentication
+        console.log("✅ Server Response:", response.data);
+        alert(response.data.message); 
+    } catch (error) {
+        console.error("❌ Join error:", error.response?.data || error.message);
+        alert(error.response?.data?.message || "Error joining classroom!");
     }
-    catch (error) {
-      alert(error.response?.data?.message || "Error creating classroom!");
-    }
+};
 
-    setClassroomCode('');
-    setIsDialogOpen(false);
-  };
+
 
   return (
     <div className="min-h-screen bg-slate-950 text-white p-6">
@@ -168,28 +179,31 @@ const StudentDashboard = () => {
                 <X className="h-6 w-6" />
               </button>
             </div>
-            <form onSubmit={(e) => { e.preventDefault(); handleJoinClassroom(); }}>
-              <div className="mb-4">
-                <label htmlFor="classroomCode" className="block text-sm font-medium text-slate-300 mb-2">
+            <form onSubmit={(e) => { 
+    e.preventDefault(); 
+    console.log("📩 Form submitted!"); // Debug log
+    handleJoinClassroom(); 
+}}>
+            <div class="mb-4">
+                <label for="classroomCode" class="block text-sm font-medium text-slate-300 mb-2">
                   Enter Classroom Code
                 </label>
                 <input
                   type="text"
                   id="classroomCode"
-                  value={classroomCode}
-                  onChange={(e) => setClassroomCode(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                  class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                   placeholder="Enter code (e.g., ABC123)"
                   required
                 />
               </div>
               <button
                 type="submit"
-                className="w-full bg-cyan-600 hover:bg-cyan-700 text-white py-2 rounded-lg transition-colors font-medium"
+                class="w-full bg-cyan-600 hover:bg-cyan-700 text-white py-2 rounded-lg transition-colors font-medium"
               >
                 Join Classroom
               </button>
             </form>
+
           </div>
         </div>
       )}

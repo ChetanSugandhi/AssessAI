@@ -274,7 +274,8 @@ app.get("/test/:id", (req, res) => {
 
 
 app.get("/sessionId", (req, res) => {
-    console.log(req.session.userId)
+    console.log(req.session.userId);
+    res.send("send id", req.session.userId);
 })
 
 
@@ -294,12 +295,70 @@ app.get("/auth/check", (req, res) => {
     }
 });
 
+
+app.post("/create", async (req, res) => {
+    try {
+      console.log("Is authenticated:", req.isAuthenticated());
+      console.log("User object:", req.user);
+  
+      // Ensure the user is authenticated and is a teacher
+      if (!req.session.userId) {
+        return res.status(401).json({ message: "Unauthorized: Please log in." });
+      }
+  
+      const teacherId = req.session.userId;
+  
+      // Check if the user is actually a teacher
+      const teacher = await Teacher.findById(teacherId);
+      if (!teacher) {
+        return res
+          .status(403)
+          .json({ message: "Only teachers can create classrooms." });
+      }
+  
+      const { name, subject, classroomCode, description } = req.body;
+  
+      const newClassroom = new ClassroomCreate({
+        name,
+        subject,
+        classroomCode,
+        description,
+        teacherId,
+      });
+  
+      const savedClassroom = await newClassroom.save();
+  
+      // Store classroom in the teacher's createdClassrooms array
+      teacher.createdClassrooms.push(savedClassroom._id);
+      await teacher.save();
+  
+      res
+        .status(201)
+        .json({
+          message: "Classroom created successfully",
+          classroom: savedClassroom,
+        });
+    } catch (error) {
+      console.error("Classroom creation error:", error);
+      res.status(500).json({ message: "Server error", error: error.message });
+    }
+  });
+
+
 // route to join the classroom (By students)
 app.post("/join", async (req, res) => {
     try {
-        const studentId = req.user._id;
+        console.log("📥 Received request:", req.body); // Debug: Check request body
+
+        const studentId = req.session.userId;
+        console.log("🆔 Student ID:", studentId); // Debug: Check session user
 
         const { classroomCode } = req.body;
+        console.log("🔢 Classroom Code:", classroomCode); // Debug: Check received data
+
+        if (!studentId) {
+            return res.status(401).json({ message: "Unauthorized: No student ID found in session." });
+        }
 
         // Find the classroom using the provided code
         const classroom = await ClassroomCreate.findOne({ classroomCode });
@@ -308,14 +367,9 @@ app.post("/join", async (req, res) => {
         }
 
         // Check if the student has already joined this classroom
-        const existingEntry = await ClassroomJoin.findOne({
-            studentId,
-            classroomCode,
-        });
+        const existingEntry = await ClassroomJoin.findOne({ studentId, classroomCode });
         if (existingEntry) {
-            return res
-                .status(400)
-                .json({ message: "You have already joined this classroom" });
+            return res.status(400).json({ message: "You have already joined this classroom" });
         }
 
         const newClassroomJoin = new ClassroomJoin({
@@ -334,20 +388,43 @@ app.post("/join", async (req, res) => {
         }
 
         // ✅ Update Classroom Schema: Push Student ID to `joinedStudents`
-        if (!ClassroomCreate.joinedStudents.includes(studentId)) {
-            ClassroomCreate.joinedStudents.push(studentId);
+        if (!classroom.joinedStudents.includes(studentId)) { // Fixing incorrect access
+            classroom.joinedStudents.push(studentId);
             await classroom.save();
         }
 
-
-        res.status(201).json({
-            message: "Successfully joined the classroom",
-            classroom: newClassroomJoin,
-        });
+        res.status(201).json({ message: "Successfully joined the classroom", classroom: newClassroomJoin });
     } catch (error) {
+        console.error("❌ Server error:", error.message);
         res.status(500).json({ message: "Server error", error: error.message });
     }
 });
+
+
+app.get("/student-dashboard", async (req, res) => {
+    try {
+        // Ensure user is authenticated
+        if (!req.session.userId) {
+            return res.status(401).json({ message: "Unauthorized! Please log in." });
+        }
+
+        // Fetch student data from database
+        const student = await Student.findOne(req.session.userId).populate("joinedClassrooms");
+
+        if (!student) {
+            return res.status(404).json({ message: "Student not found!" });
+        }
+
+        // Send joined classrooms or an empty array
+        res.json({ joinedClassrooms: student.joinedClassrooms.length ? student.joinedClassrooms : [] });
+
+    } catch (error) {
+        console.error("Error fetching student dashboard:", error);
+        res.status(500).json({ message: "Server error, try again later!" });
+    }
+});
+
+
 
 // ✅ 1. Add Topic to a Classroom (Teacher Must be Logged In)
 app.post("/classroom/:classroomId/topic", async (req, res) => {
