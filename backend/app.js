@@ -6,7 +6,7 @@ const cors = require("cors");
 const path = require("path");
 const ejs = require("ejs");
 const session = require("express-session");
-const MongoStore = require("connect-mongo"); 
+const MongoStore = require("connect-mongo");
 const flash = require("connect-flash");
 const passport = require("./config/passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
@@ -150,6 +150,7 @@ passport.use(
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
             callbackURL: "http://localhost:7777/auth/google/callback",
             passReqToCallback: true,
+            scope: ["profile", "email"],
         },
         async (req, accessToken, refreshToken, profile, done) => {
             try {
@@ -227,9 +228,11 @@ app.get(
     (req, res) => {
         console.log("✅ User logged in - ID:", req.user._id || req.user.id);
         console.log("🔹 Role:", req.user.role);
+        console.log("📧 Email:", req.user.email);
 
         req.session.userId = req.user._id || req.user.id; // Store user ID in session
-        req.session.role = req.user.role; 
+        req.session.role = req.user.role;
+        req.session.email = req.user.email; // Store email in session
 
         if (req.user.role === "teacher") {
             return res.redirect("http://localhost:5173/teacher-dashboard");
@@ -238,6 +241,7 @@ app.get(
         }
     }
 );
+
 
 
 // 🔹 Step 6: Logout Route
@@ -275,7 +279,9 @@ app.get("/test/:id", (req, res) => {
 
 app.get("/sessionId", (req, res) => {
     console.log(req.session.userId);
+    console.log(req.session.email);
     res.send("send id", req.session.userId);
+
 })
 
 
@@ -298,51 +304,51 @@ app.get("/auth/check", (req, res) => {
 
 app.post("/create", async (req, res) => {
     try {
-      console.log("Is authenticated:", req.isAuthenticated());
-      console.log("User object:", req.user);
-  
-      // Ensure the user is authenticated and is a teacher
-      if (!req.session.userId) {
-        return res.status(401).json({ message: "Unauthorized: Please log in." });
-      }
-  
-      const teacherId = req.session.userId;
-  
-      // Check if the user is actually a teacher
-      const teacher = await Teacher.findById(teacherId);
-      if (!teacher) {
-        return res
-          .status(403)
-          .json({ message: "Only teachers can create classrooms." });
-      }
-  
-      const { name, subject, classroomCode, description } = req.body;
-  
-      const newClassroom = new ClassroomCreate({
-        name,
-        subject,
-        classroomCode,
-        description,
-        teacherId,
-      });
-  
-      const savedClassroom = await newClassroom.save();
-  
-      // Store classroom in the teacher's createdClassrooms array
-      teacher.createdClassrooms.push(savedClassroom._id);
-      await teacher.save();
-  
-      res
-        .status(201)
-        .json({
-          message: "Classroom created successfully",
-          classroom: savedClassroom,
+        console.log("Is authenticated:", req.isAuthenticated());
+        console.log("User object:", req.user);
+
+        // Ensure the user is authenticated and is a teacher
+        if (!req.session.userId) {
+            return res.status(401).json({ message: "Unauthorized: Please log in." });
+        }
+
+        const teacherId = req.session.userId;
+
+        // Check if the user is actually a teacher
+        const teacher = await Teacher.findById(teacherId);
+        if (!teacher) {
+            return res
+                .status(403)
+                .json({ message: "Only teachers can create classrooms." });
+        }
+
+        const { name, subject, classroomCode, description } = req.body;
+
+        const newClassroom = new ClassroomCreate({
+            name,
+            subject,
+            classroomCode,
+            description,
+            teacherId,
         });
+
+        const savedClassroom = await newClassroom.save();
+
+        // Store classroom in the teacher's createdClassrooms array
+        teacher.createdClassrooms.push(savedClassroom._id);
+        await teacher.save();
+
+        res
+            .status(201)
+            .json({
+                message: "Classroom created successfully",
+                classroom: savedClassroom,
+            });
     } catch (error) {
-      console.error("Classroom creation error:", error);
-      res.status(500).json({ message: "Server error", error: error.message });
+        console.error("Classroom creation error:", error);
+        res.status(500).json({ message: "Server error", error: error.message });
     }
-  });
+});
 
 
 // route to join the classroom (By students)
@@ -400,7 +406,7 @@ app.post("/join", async (req, res) => {
     }
 });
 
-
+// to fetch all classroom join detail of every student
 app.get("/student-dashboard", async (req, res) => {
     try {
         // Ensure user is authenticated
@@ -408,18 +414,67 @@ app.get("/student-dashboard", async (req, res) => {
             return res.status(401).json({ message: "Unauthorized! Please log in." });
         }
 
-        // Fetch student data from database
-        const student = await Student.findOne(req.session.userId).populate("joinedClassrooms");
+        console.log("Fetching details for User ID:", req.session.userId);
 
+        // Fetch student data from database
+        const student = await Student.findById(req.session.userId);
         if (!student) {
             return res.status(404).json({ message: "Student not found!" });
         }
 
-        // Send joined classrooms or an empty array
-        res.json({ joinedClassrooms: student.joinedClassrooms.length ? student.joinedClassrooms : [] });
+        console.log("Student Found:", student.username);
+        console.log("Joined Classrooms IDs:", student.joinedClassrooms);
+
+        // If student has no joined classrooms, return empty array
+        if (!student.joinedClassrooms.length) {
+            return res.json({ joinedClassrooms: [] });
+        }
+
+        // Fetch classroom details using the IDs in the joinedClassrooms array
+        const classrooms = await ClassroomCreate.find({ _id: { $in: student.joinedClassrooms } });
+
+        // Send classroom details to frontend
+        res.json({ joinedClassrooms: classrooms });
 
     } catch (error) {
         console.error("Error fetching student dashboard:", error);
+        res.status(500).json({ message: "Server error, try again later!" });
+    }
+});
+
+
+// to fetch all classroom create detail of every teacher
+app.get("/teacher-dashboard", async (req, res) => {
+    try {
+        // Ensure user is authenticated
+        if (!req.session.userId) {
+            return res.status(401).json({ message: "Unauthorized! Please log in." });
+        }
+
+        console.log("Fetching details for User ID:", req.session.userId);
+
+        // Fetch teacher data from database
+        const teacher = await Teacher.findById(req.session.userId);
+        if (!teacher) {
+            return res.status(404).json({ message: "Teacher not found!" });
+        }
+
+        console.log("Teacher Found:", teacher.username);
+        console.log("Created Classrooms IDs:", teacher.createdClassrooms);
+
+        // Check if teacher has created any classrooms
+        if (!teacher.createdClassrooms || teacher.createdClassrooms.length === 0) {
+            return res.json({ createdClassrooms: [] }); // Corrected key name
+        }
+
+        // Fetch classroom details using the IDs in the createdClassrooms array
+        const classrooms = await ClassroomCreate.find({ _id: { $in: teacher.createdClassrooms } });
+
+        // Send classroom details to frontend
+        res.json({ createdClassrooms: classrooms });
+
+    } catch (error) {
+        console.error("Error fetching teacher dashboard:", error);
         res.status(500).json({ message: "Server error, try again later!" });
     }
 });
@@ -430,7 +485,7 @@ app.get("/student-dashboard", async (req, res) => {
 app.post("/classroom/:classroomId/topic", async (req, res) => {
     try {
         // Teacher ki login ID (req.user._id se aayegi)
-        const teacherId = req.user._id;
+        const teacherId = req.session.userId;
         const { title, description } = req.body;
         const { classroomId } = req.params;
 
