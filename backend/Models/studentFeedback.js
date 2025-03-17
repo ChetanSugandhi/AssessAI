@@ -1,3 +1,6 @@
+// this is by students
+// When a student submits an assignment, AI generates feedback → Teacher modifies → Final feedback stored in StudentFeedback.
+
 const mongoose = require("mongoose");
 
 const studentFeedbackSchema = new mongoose.Schema({

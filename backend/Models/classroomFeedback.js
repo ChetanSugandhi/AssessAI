@@ -1,3 +1,6 @@
+// this is by teacher, 
+// After evaluating multiple assignments, the teacher gives overall classroom feedback and stores it in ClassroomFeedback.
+
 const mongoose = require("mongoose");
 
 const classroomFeedbackSchema = new mongoose.Schema({
