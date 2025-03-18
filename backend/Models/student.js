@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcrypt");
 
 const StudentSchema = new mongoose.Schema({
   name: {
@@ -14,17 +14,25 @@ const StudentSchema = new mongoose.Schema({
   username: {
     type: String,
     unique: true,
-    required: true // Ensure username is always provided
+    required: true
   },
-    password:{
-        type:String,
-    },
+  password: {
+    type: String
+  },
   joinedClassrooms: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "ClassroomJoin"
+      ref: "ClassroomCreate"  // Changed ref to "ClassroomCreate" to match your schema
     }
-  ], // References classrooms the student has joined
+  ],
+  feedback: [
+    {
+      teacherId: { type: mongoose.Schema.Types.ObjectId, ref: "Teacher" },
+      classroomId: { type: mongoose.Schema.Types.ObjectId, ref: "ClassroomCreate" },
+      message: { type: String, required: true },
+      date: { type: Date, default: Date.now }
+    }
+  ],
   createdAt: {
     type: Date,
     default: Date.now

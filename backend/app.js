@@ -19,6 +19,7 @@ const ClassroomCreate = require("./Models/classroomCreate");
 const ClassroomJoin = require("./Models/classroomJoin");
 const Topic = require("./Models/topic");
 const Question = require("./Models/question");
+const StudentFeedback = require("./Models/studentFeedback.js");
 
 const authRoutes = require("./routes/authRoutes");
 const classroomRoutes = require("./routes/classroomRoutes");
@@ -430,17 +431,63 @@ app.get("/student-dashboard", async (req, res) => {
             return res.json({ joinedClassrooms: [] });
         }
 
-        // Fetch classroom details using the IDs in the joinedClassrooms array
-        const classrooms = await ClassroomCreate.find({ _id: { $in: student.joinedClassrooms } });
+        // Fetch classroom details along with teacher info and topics
+        const classrooms = await ClassroomCreate.find({ _id: { $in: student.joinedClassrooms } })
+            .populate("teacherId", "name email") // Fetch teacher name & email
+            .populate({
+                path: "topics",
+                select: "title description createdAt",
+                options: { sort: { createdAt: -1 }, limit: 2 } // Fetch recent 2 topics
+            });
 
-        // Send classroom details to frontend
-        res.json({ joinedClassrooms: classrooms });
+        // Fetch feedback for the student
+        const feedbacks = await StudentFeedback.find({ studentId: student._id })
+            .populate("classroomId", "name subject") // Fetch classroom name & subject
+            .populate("assignmentId", "title description") // Fetch assignment details
+            .populate("teacherId", "name email"); // Fetch teacher details
+
+        // Format classroom response
+        const formattedClassrooms = classrooms.map(classroom => ({
+            className: classroom.name,
+            subject: classroom.subject,
+            description: classroom.description,
+            teacher: classroom.teacherId ? {
+                name: classroom.teacherId.name,
+                email: classroom.teacherId.email
+            } : "Unknown",
+            topics: classroom.topics || []
+        }));
+
+        // Format feedback response
+        const formattedFeedbacks = feedbacks.map(feedback => ({
+            classroom: feedback.classroomId ? {
+                name: feedback.classroomId.name,
+                subject: feedback.classroomId.subject
+            } : "Unknown",
+            assignment: feedback.assignmentId ? {
+                title: feedback.assignmentId.title,
+                description: feedback.assignmentId.description
+            } : "Unknown",
+            teacher: feedback.teacherId ? {
+                name: feedback.teacherId.name,
+                email: feedback.teacherId.email
+            } : "Unknown",
+            aiFeedback: feedback.aiFeedback || "No AI feedback provided",
+            teacherFeedback: feedback.teacherFeedback || "No teacher feedback provided",
+            finalFeedback: feedback.finalFeedback,
+            grade: feedback.grade
+        }));
+
+        console.log("Final Response Data:", { joinedClassrooms: formattedClassrooms, feedbacks: formattedFeedbacks });
+        res.json({ joinedClassrooms: formattedClassrooms, feedbacks: formattedFeedbacks });
 
     } catch (error) {
         console.error("Error fetching student dashboard:", error);
         res.status(500).json({ message: "Server error, try again later!" });
     }
 });
+
+
 
 
 // to fetch all classroom create detail of every teacher
@@ -451,7 +498,7 @@ app.get("/teacher-dashboard", async (req, res) => {
             return res.status(401).json({ message: "Unauthorized! Please log in." });
         }
 
-        console.log("Fetching details for User ID:", req.session.userId);
+        console.log("Fetching details for Teacher ID:", req.session.userId);
 
         // Fetch teacher data from database
         const teacher = await Teacher.findById(req.session.userId);
@@ -464,14 +511,32 @@ app.get("/teacher-dashboard", async (req, res) => {
 
         // Check if teacher has created any classrooms
         if (!teacher.createdClassrooms || teacher.createdClassrooms.length === 0) {
-            return res.json({ createdClassrooms: [] }); // Corrected key name
+            return res.json({ createdClassrooms: [] });
         }
 
-        // Fetch classroom details using the IDs in the createdClassrooms array
-        const classrooms = await ClassroomCreate.find({ _id: { $in: teacher.createdClassrooms } });
+        // Fetch classroom details and populate necessary fields
+        const classrooms = await ClassroomCreate.find({ _id: { $in: teacher.createdClassrooms } })
+            .populate("topics", "title description createdAt") // Fetch topics
+            .populate("joinedStudents", "_id") // Fetch students (only count)
+            // .populate("learningAssessments", "status") // Fetch learning assessment status (if exists)
+            .exec();
 
-        // Send classroom details to frontend
-        res.json({ createdClassrooms: classrooms });
+        // Format classroom data
+        const formattedClassrooms = classrooms.map(classroom => ({
+            className: classroom.name,
+            subject: classroom.subject,
+            studentCount: classroom.joinedStudents.length,
+            topicCount: classroom.topics.length,
+            learningAssessmentStatus: classroom.learningAssessments?.status || "Not Available",
+            recentTopics: classroom.topics.slice(-3).map(topic => ({
+                title: topic.title,
+                description: topic.description,
+                createdAt: topic.createdAt
+            }))
+        }));
+
+        console.log("Final Response Data:", formattedClassrooms);
+        res.json({ createdClassrooms: formattedClassrooms });
 
     } catch (error) {
         console.error("Error fetching teacher dashboard:", error);
@@ -480,6 +545,276 @@ app.get("/teacher-dashboard", async (req, res) => {
 });
 
 
+
+
+// classcode se details
+app.get("/classroom/:classcode", async (req, res) => {
+    try {
+        const { classcode } = req.params;
+
+        console.log("Fetching details for Classroom Code:", classcode);
+
+        // Fetch classroom details using classroomCode
+        const classroom = await ClassroomCreate.findOne({ classroomCode: classcode })
+            .populate("teacherId", "name") // Fetch teacher name
+            .populate({
+                path: "topics",
+                select: "title description createdAt attemptedDate score", // Fetch topic details
+            })
+            // .populate("classFeedback") // Fetch class feedback (assuming it's a referenced model)
+            .exec();
+
+        if (!classroom) {
+            return res.status(404).json({ message: "Classroom not found!" });
+        }
+
+        console.log("Classroom Found:", classroom.name);
+
+        // Format the response
+        const responseData = {
+            className: classroom.name,
+            classJoinedDate: classroom.createdAt, // Use createdAt as joined date
+            teacherName: classroom.teacherId.name,
+            subject: classroom.subject,
+            classDescription: classroom.description,
+            assignments: classroom.topics.map(topic => ({
+                topicName: topic.title,
+                topicDescription: topic.description,
+                topicCreatedDate: topic.createdAt,
+                topicAttemptedDate: topic.attemptedDate || "Not Attempted",
+                score: topic.score || "Not Available"
+            })),
+            classFeedback: classroom.classFeedback || "No feedback available"
+        };
+
+        console.log("Final Response Data:", responseData);
+        res.json(responseData);
+
+    } catch (error) {
+        console.error("Error fetching classroom details:", error);
+        res.status(500).json({ message: "Server error, try again later!" });
+    }
+});
+
+
+// teacher class 
+app.get("/teacher-class/:classcode", async (req, res) => {
+    try {
+        const { classcode } = req.params;
+
+        console.log("Fetching full details for Classroom Code:", classcode);
+
+        // Fetch classroom details using classroomCode
+        const classroom = await ClassroomCreate.findOne({ classroomCode: classcode })
+            .populate("teacherId", "name email username") // Fetch teacher details
+            .populate({
+                path: "topics",
+                select: "title description createdAt attemptedDate score", // Fetch topic details
+            })
+            .populate({
+                path: "joinedStudents",
+                select: "name email username joinedAt", // Fetch student details
+            })
+            .exec();
+
+        if (!classroom) {
+            return res.status(404).json({ message: "Classroom not found!" });
+        }
+
+        console.log("Classroom Found:", classroom.name);
+
+        // Format the response
+        const responseData = {
+            className: classroom.name,
+            subject: classroom.subject,
+            classDescription: classroom.description,
+            classCreatedDate: classroom.createdAt,
+            teacher: {
+                name: classroom.teacherId.name,
+                email: classroom.teacherId.email,
+                username: classroom.teacherId.username,
+            },
+            students: classroom.joinedStudents.map(student => ({
+                name: student.name,
+                email: student.email,
+                username: student.username,
+            })),
+            topics: classroom.topics.map(topic => ({
+                topicName: topic.title,
+                topicDescription: topic.description,
+                topicCreatedDate: topic.createdAt,
+                topicAttemptedDate: topic.attemptedDate || "Not Attempted",
+                score: topic.score || "Not Available"
+            }))
+        };
+
+        console.log("Final Response Data:", responseData);
+        res.json(responseData);
+
+    } catch (error) {
+        console.error("Error fetching teacher class details:", error);
+        res.status(500).json({ message: "Server error, try again later!" });
+    }
+});
+
+
+
+// ✅ Route: Add feedback to a student in a class
+app.post("/classroom/:classcode/student/:studentId/feedback", async (req, res) => {
+    try {
+        const { classcode, studentId } = req.params;
+        const { feedbackMessage } = req.body;
+        const teacherId = req.session.userId; // Ensure userId exists
+
+        console.log("Session Data:", req.session); // 🔍 Debugging session data
+        if (!teacherId) {
+            return res.status(403).json({ message: "Unauthorized! Teacher ID missing." });
+        }
+
+        // 1️⃣ Find the classroom using class code
+        const classroom = await ClassroomCreate.findOne({ classroomCode: classcode });
+        if (!classroom) {
+            return res.status(404).json({ message: "Classroom not found!" });
+        }
+
+        console.log("Classroom Found:", classroom);
+
+        // 2️⃣ Ensure student is part of this class (Convert studentId to ObjectId for proper comparison)
+        const studentObjectId = new mongoose.Types.ObjectId(studentId);
+        const isStudentInClass = classroom.joinedStudents.some(id => id.equals(studentObjectId));
+
+        if (!isStudentInClass) {
+            return res.status(404).json({ message: "Student not found in this class!" });
+        }
+
+        // 3️⃣ Find the student and ensure feedback array exists
+        const student = await Student.findById(studentId);
+        if (!student) {
+            return res.status(404).json({ message: "Student not found!" });
+        }
+
+        console.log("Student Found:", student);
+
+        // Ensure feedback array exists
+        if (!student.feedback) {
+            student.feedback = [];
+        }
+
+        // 4️⃣ Add feedback
+        student.feedback.push({
+            teacherId,
+            classroomId: classroom._id,
+            message: feedbackMessage,
+            date: new Date()
+        });
+
+        await student.save();
+
+        res.status(200).json({ message: "Feedback added successfully!" });
+
+    } catch (error) {
+        console.error("❌ Error adding feedback:", error);
+        res.status(500).json({ message: "Server error, try again later!" });
+    }
+});
+
+
+// ✅ GET route to fetch feedback for a student in a classroom
+app.get("/classroom/:classcode/student/:studentId/feedback", async (req, res) => {
+    try {
+        const { classcode, studentId } = req.params;
+
+        // 1️⃣ Find the classroom
+        const classroom = await ClassroomCreate.findOne({ classroomCode: classcode });
+        if (!classroom) {
+            return res.status(404).json({ message: "Classroom not found!" });
+        }
+
+        // 2️⃣ Ensure student is part of this class
+        if (!classroom.joinedStudents.includes(studentId)) {
+            return res.status(404).json({ message: "Student not found in this class!" });
+        }
+
+        // 3️⃣ Find student and filter feedback for this class
+        const student = await Student.findById(studentId);
+        if (!student) {
+            return res.status(404).json({ message: "Student not found!" });
+        }
+
+        const feedbackForClass = student.feedback.filter(
+            (fb) => fb.classroomId.toString() === classroom._id.toString()
+        );
+
+        res.status(200).json({
+            studentId: student._id,
+            studentName: student.name,
+            feedback: feedbackForClass
+        });
+
+    } catch (error) {
+        console.error("Error fetching feedback:", error);
+        res.status(500).json({ message: "Server error, try again later!" });
+    }
+});
+
+
+
+// delete student from class by teacher
+app.delete("/classroom/:classcode/student/:studentId", async (req, res) => {
+    try {
+        const { classcode, studentId } = req.params;
+        const teacherId = req.session?.userId; // Get logged-in teacher's ID
+
+        console.log("Session Data:", req.session); // 🔍 Debugging session data
+
+        if (!teacherId) {
+            return res.status(403).json({ message: "Unauthorized! Teacher ID missing." });
+        }
+
+        // 1️⃣ Find the classroom by classcode
+        const classroom = await ClassroomCreate.findOne({ classroomCode: classcode });
+        if (!classroom) {
+            return res.status(404).json({ message: "Classroom not found!" });
+        }
+
+        console.log("Classroom Found:", classroom);
+
+        // 2️⃣ Check if the teacher owns this class
+        if (classroom.teacherId.toString() !== teacherId) {
+            return res.status(403).json({ message: "Unauthorized! You do not own this class." });
+        }
+
+        // 3️⃣ Convert studentId to ObjectId for proper comparison
+        const studentObjectId = new mongoose.Types.ObjectId(studentId);
+
+        // 4️⃣ Check if student is part of this class
+        const studentIndex = classroom.joinedStudents.findIndex(id => id.equals(studentObjectId));
+        if (studentIndex === -1) {
+            return res.status(404).json({ message: "Student not found in this class!" });
+        }
+
+        // 5️⃣ Remove student from `joinedStudents` array
+        classroom.joinedStudents.splice(studentIndex, 1);
+        await classroom.save();
+
+        console.log("Updated Classroom:", classroom);
+
+        // 6️⃣ Remove class from `joinedClassrooms` in Student schema
+        const student = await Student.findById(studentId);
+        if (student) {
+            student.joinedClassrooms = student.joinedClassrooms.filter(
+                classId => !classId.equals(classroom._id)
+            );
+            await student.save();
+        }
+
+        res.status(200).json({ message: "Student removed from class successfully!" });
+
+    } catch (error) {
+        console.error("❌ Error removing student:", error);
+        res.status(500).json({ message: "Server error, try again later!" });
+    }
+});
 
 // ✅ 1. Add Topic to a Classroom (Teacher Must be Logged In)
 app.post("/classroom/:classroomId/topic", async (req, res) => {
