@@ -22,6 +22,7 @@ const Question = require("./Models/question");
 
 const authRoutes = require("./routes/authRoutes");
 const classroomRoutes = require("./routes/classroomRoutes");
+const contentRoutes = require("./routes/contentRoutes");
 const geminiRoutes = require("./routes/geminiRoutes");
 // const UniqueCodeTeacher = "#Education";
 
@@ -269,12 +270,10 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/classroom", classroomRoutes);
+app.use("/api/content", contentRoutes);
 app.use("/api/gemini", geminiRoutes);
 
-app.get("/test/:id", (req, res) => {
-    let { id } = req.params;
-    res.send(`received id from frontend is : ${id}`);
-});
+app.use("/uploads", express.static("uploads"));
 
 
 app.get("/sessionId", (req, res) => {
