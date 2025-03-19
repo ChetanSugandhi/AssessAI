@@ -32,6 +32,9 @@ const TeacherClass = () => {
     title: '',
     description: '',
   });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
 
   useEffect(() => {
     const fetchClassroomData = async () => {
@@ -55,6 +58,20 @@ const TeacherClass = () => {
       fetchClassroomData();
     }
   }, [classcode]);
+
+  // Refresh data after adding a new assignment/topic
+  const refreshClassroomData = async () => {
+    try {
+      const response = await fetch(`http://localhost:7777/classroom/${classcode}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch classroom data: ${response.status}`);
+      }
+      const data = await response.json();
+      setClassroom(data);
+    } catch (err) {
+      console.error("Error refreshing classroom data:", err);
+    }
+  };
 
   // Dummy performance metrics (would typically come from API)
   const performanceMetrics = {
@@ -111,11 +128,52 @@ const TeacherClass = () => {
     setIsAddingAssessmentData(true);
   };
 
-  const handleSubmitAssignment = (e) => {
+  const handleSubmitAssignment = async (e) => {
     e.preventDefault();
-    // Would typically send to API
-    console.log('Creating new assignment:', newAssignment);
-    setIsAddingAssignment(false);
+    setSubmitting(true);
+    setSubmitError(null);
+    setSubmitSuccess(false);
+    
+    try {
+      // Make API call to add a new topic
+      const response = await fetch(`http://localhost:7777/classroom/${classcode}/topic`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: newAssignment.title,
+          description: newAssignment.description,
+        }),
+        withCredentials: 'true', // Important for sending session cookies
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to add assignment');
+      }
+      
+      const data = await response.json();
+      console.log('Assignment added successfully:', data);
+      
+      // Reset form and close dialog
+      setNewAssignment({ title: '', description: '' });
+      setSubmitSuccess(true);
+      
+      // Refresh classroom data to show the new assignment
+      await refreshClassroomData();
+      
+      // Close the dialog after a short delay to show success message
+      setTimeout(() => {
+        setIsAddingAssignment(false);
+        setSubmitSuccess(false);
+      }, 1500);
+    } catch (err) {
+      console.error('Error adding assignment:', err);
+      setSubmitError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleSubmitAssessmentData = (e) => {
@@ -517,6 +575,20 @@ const TeacherClass = () => {
               </button>
             </div>
             <form className="space-y-4" onSubmit={handleSubmitAssignment}>
+              {submitSuccess && (
+                <div className="bg-green-500/20 border border-green-500/30 text-green-400 p-3 rounded-lg flex items-center">
+                  <CheckCircle className="mr-2" size={18} />
+                  Assignment created successfully!
+                </div>
+              )}
+              
+              {submitError && (
+                <div className="bg-red-500/20 border border-red-500/30 text-red-400 p-3 rounded-lg flex items-center">
+                  <AlertCircle className="mr-2" size={18} />
+                  {submitError}
+                </div>
+              )}
+              
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-1">
                   Assignment Title
@@ -527,6 +599,7 @@ const TeacherClass = () => {
                   onChange={(e) => setNewAssignment({ ...newAssignment, title: e.target.value })}
                   className="w-full bg-slate-800 rounded-lg border border-slate-700 p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                   placeholder="Enter assignment title"
+                  required
                 />
               </div>
               <div>
@@ -538,6 +611,7 @@ const TeacherClass = () => {
                   onChange={(e) => setNewAssignment({ ...newAssignment, description: e.target.value })}
                   className="w-full bg-slate-800 rounded-lg border border-slate-700 p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent h-32"
                   placeholder="Enter assignment description"
+                  required
                 />
               </div>
               <div className="flex space-x-3 mt-6">
@@ -545,14 +619,26 @@ const TeacherClass = () => {
                   type="button"
                   onClick={() => setIsAddingAssignment(false)}
                   className="flex-1 bg-slate-800 hover:bg-slate-700 text-white py-2 rounded-lg transition-colors"
+                  disabled={submitting}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white py-2 rounded-lg transition-colors"
+                  className="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white py-2 rounded-lg transition-colors flex items-center justify-center"
+                  disabled={submitting}
                 >
-                  Create Assignment
+                  {submitting ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Creating...
+                    </>
+                  ) : (
+                    'Create Assignment'
+                  )}
                 </button>
               </div>
             </form>
