@@ -28,37 +28,12 @@ const TeacherDashboard = () => {
     name: '',
     subject: '',
     description: '',
-    classroomCode : ''
+    classroomCode: ''
   });
 
-  const [classrooms, setClassrooms] = useState([
-    {
-      id: 1,
-      name: 'Advanced Mathematics',
-      subject: 'Mathematics',
-      students: 28,
-      assignmentsCount: 15,
-      learningAssessment: true,
-      recentAssignments: [
-        { id: 1, title: 'Calculus Integration',  status: 'pending' },
-        { id: 2, title: 'Linear Algebra Quiz',  status: 'pending' },
-        { id: 3, title: 'Differential Equations',  status: 'completed' }
-      ]
-    },
-    {
-      id: 2,
-      name: 'Computer Science Fundamentals',
-      subject: 'Computer Science',
-      students: 35,
-      assignmentsCount: 12,
-      learningAssessment: false,
-      recentAssignments: [
-        { id: 1, title: 'Python Programming',  status: 'pending' },
-        { id: 2, title: 'Data Structures',  status: 'completed' },
-        { id: 3, title: 'Algorithm Analysis', status: 'completed' }
-      ]
-    }
-  ]);
+  const [classrooms, setClassrooms] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [aiInsights, setAiInsights] = useState({
     totalAssignmentsGraded: 456,
@@ -82,41 +57,85 @@ const TeacherDashboard = () => {
     }
   ]);
 
+  // Fetch classrooms data from backend
+  useEffect(() => {
+    const fetchClassrooms = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get('http://localhost:7777/teacher-dashboard', { withCredentials: true });
+        
+        if (response.data && response.data.createdClassrooms) {
+          // Map the backend data structure to match our component's expected format
+          const mappedClassrooms = response.data.createdClassrooms.map((classroom, index) => ({
+            id: index + 1,
+            name: classroom.className,
+            subject: classroom.subject,
+            classCode: classroom.classCode,
+            students: classroom.studentCount,
+            assignmentsCount: classroom.topicCount,
+            learningAssessment: classroom.learningAssessmentStatus === "Available",
+            recentAssignments: classroom.recentTopics.map((topic, topicIndex) => ({
+              id: topicIndex + 1,
+              title: topic.title || topic.name || "Untitled Topic",
+              status: topic.status || "pending"
+            })) || []
+          }));
+          
+          setClassrooms(mappedClassrooms);
+        }
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching classrooms:", err);
+        setError("Failed to load classrooms. Please try again later.");
+        setLoading(false);
+      }
+    };
+
+    fetchClassrooms();
+  }, []);
+
   const handleCreateClassroom = async (e) => {
     e.preventDefault();
 
     try {
-        const response = await axios.post("http://localhost:7777/create", {
-            name: newClassroom.name,
-            subject: newClassroom.subject,
-            classroomCode: newClassroom.classroomCode, // Typo fix: "classsroomCode" → "classroomCode"
-            description: newClassroom.description,
-          // add user here
+      const response = await axios.post("http://localhost:7777/create", {
+        name: newClassroom.name,
+        subject: newClassroom.subject,
+        classroomCode: newClassroom.classroomCode,
+        description: newClassroom.description,
+      }, { withCredentials: true });
 
-        }, { withCredentials: true }); // Ensures cookies/session is sent if using authentication
-
-        if (response.data.message === "Classroom created successfully") {
-            const newClass = {
-                id: classrooms.length + 1,
-                ...newClassroom,
-                students: 0,
-                assignmentsCount: 0,
-                learningAssessment: false,
-                lastActive: "Just created",
-                recentAssignments: [],
-            };
-
-            setClassrooms([...classrooms, newClass]);
-            setNewClassroom({ name: "", subject: "", description: "", classroomCode: "" });
-            setIsDialogOpen(false);
-        } else {
-            alert("Error: " + response.data.message);
+      if (response.data.message === "Classroom created successfully") {
+        // Refresh classroom data after creating a new one
+        const dashboardResponse = await axios.get('http://localhost:7777/teacher-dashboard', { withCredentials: true });
+        
+        if (dashboardResponse.data && dashboardResponse.data.createdClassrooms) {
+          const mappedClassrooms = dashboardResponse.data.createdClassrooms.map((classroom, index) => ({
+            id: index + 1,
+            name: classroom.className,
+            subject: classroom.subject,
+            students: classroom.studentCount,
+            assignmentsCount: classroom.topicCount,
+            learningAssessment: classroom.learningAssessmentStatus === "Available",
+            recentAssignments: classroom.recentTopics.map((topic, topicIndex) => ({
+              id: topicIndex + 1,
+              title: topic.title || topic.name || "Untitled Topic",
+              status: topic.status || "pending"
+            })) || []
+          }));
+          
+          setClassrooms(mappedClassrooms);
         }
+        
+        setNewClassroom({ name: "", subject: "", description: "", classroomCode: "" });
+        setIsDialogOpen(false);
+      } else {
+        alert("Error: " + response.data.message);
+      }
     } catch (error) {
-        alert(error.response?.data?.message || "Error creating classroom!");
+      alert(error.response?.data?.message || "Error creating classroom!");
     }
-};
-
+  };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -131,8 +150,9 @@ const TeacherDashboard = () => {
     }
   };
 
-    const navigate = useNavigate();
-    const handleHome = () => { navigate(-1)}
+  const navigate = useNavigate();
+  const handleHome = () => { navigate(-1) };
+
   return (
     <div className="min-h-screen bg-slate-950 text-white p-6">
       {/* Create Classroom Dialog */}
@@ -165,7 +185,7 @@ const TeacherDashboard = () => {
                   Classroom Code
                 </label>
                 <input
-                type='text'
+                  type='text'
                   value={newClassroom.classroomCode}
                   onChange={(e) => setNewClassroom({ ...newClassroom, classroomCode: e.target.value })}
                   className="w-full bg-slate-800 rounded-lg border border-slate-700 p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
@@ -214,9 +234,9 @@ const TeacherDashboard = () => {
           {/* AI Insights & Analytics */}
           <div className="bg-slate-900 rounded-xl shadow-2xl p-6 border border-slate-800 transform transition-all hover:scale-[1.02]">
             <h2 className="text-2xl font-bold text-cyan-400 flex items-center mb-6">
-            <button onClick={handleHome} className="bg-slate-800 p-2 rounded-full mr-4 hover:bg-slate-700 transition-colors">
-              <ArrowLeft />
-            </button>
+              <button onClick={handleHome} className="bg-slate-800 p-2 rounded-full mr-4 hover:bg-slate-700 transition-colors">
+                <ArrowLeft />
+              </button>
               <BarChart2 className="mr-3 text-cyan-500" /> AI Grading Insights
             </h2>
 
@@ -271,75 +291,95 @@ const TeacherDashboard = () => {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {classrooms.map((classroom) => (
-                <div
-                  key={classroom.id}
-                  onClick={() => navigate(`/teacher-class`)}
-                  className="bg-slate-800 rounded-lg p-6 hover:bg-slate-700 transition-colors"
-                >
-                  <div className="flex justify-between items-center mb-4">
-                    <div>
-                      <h3 className="text-xl font-semibold text-cyan-300">{classroom.name}</h3>
-                      <p className="text-sm text-slate-400">{classroom.subject}</p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    <div className="bg-slate-900 p-4 rounded-lg flex items-center">
-                      <Users className="text-blue-400 mr-3" />
+            {loading ? (
+              <div className="flex justify-center items-center h-48">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500"></div>
+              </div>
+            ) : error ? (
+              <div className="bg-red-500/20 text-red-400 p-4 rounded-lg text-center">
+                {error}
+              </div>
+            ) : classrooms.length === 0 ? (
+              <div className="bg-slate-800 rounded-lg p-8 text-center">
+                <p className="text-slate-400">No classrooms found. Create your first classroom to get started.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {classrooms.map((classroom) => (
+                  <div
+                    key={classroom.id}
+                    onClick={() => navigate(`/teacher-class/${classroom.classCode}`)}
+                    className="bg-slate-800 rounded-lg p-6 hover:bg-slate-700 transition-colors cursor-pointer"
+                  >
+                    <div className="flex justify-between items-center mb-4">
                       <div>
-                        <p className="text-sm text-slate-400">Students</p>
-                        <p className="text-lg font-bold">{classroom.students}</p>
+                        <h3 className="text-xl font-semibold text-cyan-300">{classroom.name}</h3>
+                        <p className="text-sm text-slate-400">{classroom.subject}</p>
                       </div>
                     </div>
-                    <div className="bg-slate-900 p-4 rounded-lg flex items-center">
-                      <BookOpen className="text-green-400 mr-3" />
-                      <div>
-                        <p className="text-sm text-slate-400">Assignments</p>
-                        <p className="text-lg font-bold">{classroom.assignmentsCount}</p>
-                      </div>
-                    </div>
-                  </div>
 
-                  <div className="flex items-center justify-between bg-slate-900 p-4 rounded-lg mb-4">
-                    <div className="flex items-center">
-                      <Brain className="text-purple-400 mr-3" />
-                      <span className="text-sm">Learning Assessment</span>
-                    </div>
-                    <span className={`px-3 py-1 rounded-full text-xs ${
-                      classroom.learningAssessment
-                        ? 'bg-green-500/20 text-green-400'
-                        : 'bg-red-500/20 text-red-400'
-                    }`}>
-                      {classroom.learningAssessment ? 'Available' : 'Not Available'}
-                    </span>
-                  </div>
-
-                  {/* Recent Assignments Section */}
-                  <div className="mt-4">
-                    <h4 className="text-sm font-medium text-slate-300 mb-3 flex items-center">
-                      <Calendar className="mr-2 h-4 w-4" /> Recent Assignments
-                    </h4>
-                    <div className="space-y-2">
-                      {classroom.recentAssignments.map((assignment) => (
-                        <div
-                          key={assignment.id}
-                          className="bg-slate-900 p-3 rounded-lg flex items-center justify-between"
-                        >
-                          <div className="flex-1">
-                            <p className="text-sm font-medium">{assignment.title}</p>
-                          </div>
-                          <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(assignment.status)}`}>
-                            {assignment.status.charAt(0).toUpperCase() + assignment.status.slice(1)}
-                          </span>
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div className="bg-slate-900 p-4 rounded-lg flex items-center">
+                        <Users className="text-blue-400 mr-3" />
+                        <div>
+                          <p className="text-sm text-slate-400">Students</p>
+                          <p className="text-lg font-bold">{classroom.students}</p>
                         </div>
-                      ))}
+                      </div>
+                      <div className="bg-slate-900 p-4 rounded-lg flex items-center">
+                        <BookOpen className="text-green-400 mr-3" />
+                        <div>
+                          <p className="text-sm text-slate-400">Assignments</p>
+                          <p className="text-lg font-bold">{classroom.assignmentsCount}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between bg-slate-900 p-4 rounded-lg mb-4">
+                      <div className="flex items-center">
+                        <Brain className="text-purple-400 mr-3" />
+                        <span className="text-sm">Learning Assessment</span>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs ${
+                        classroom.learningAssessment
+                          ? 'bg-green-500/20 text-green-400'
+                          : 'bg-red-500/20 text-red-400'
+                      }`}>
+                        {classroom.learningAssessment ? 'Available' : 'Not Available'}
+                      </span>
+                    </div>
+
+                    {/* Recent Assignments Section */}
+                    <div className="mt-4">
+                      <h4 className="text-sm font-medium text-slate-300 mb-3 flex items-center">
+                        <Calendar className="mr-2 h-4 w-4" /> Recent Assignments
+                      </h4>
+                      {classroom.recentAssignments && classroom.recentAssignments.length > 0 ? (
+                        <div className="space-y-2">
+                          {classroom.recentAssignments.map((assignment) => (
+                            <div
+                              key={assignment.id}
+                              className="bg-slate-900 p-3 rounded-lg flex items-center justify-between"
+                            >
+                              <div className="flex-1">
+                                <p className="text-sm font-medium">{assignment.title}</p>
+                              </div>
+                              <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(assignment.status)}`}>
+                                {assignment.status.charAt(0).toUpperCase() + assignment.status.slice(1)}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="bg-slate-900 p-3 rounded-lg text-center">
+                          <p className="text-sm text-slate-400">No recent assignments</p>
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

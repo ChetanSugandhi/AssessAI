@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Users,
   BookOpen,
@@ -11,50 +11,52 @@ import {
   PieChart,
   Target,
   Award,
+  MessageCircle,
   UserPlus,
   FileText,
   Plus,
   ArrowLeft,
   X
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
-const TeacherClass = ({ classroom, onBack = () => {} }) => {
-  // Dummy data for classroom if classroom prop is not provided or is incomplete
-  const classroomData = classroom || {
-    name: 'Advanced Chemistry',
-    subject: 'Delving into organic compounds and reactions',
-    students: 28,
-    assignmentsCount: 15,
-    learningAssessment: true,
-    lastActive: 'Yesterday',
-    recentAssignments: [
-      { id: 'assign1', title: 'Organic Chemistry Reactions', dueDate: '2025-03-15', status: 'active' },
-      { id: 'assign2', title: 'Spectroscopy Analysis', dueDate: '2025-03-22', status: 'upcoming' },
-      { id: 'assign3', title: 'Lab Report 3', dueDate: '2025-03-08', status: 'completed' },
-    ],
-  };
-
-  const {
-    name = 'Mathematics',
-    subject = 'Master the 12th maths.',
-    students = 0,
-    assignmentsCount = 0,
-    learningAssessment = false,
-    lastActive = 'never',
-    recentAssignments = []
-  } = classroomData;
-
+const TeacherClass = () => {
+  const { classcode } = useParams();
+  const [classroom, setClassroom] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [isAddingAssignment, setIsAddingAssignment] = useState(false);
+  const [isAddingAssessmentData, setIsAddingAssessmentData] = useState(false);
   const [newAssignment, setNewAssignment] = useState({
     title: '',
     description: '',
-    // dueDate: '', // Removed due date
   });
-  const [isAddingAssessmentData, setIsAddingAssessmentData] = useState(false); // State for Learning Assessment Dialog
 
-  // Dummy data for performance metrics
+  useEffect(() => {
+    const fetchClassroomData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`http://localhost:7777/classroom/${classcode}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch classroom data: ${response.status}`);
+        }
+        const data = await response.json();
+        setClassroom(data);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching classroom data:", err);
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    if (classcode) {
+      fetchClassroomData();
+    }
+  }, [classcode]);
+
+  // Dummy performance metrics (would typically come from API)
   const performanceMetrics = {
     averageGrade: 82,
     completionRate: 85,
@@ -66,7 +68,7 @@ const TeacherClass = ({ classroom, onBack = () => {} }) => {
     studentFeedbackNegative: 10,
   };
 
-  // Dummy data for student engagement
+  // Dummy student engagement data (would typically come from API)
   const studentEngagement = {
     daily: 90,
     weekly: 95,
@@ -77,12 +79,7 @@ const TeacherClass = ({ classroom, onBack = () => {} }) => {
   };
 
   // Dummy data for assignments tab
-  const assignmentsData = [
-    { id: 'a1', title: 'Quantum Mechanics Problem Set', description: 'Solve problems from chapters 3 & 4',status: 'active', submissions: 25 },
-    { id: 'a2', title: 'Thermodynamics Essay', description: 'Essay on the laws of thermodynamics',  status: 'active', submissions: 10 },
-    { id: 'a3', title: 'Electromagnetism Quiz', description: 'Quiz on chapters 5 & 6', status: 'completed', submissions: 28 },
-    { id: 'a4', title: 'Optics Lab Report', description: 'Report on the recent optics lab experiment',  status: 'completed', submissions: 28 },
-  ];
+  const assignmentsData = classroom?.assignments || [];
 
   // Dummy data for students tab
   const studentsData = [
@@ -92,9 +89,7 @@ const TeacherClass = ({ classroom, onBack = () => {} }) => {
     { id: 's4', name: 'Diana Prince', grade: 95, participation: 98 },
     { id: 's5', name: 'Ethan Hunt', grade: 85, participation: 92 },
     { id: 's6', name: 'Fiona Goode', grade: 80, participation: 88  },
-    // ... more students
   ];
-
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -114,10 +109,63 @@ const TeacherClass = ({ classroom, onBack = () => {} }) => {
 
   const handleAddAssessmentData = () => {
     setIsAddingAssessmentData(true);
-    // Implement logic to add learning assessment data here
-    console.log('Add Learning Assessment Data');
   };
 
+  const handleSubmitAssignment = (e) => {
+    e.preventDefault();
+    // Would typically send to API
+    console.log('Creating new assignment:', newAssignment);
+    setIsAddingAssignment(false);
+  };
+
+  const handleSubmitAssessmentData = (e) => {
+    e.preventDefault();
+    // Would typically send to API
+    console.log('Adding assessment data');
+    setIsAddingAssessmentData(false);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
+        <p className="text-xl text-cyan-400">Loading classroom data...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center">
+        <p className="text-xl text-red-400 mb-4">Error loading classroom data</p>
+        <p className="text-slate-400">{error}</p>
+        <button 
+          onClick={goBack}
+          className="mt-4 bg-cyan-600 hover:bg-cyan-700 px-4 py-2 rounded-lg transition-colors"
+        >
+          Go Back
+        </button>
+      </div>
+    );
+  }
+
+  const { 
+    className = 'Untitled Class',
+    subject = '',  
+    classDescription = '',
+    teacherName = '',
+    classJoinedDate = '',
+    classFeedback = 'No feedback available',
+    assignments = []
+  } = classroom || {};
+
+  // Format the date for display
+  const formattedDate = new Date(classJoinedDate).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+
+  const students = 28; // Placeholder - would come from API
 
   return (
     <div className="min-h-screen bg-slate-950 text-white p-6">
@@ -131,8 +179,8 @@ const TeacherClass = ({ classroom, onBack = () => {} }) => {
             <ArrowLeft className="text-cyan-400" />
           </button>
           <div>
-            <h1 className="text-3xl font-bold text-cyan-400">{name}</h1>
-            <p className="text-slate-400">{subject}</p>
+            <h1 className="text-3xl font-bold text-cyan-400">{className}</h1>
+            <p className="text-slate-400">{classDescription}</p>
           </div>
         </div>
         <div className="flex space-x-4">
@@ -163,11 +211,11 @@ const TeacherClass = ({ classroom, onBack = () => {} }) => {
 
       {/* Main Content based on Tab */}
       {activeTab === 'overview' && (
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Class Overview */}
-          <div className="col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-6">
             {/* Quick Stats */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="bg-slate-900 p-4 rounded-xl border border-slate-800">
                 <div className="flex items-center justify-between mb-2">
                   <Users className="text-blue-400" />
@@ -180,14 +228,14 @@ const TeacherClass = ({ classroom, onBack = () => {} }) => {
                   <BookOpen className="text-green-400" />
                   <span className="text-xs text-slate-400">Assignments</span>
                 </div>
-                <p className="text-2xl font-bold">{assignmentsCount}</p>
+                <p className="text-2xl font-bold">{assignments.length}</p>
               </div>
               <div className="bg-slate-900 p-4 rounded-xl border border-slate-800">
                 <div className="flex items-center justify-between mb-2">
                   <Target className="text-purple-400" />
-                  <span className="text-xs text-slate-400">Completion Rate</span>
+                  <span className="text-xs text-slate-400">Teacher</span>
                 </div>
-                <p className="text-2xl font-bold">{performanceMetrics.completionRate}%</p>
+                <p className="text-2xl font-bold">{teacherName}</p>
               </div>
             </div>
 
@@ -196,7 +244,7 @@ const TeacherClass = ({ classroom, onBack = () => {} }) => {
               <h2 className="text-xl font-bold text-cyan-400 mb-4 flex items-center">
                 <BarChart2 className="mr-2" /> Class Performance
               </h2>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <span className="text-slate-400">Average Grade</span>
@@ -251,56 +299,83 @@ const TeacherClass = ({ classroom, onBack = () => {} }) => {
                 <h2 className="text-xl font-bold text-cyan-400 flex items-center">
                   <Calendar className="mr-2" /> Recent Assignments
                 </h2>
-                <button className="text-sm text-cyan-400 hover:text-cyan-300">View All</button>
+                <button 
+                  onClick={() => setActiveTab('assignments')}
+                  className="text-sm text-cyan-400 hover:text-cyan-300"
+                >
+                  View All
+                </button>
               </div>
               <div className="space-y-3">
-                {recentAssignments.map((assignment) => (
-                  <div
-                    key={assignment.id}
-                    className="bg-slate-800 p-4 rounded-lg flex items-center justify-between hover:bg-slate-700 transition-colors"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <FileText className="text-slate-400" />
-                      <div>
-                        <h3 className="font-medium">{assignment.title}</h3>
-                        <p className="text-sm text-slate-400">Due: {assignment.dueDate}</p>
+                {assignments.length > 0 ? (
+                  assignments.slice(0, 3).map((assignment, index) => (
+                    <div
+                      key={index}
+                      className="bg-slate-800 p-4 rounded-lg flex items-center justify-between hover:bg-slate-700 transition-colors"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <FileText className="text-slate-400" />
+                        <div>
+                          <h3 className="font-medium">{assignment.title || 'Untitled Assignment'}</h3>
+                          <p className="text-sm text-slate-400">
+                            {assignment.dueDate ? `Due: ${new Date(assignment.dueDate).toLocaleDateString()}` : 'No due date'}
+                          </p>
+                        </div>
                       </div>
+                      <span className={`px-3 py-1 rounded-full text-xs ${getStatusColor(assignment.status || 'active')}`}>
+                        {(assignment.status || 'active').charAt(0).toUpperCase() + 
+                         (assignment.status || 'active').slice(1)}
+                      </span>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-xs ${getStatusColor(assignment.status)}`}>
-                      {assignment.status.charAt(0).toUpperCase() + assignment.status.slice(1)}
-                    </span>
+                  ))
+                ) : (
+                  <div className="text-center p-4 text-slate-400">
+                    No assignments yet. Create your first assignment!
                   </div>
-                ))}
+                )}
               </div>
             </div>
           </div>
 
           {/* Right Column - Additional Info */}
           <div className="space-y-6">
+            {/* Class Info */}
+            <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
+              <h2 className="text-xl font-bold text-cyan-400 flex items-center mb-4">
+                <BookOpen className="mr-2" /> Class Information
+              </h2>
+              <div className="space-y-4">
+                <div className="flex items-start">
+                  <span className="text-slate-400 w-32">Subject:</span>
+                  <span className="text-white">{subject}</span>
+                </div>
+                <div className="flex items-start">
+                  <span className="text-slate-400 w-32">Created on:</span>
+                  <span className="text-white">{formattedDate}</span>
+                </div>
+                <div className="flex items-start">
+                  <span className="text-slate-400 w-32">Teacher:</span>
+                  <span className="text-white">{teacherName}</span>
+                </div>
+                <div className="flex items-start">
+                  <span className="text-slate-400 w-32">Class Code:</span>
+                  <span className="text-white">{classcode}</span>
+                </div>
+              </div>
+            </div>
+            
             {/* Learning Assessment Status */}
             <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
               <h2 className="text-xl font-bold text-cyan-400 flex items-center mb-4">
                 <Brain className="mr-2" /> Learning Assessment
               </h2>
-              <div className={`p-4 rounded-lg flex justify-between items-center ${learningAssessment
-                ? 'bg-green-500/10 border border-green-500/20'
-                : 'bg-yellow-500/10 border border-yellow-500/20'
-                }`}>
+              <div className="p-4 rounded-lg flex justify-between items-center bg-yellow-500/10 border border-yellow-500/20">
                 <div className="flex items-center">
-                  {learningAssessment ? (
-                    <CheckCircle className="text-green-400 mr-3" />
-                  ) : (
-                    <AlertCircle className="text-yellow-400 mr-3" />
-                  )}
+                  <AlertCircle className="text-yellow-400 mr-3" />
                   <div>
-                    <p className={`font-medium ${learningAssessment ? 'text-green-400' : 'text-yellow-400'
-                      }`}>
-                      {learningAssessment ? 'Assessment Available' : 'Assessment Pending'}
-                    </p>
+                    <p className="font-medium text-yellow-400">Assessment Pending</p>
                     <p className="text-sm text-slate-400 mt-1">
-                      {learningAssessment
-                        ? 'Ready to evaluate student progress'
-                        : 'Waiting for more student data'}
+                      Waiting for more student data
                     </p>
                   </div>
                 </div>
@@ -313,24 +388,13 @@ const TeacherClass = ({ classroom, onBack = () => {} }) => {
               </div>
             </div>
 
-            {/* Class Activity */}
+            {/* Class Feedback */}
             <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
               <h2 className="text-xl font-bold text-cyan-400 flex items-center mb-4">
-                <Clock className="mr-2" /> Recent Activity
+                <MessageCircle className="mr-2" /> Class Feedback
               </h2>
-              <div className="space-y-4">
-                <div className="flex items-center text-sm">
-                  <div className="w-2 h-2 bg-green-400 rounded-full mr-3" />
-                  <p className="text-slate-300">Last active {lastActive}</p>
-                </div>
-                <div className="flex items-center text-sm">
-                  <div className="w-2 h-2 bg-blue-400 rounded-full mr-3" />
-                  <p className="text-slate-300">3 new submissions today</p>
-                </div>
-                <div className="flex items-center text-sm">
-                  <div className="w-2 h-2 bg-purple-400 rounded-full mr-3" />
-                  <p className="text-slate-300">2 assignments due this week</p>
-                </div>
+              <div className="p-4 bg-slate-800 rounded-lg">
+                <p className="text-slate-300">{classFeedback}</p>
               </div>
             </div>
           </div>
@@ -338,31 +402,40 @@ const TeacherClass = ({ classroom, onBack = () => {} }) => {
       )}
 
       {activeTab === 'assignments' && (
-        <div className="col-span-2 space-y-6">
+        <div className="space-y-6">
           <h2 className="text-2xl font-bold text-cyan-400 mb-4">Assignments</h2>
           <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
             <div className="space-y-4">
-              {assignmentsData.map(assignment => (
-                <div key={assignment.id} className="bg-slate-800 p-4 rounded-lg hover:bg-slate-700 transition-colors flex justify-between items-center">
-                  <div>
-                    <h3 className="font-medium text-lg text-cyan-300">{assignment.title}</h3>
-                    <p className="text-slate-400 text-sm">{assignment.description}</p>
+              {assignments.length > 0 ? (
+                assignments.map((assignment, index) => (
+                  <div key={index} className="bg-slate-800 p-4 rounded-lg hover:bg-slate-700 transition-colors flex justify-between items-center">
+                    <div>
+                      <h3 className="font-medium text-lg text-cyan-300">{assignment.title || 'Untitled Assignment'}</h3>
+                      <p className="text-slate-400 text-sm">{assignment.description || 'No description'}</p>
+                    </div>
+                    <div className="text-right">
+                      <span className={`px-3 py-1 rounded-full text-xs ${getStatusColor(assignment.status || 'active')}`}>
+                        {(assignment.status || 'active').charAt(0).toUpperCase() + 
+                         (assignment.status || 'active').slice(1)}
+                      </span>
+                      <p className="text-slate-400 text-sm">
+                        {assignment.submissions ? `Submissions: ${assignment.submissions}/${students}` : 'No submissions yet'}
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <span className={`px-3 py-1 rounded-full text-xs ${getStatusColor(assignment.status)}`}>
-                      {assignment.status.charAt(0).toUpperCase() + assignment.status.slice(1)}
-                    </span>
-                    <p className="text-slate-400 text-sm">Submissions: {assignment.submissions}/{students}</p>
-                  </div>
+                ))
+              ) : (
+                <div className="text-center p-4 text-slate-400">
+                  No assignments yet. Create your first assignment!
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
       )}
 
       {activeTab === 'students' && (
-        <div className="col-span-2 space-y-6">
+        <div className="space-y-6">
           <h2 className="text-2xl font-bold text-cyan-400 mb-4">Students</h2>
           <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
             <ul className="divide-y divide-slate-800">
@@ -385,7 +458,7 @@ const TeacherClass = ({ classroom, onBack = () => {} }) => {
       )}
 
       {activeTab === 'analytics' && (
-        <div className="col-span-3 space-y-6">
+        <div className="space-y-6">
           <h2 className="text-2xl font-bold text-cyan-400 mb-4">Analytics</h2>
 
           {/* Overall Class Performance Analytics */}
@@ -393,7 +466,7 @@ const TeacherClass = ({ classroom, onBack = () => {} }) => {
             <h3 className="text-xl font-bold text-cyan-400 mb-4 flex items-center">
               <PieChart className="mr-2" /> Overall Class Performance
             </h3>
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
                 <p className="text-slate-300 mb-2">Average Grade: <span className="text-cyan-200">{performanceMetrics.averageGrade}%</span></p>
                 <p className="text-slate-300 mb-2">Completion Rate: <span className="text-cyan-200">{performanceMetrics.completionRate}%</span></p>
@@ -414,7 +487,7 @@ const TeacherClass = ({ classroom, onBack = () => {} }) => {
             <h3 className="text-xl font-bold text-cyan-400 mb-4 flex items-center">
               <BarChart2 className="mr-2" /> Student Engagement Trends
             </h3>
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
                 <p className="text-slate-300 mb-2">Daily Engagement: <span className="text-cyan-200">{studentEngagement.daily}%</span></p>
                 <p className="text-slate-300 mb-2">Weekly Engagement: <span className="text-cyan-200">{studentEngagement.weekly}%</span></p>
@@ -430,7 +503,6 @@ const TeacherClass = ({ classroom, onBack = () => {} }) => {
         </div>
       )}
 
-
       {/* Add Assignment Dialog */}
       {isAddingAssignment && (
         <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-sm flex items-center justify-center z-50">
@@ -444,7 +516,7 @@ const TeacherClass = ({ classroom, onBack = () => {} }) => {
                 <X size={24} />
               </button>
             </div>
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleSubmitAssignment}>
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-1">
                   Assignment Title
@@ -468,7 +540,6 @@ const TeacherClass = ({ classroom, onBack = () => {} }) => {
                   placeholder="Enter assignment description"
                 />
               </div>
-              {/* Due Date Removed */}
               <div className="flex space-x-3 mt-6">
                 <button
                   type="button"
@@ -488,8 +559,9 @@ const TeacherClass = ({ classroom, onBack = () => {} }) => {
           </div>
         </div>
       )}
-       {/* Add Learning Assessment Data Dialog */}
-       {isAddingAssessmentData && (
+
+      {/* Add Learning Assessment Data Dialog */}
+      {isAddingAssessmentData && (
         <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-slate-900 rounded-xl p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-6">
@@ -501,7 +573,7 @@ const TeacherClass = ({ classroom, onBack = () => {} }) => {
                 <X size={24} />
               </button>
             </div>
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleSubmitAssessmentData}>
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-1">
                   Assessment Data Input

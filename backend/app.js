@@ -524,6 +524,7 @@ app.get("/teacher-dashboard", async (req, res) => {
         const formattedClassrooms = classrooms.map(classroom => ({
             className: classroom.name,
             subject: classroom.subject,
+            classCode: classroom.classroomCode,
             studentCount: classroom.joinedStudents.length,
             topicCount: classroom.topics.length,
             learningAssessmentStatus: classroom.learningAssessments?.status || "Not Available",
@@ -833,6 +834,7 @@ app.post("/classroom/:classroomId/topic", async (req, res) => {
                 .status(404)
                 .json({ message: "Classroom not found or unauthorized" });
         }
+        
 
         // Naya topic create karein
         const newTopic = new Topic({
