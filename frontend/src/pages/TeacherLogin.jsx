@@ -22,7 +22,7 @@ const TeacherLogin = () => {
     const teacherCode = e.target.teacherCode.value;
 
     try {
-      const response = await axios.post("http://localhost:7777/teacher-signup", {
+      const response = await axios.post("http://localhost:7777/api/auth/teacher-signup", {
         name,
         username,
         email,
@@ -35,8 +35,8 @@ const TeacherLogin = () => {
       if (response.data === "Teacher already exist") {
         alert("Teacher already exists. Please use a different email.");
       } else {
-        alert("Signup successful!");
-        navigate("/teacher-dashboard"); 
+        alert("Signup successful! Please Login");
+        navigate("/teacher-login"); 
       }
     } catch (error) {
       console.error("Error signing up:", error);
@@ -51,12 +51,13 @@ const TeacherLogin = () => {
     const password = e.target.password.value;
 
     try {
-        const response = await axios.post("http://localhost:7777/teacher-login", {
+        const response = await axios.post("http://localhost:7777/api/auth/teacher-login", {
             username,
             password
         });
 
-        if (response.data.success) {
+        if (response.data.token) {
+            localStorage.setItem("token", response.data.token)
             alert("Login successful!");
             window.location.href = "/teacher-dashboard";  // Redirect to the dashboard
         }

@@ -12,6 +12,7 @@ const passport = require("./config/passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const LocalStrategy = require("passport-local");
 const isLoggedIn = require("./authenticateMiddleware.js");
+const auth = require("./middleware/auth");
 
 const Student = require("./Models/student");
 const Teacher = require("./Models/teacher");
@@ -302,7 +303,7 @@ app.get("/auth/check", (req, res) => {
 });
 
 
-app.post("/create", async (req, res) => {
+app.post("/create", auth, async (req, res) => {
     try {
         console.log("Is authenticated:", req.isAuthenticated());
         console.log("User object:", req.user);
@@ -352,7 +353,7 @@ app.post("/create", async (req, res) => {
 
 
 // route to join the classroom (By students)
-app.post("/join", async (req, res) => {
+app.post("/join", auth, async (req, res) => {
     try {
         console.log("📥 Received request:", req.body); // Debug: Check request body
 
@@ -490,7 +491,7 @@ app.get("/student-dashboard", async (req, res) => {
 
 
 // to fetch all classroom create detail of every teacher
-app.get("/teacher-dashboard", async (req, res) => {
+app.get("/teacher-dashboard", auth, async (req, res) => {
     try {
         // Ensure user is authenticated
         if (!req.session.userId) {
@@ -817,18 +818,18 @@ app.delete("/classroom/:classcode/student/:studentId", async (req, res) => {
 });
 
 // ✅ 1. Add Topic to a Classroom (Teacher Must be Logged In)
-app.post("/classroom/:classroomId/topic", async (req, res) => {
+app.post("/classroom/:classroomId/topic", auth, async (req, res) => {
     try {
         // Teacher ki login ID (req.user._id se aayegi)
         const teacherId = req.session.userId;
-        const { title, description } = req.body;
-        const { classroomId } = req.params;
+        const { title, description, classcode } = req.body;
 
         // Classroom check karega ki woh teacher ka hai ya nahi
         const classroom = await ClassroomCreate.findOne({
-            _id: classroomId,
+            classroomCode: classcode,
             teacherId,
         });
+        const classroomId = classroom?._id;
         if (!classroom) {
             return res
                 .status(404)
@@ -847,8 +848,8 @@ app.post("/classroom/:classroomId/topic", async (req, res) => {
         await newTopic.save();
 
         // ✅ Topic ko classroom ke "topics" array mein add karein
-        ClassroomCreate.topics.push(newTopic._id);
-        await ClassroomCreate.save();
+classroom.topics.push(newTopic._id);
+await classroom.save();
 
         res
             .status(201)

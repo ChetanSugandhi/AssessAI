@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 import {
   Users,
@@ -18,17 +18,17 @@ import {
   BookOpen,
   Brain,
   Calendar,
-  ArrowLeft
-} from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+  ArrowLeft,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const TeacherDashboard = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newClassroom, setNewClassroom] = useState({
-    name: '',
-    subject: '',
-    description: '',
-    classroomCode: ''
+    name: "",
+    subject: "",
+    description: "",
+    classroomCode: "",
   });
 
   const [classrooms, setClassrooms] = useState([]);
@@ -39,22 +39,22 @@ const TeacherDashboard = () => {
     totalAssignmentsGraded: 456,
     averageGradingTimeSaved: 75,
     personalizedFeedbackGenerated: 328,
-    learningGapIdentified: 42
+    learningGapIdentified: 42,
   });
 
   const [notifications, setNotifications] = useState([
     {
       id: 1,
-      type: 'assignment',
-      message: 'New assignment submissions for Calculus',
-      timestamp: '2 hours ago'
+      type: "assignment",
+      message: "New assignment submissions for Calculus",
+      timestamp: "2 hours ago",
     },
     {
       id: 2,
-      type: 'performance',
-      message: 'Student performance insights ready',
-      timestamp: '4 hours ago'
-    }
+      type: "performance",
+      message: "Student performance insights ready",
+      timestamp: "4 hours ago",
+    },
   ]);
 
   // Fetch classrooms data from backend
@@ -62,25 +62,36 @@ const TeacherDashboard = () => {
     const fetchClassrooms = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('http://localhost:7777/teacher-dashboard', { withCredentials: true });
-        
+        const token = localStorage.getItem("token");
+        const response = await axios.get(
+          "http://localhost:7777/teacher-dashboard",
+          {
+            withCredentials: true,
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
+
         if (response.data && response.data.createdClassrooms) {
           // Map the backend data structure to match our component's expected format
-          const mappedClassrooms = response.data.createdClassrooms.map((classroom, index) => ({
-            id: index + 1,
-            name: classroom.className,
-            subject: classroom.subject,
-            classCode: classroom.classCode,
-            students: classroom.studentCount,
-            assignmentsCount: classroom.topicCount,
-            learningAssessment: classroom.learningAssessmentStatus === "Available",
-            recentAssignments: classroom.recentTopics.map((topic, topicIndex) => ({
-              id: topicIndex + 1,
-              title: topic.title || topic.name || "Untitled Topic",
-              status: topic.status || "pending"
-            })) || []
-          }));
-          
+          const mappedClassrooms = response.data.createdClassrooms.map(
+            (classroom, index) => ({
+              id: index + 1,
+              name: classroom.className,
+              subject: classroom.subject,
+              classCode: classroom.classCode,
+              students: classroom.studentCount,
+              assignmentsCount: classroom.topicCount,
+              learningAssessment:
+                classroom.learningAssessmentStatus === "Available",
+              recentAssignments:
+                classroom.recentTopics.map((topic, topicIndex) => ({
+                  id: topicIndex + 1,
+                  title: topic.title || topic.name || "Untitled Topic",
+                  status: topic.status || "pending",
+                })) || [],
+            }),
+          );
+
           setClassrooms(mappedClassrooms);
         }
         setLoading(false);
@@ -98,36 +109,59 @@ const TeacherDashboard = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post("http://localhost:7777/create", {
-        name: newClassroom.name,
-        subject: newClassroom.subject,
-        classroomCode: newClassroom.classroomCode,
-        description: newClassroom.description,
-      }, { withCredentials: true });
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        "http://localhost:7777/create",
+        {
+          name: newClassroom.name,
+          subject: newClassroom.subject,
+          classroomCode: newClassroom.classroomCode,
+          description: newClassroom.description,
+        },
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
 
       if (response.data.message === "Classroom created successfully") {
         // Refresh classroom data after creating a new one
-        const dashboardResponse = await axios.get('http://localhost:7777/teacher-dashboard', { withCredentials: true });
-        
-        if (dashboardResponse.data && dashboardResponse.data.createdClassrooms) {
-          const mappedClassrooms = dashboardResponse.data.createdClassrooms.map((classroom, index) => ({
-            id: index + 1,
-            name: classroom.className,
-            subject: classroom.subject,
-            students: classroom.studentCount,
-            assignmentsCount: classroom.topicCount,
-            learningAssessment: classroom.learningAssessmentStatus === "Available",
-            recentAssignments: classroom.recentTopics.map((topic, topicIndex) => ({
-              id: topicIndex + 1,
-              title: topic.title || topic.name || "Untitled Topic",
-              status: topic.status || "pending"
-            })) || []
-          }));
-          
+        const dashboardResponse = await axios.get(
+          "http://localhost:7777/teacher-dashboard",
+          { withCredentials: true },
+        );
+
+        if (
+          dashboardResponse.data &&
+          dashboardResponse.data.createdClassrooms
+        ) {
+          const mappedClassrooms = dashboardResponse.data.createdClassrooms.map(
+            (classroom, index) => ({
+              id: index + 1,
+              name: classroom.className,
+              subject: classroom.subject,
+              students: classroom.studentCount,
+              assignmentsCount: classroom.topicCount,
+              learningAssessment:
+                classroom.learningAssessmentStatus === "Available",
+              recentAssignments:
+                classroom.recentTopics.map((topic, topicIndex) => ({
+                  id: topicIndex + 1,
+                  title: topic.title || topic.name || "Untitled Topic",
+                  status: topic.status || "pending",
+                })) || [],
+            }),
+          );
+
           setClassrooms(mappedClassrooms);
         }
-        
-        setNewClassroom({ name: "", subject: "", description: "", classroomCode: "" });
+
+        setNewClassroom({
+          name: "",
+          subject: "",
+          description: "",
+          classroomCode: "",
+        });
         setIsDialogOpen(false);
       } else {
         alert("Error: " + response.data.message);
@@ -139,19 +173,21 @@ const TeacherDashboard = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'active':
-        return 'bg-blue-500/20 text-blue-400';
-      case 'upcoming':
-        return 'bg-purple-500/20 text-purple-400';
-      case 'completed':
-        return 'bg-green-500/20 text-green-400';
+      case "active":
+        return "bg-blue-500/20 text-blue-400";
+      case "upcoming":
+        return "bg-purple-500/20 text-purple-400";
+      case "completed":
+        return "bg-green-500/20 text-green-400";
       default:
-        return 'bg-red-500/20 text-red-400';
+        return "bg-red-500/20 text-red-400";
     }
   };
 
   const navigate = useNavigate();
-  const handleHome = () => { navigate(-1) };
+  const handleHome = () => {
+    navigate(-1);
+  };
 
   return (
     <div className="min-h-screen bg-slate-950 text-white p-6">
@@ -165,7 +201,9 @@ const TeacherDashboard = () => {
             >
               <X size={24} />
             </button>
-            <h2 className="text-2xl font-bold text-cyan-400 mb-6">Create New Classroom</h2>
+            <h2 className="text-2xl font-bold text-cyan-400 mb-6">
+              Create New Classroom
+            </h2>
             <form onSubmit={handleCreateClassroom} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-1">
@@ -175,7 +213,9 @@ const TeacherDashboard = () => {
                   type="text"
                   required
                   value={newClassroom.name}
-                  onChange={(e) => setNewClassroom({ ...newClassroom, name: e.target.value })}
+                  onChange={(e) =>
+                    setNewClassroom({ ...newClassroom, name: e.target.value })
+                  }
                   className="w-full bg-slate-800 rounded-lg border border-slate-700 p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                   placeholder="Enter Classroom Name"
                 />
@@ -185,9 +225,14 @@ const TeacherDashboard = () => {
                   Classroom Code
                 </label>
                 <input
-                  type='text'
+                  type="text"
                   value={newClassroom.classroomCode}
-                  onChange={(e) => setNewClassroom({ ...newClassroom, classroomCode: e.target.value })}
+                  onChange={(e) =>
+                    setNewClassroom({
+                      ...newClassroom,
+                      classroomCode: e.target.value,
+                    })
+                  }
                   className="w-full bg-slate-800 rounded-lg border border-slate-700 p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                   placeholder="Enter Classroom Code"
                 />
@@ -200,7 +245,12 @@ const TeacherDashboard = () => {
                   type="text"
                   required
                   value={newClassroom.subject}
-                  onChange={(e) => setNewClassroom({ ...newClassroom, subject: e.target.value })}
+                  onChange={(e) =>
+                    setNewClassroom({
+                      ...newClassroom,
+                      subject: e.target.value,
+                    })
+                  }
                   className="w-full bg-slate-800 rounded-lg border border-slate-700 p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                   placeholder="Enter Subject"
                 />
@@ -211,12 +261,17 @@ const TeacherDashboard = () => {
                 </label>
                 <textarea
                   value={newClassroom.description}
-                  onChange={(e) => setNewClassroom({ ...newClassroom, description: e.target.value })}
+                  onChange={(e) =>
+                    setNewClassroom({
+                      ...newClassroom,
+                      description: e.target.value,
+                    })
+                  }
                   className="w-full bg-slate-800 rounded-lg border border-slate-700 p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent h-24"
                   placeholder="Enter Classroom Description"
                 />
               </div>
-              
+
               <button
                 type="submit"
                 className="w-full bg-cyan-600 hover:bg-cyan-700 text-white py-2 rounded-lg transition-colors"
@@ -234,7 +289,10 @@ const TeacherDashboard = () => {
           {/* AI Insights & Analytics */}
           <div className="bg-slate-900 rounded-xl shadow-2xl p-6 border border-slate-800 transform transition-all hover:scale-[1.02]">
             <h2 className="text-2xl font-bold text-cyan-400 flex items-center mb-6">
-              <button onClick={handleHome} className="bg-slate-800 p-2 rounded-full mr-4 hover:bg-slate-700 transition-colors">
+              <button
+                onClick={handleHome}
+                className="bg-slate-800 p-2 rounded-full mr-4 hover:bg-slate-700 transition-colors"
+              >
                 <ArrowLeft />
               </button>
               <BarChart2 className="mr-3 text-cyan-500" /> AI Grading Insights
@@ -244,24 +302,24 @@ const TeacherDashboard = () => {
               {[
                 {
                   icon: <FileCheck className="text-green-400" />,
-                  title: 'Assignments Graded',
-                  value: aiInsights.totalAssignmentsGraded
+                  title: "Assignments Graded",
+                  value: aiInsights.totalAssignmentsGraded,
                 },
                 {
                   icon: <Clock className="text-blue-400" />,
-                  title: 'Grading Time Saved',
-                  value: `${aiInsights.averageGradingTimeSaved}%`
+                  title: "Grading Time Saved",
+                  value: `${aiInsights.averageGradingTimeSaved}%`,
                 },
                 {
                   icon: <GitPullRequest className="text-purple-400" />,
-                  title: 'Personalized Feedback',
-                  value: aiInsights.personalizedFeedbackGenerated
+                  title: "Personalized Feedback",
+                  value: aiInsights.personalizedFeedbackGenerated,
                 },
                 {
                   icon: <TrendingUp className="text-orange-400" />,
-                  title: 'Learning Gaps Identified',
-                  value: aiInsights.learningGapIdentified
-                }
+                  title: "Learning Gaps Identified",
+                  value: aiInsights.learningGapIdentified,
+                },
               ].map((metric) => (
                 <div
                   key={metric.title}
@@ -270,7 +328,9 @@ const TeacherDashboard = () => {
                   <div className="mr-4">{metric.icon}</div>
                   <div>
                     <p className="text-sm text-slate-400">{metric.title}</p>
-                    <p className="text-xl font-bold text-white">{metric.value}</p>
+                    <p className="text-xl font-bold text-white">
+                      {metric.value}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -301,20 +361,29 @@ const TeacherDashboard = () => {
               </div>
             ) : classrooms.length === 0 ? (
               <div className="bg-slate-800 rounded-lg p-8 text-center">
-                <p className="text-slate-400">No classrooms found. Create your first classroom to get started.</p>
+                <p className="text-slate-400">
+                  No classrooms found. Create your first classroom to get
+                  started.
+                </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {classrooms.map((classroom) => (
                   <div
                     key={classroom.id}
-                    onClick={() => navigate(`/teacher-class/${classroom.classCode}`)}
+                    onClick={() =>
+                      navigate(`/teacher-class/${classroom.classCode}`)
+                    }
                     className="bg-slate-800 rounded-lg p-6 hover:bg-slate-700 transition-colors cursor-pointer"
                   >
                     <div className="flex justify-between items-center mb-4">
                       <div>
-                        <h3 className="text-xl font-semibold text-cyan-300">{classroom.name}</h3>
-                        <p className="text-sm text-slate-400">{classroom.subject}</p>
+                        <h3 className="text-xl font-semibold text-cyan-300">
+                          {classroom.name}
+                        </h3>
+                        <p className="text-sm text-slate-400">
+                          {classroom.subject}
+                        </p>
                       </div>
                     </div>
 
@@ -323,14 +392,18 @@ const TeacherDashboard = () => {
                         <Users className="text-blue-400 mr-3" />
                         <div>
                           <p className="text-sm text-slate-400">Students</p>
-                          <p className="text-lg font-bold">{classroom.students}</p>
+                          <p className="text-lg font-bold">
+                            {classroom.students}
+                          </p>
                         </div>
                       </div>
                       <div className="bg-slate-900 p-4 rounded-lg flex items-center">
                         <BookOpen className="text-green-400 mr-3" />
                         <div>
                           <p className="text-sm text-slate-400">Assignments</p>
-                          <p className="text-lg font-bold">{classroom.assignmentsCount}</p>
+                          <p className="text-lg font-bold">
+                            {classroom.assignmentsCount}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -340,12 +413,16 @@ const TeacherDashboard = () => {
                         <Brain className="text-purple-400 mr-3" />
                         <span className="text-sm">Learning Assessment</span>
                       </div>
-                      <span className={`px-3 py-1 rounded-full text-xs ${
-                        classroom.learningAssessment
-                          ? 'bg-green-500/20 text-green-400'
-                          : 'bg-red-500/20 text-red-400'
-                      }`}>
-                        {classroom.learningAssessment ? 'Available' : 'Not Available'}
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs ${
+                          classroom.learningAssessment
+                            ? "bg-green-500/20 text-green-400"
+                            : "bg-red-500/20 text-red-400"
+                        }`}
+                      >
+                        {classroom.learningAssessment
+                          ? "Available"
+                          : "Not Available"}
                       </span>
                     </div>
 
@@ -354,7 +431,8 @@ const TeacherDashboard = () => {
                       <h4 className="text-sm font-medium text-slate-300 mb-3 flex items-center">
                         <Calendar className="mr-2 h-4 w-4" /> Recent Assignments
                       </h4>
-                      {classroom.recentAssignments && classroom.recentAssignments.length > 0 ? (
+                      {classroom.recentAssignments &&
+                      classroom.recentAssignments.length > 0 ? (
                         <div className="space-y-2">
                           {classroom.recentAssignments.map((assignment) => (
                             <div
@@ -362,17 +440,24 @@ const TeacherDashboard = () => {
                               className="bg-slate-900 p-3 rounded-lg flex items-center justify-between"
                             >
                               <div className="flex-1">
-                                <p className="text-sm font-medium">{assignment.title}</p>
+                                <p className="text-sm font-medium">
+                                  {assignment.title}
+                                </p>
                               </div>
-                              <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(assignment.status)}`}>
-                                {assignment.status.charAt(0).toUpperCase() + assignment.status.slice(1)}
+                              <span
+                                className={`px-2 py-1 rounded-full text-xs ${getStatusColor(assignment.status)}`}
+                              >
+                                {assignment.status.charAt(0).toUpperCase() +
+                                  assignment.status.slice(1)}
                               </span>
                             </div>
                           ))}
                         </div>
                       ) : (
                         <div className="bg-slate-900 p-3 rounded-lg text-center">
-                          <p className="text-sm text-slate-400">No recent assignments</p>
+                          <p className="text-sm text-slate-400">
+                            No recent assignments
+                          </p>
                         </div>
                       )}
                     </div>
@@ -397,7 +482,7 @@ const TeacherDashboard = () => {
                   className="bg-slate-800 p-4 rounded-lg hover:bg-slate-700 transition-colors flex items-start"
                 >
                   <div className="mr-4">
-                    {notification.type === 'assignment' ? (
+                    {notification.type === "assignment" ? (
                       <FileText className="text-blue-400" />
                     ) : (
                       <BarChart2 className="text-green-400" />
@@ -405,7 +490,9 @@ const TeacherDashboard = () => {
                   </div>
                   <div>
                     <p className="text-sm text-white">{notification.message}</p>
-                    <p className="text-xs text-slate-400 mt-1">{notification.timestamp}</p>
+                    <p className="text-xs text-slate-400 mt-1">
+                      {notification.timestamp}
+                    </p>
                   </div>
                 </div>
               ))}

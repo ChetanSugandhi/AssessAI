@@ -20,7 +20,7 @@ const AuthForm = () => {
     const password = e.target.password.value;
 
     try {
-      const response = await axios.post("http://localhost:7777/student-signup", {
+      const response = await axios.post("http://localhost:7777/api/auth/student-signup", {
         name,
         username,
         email,
@@ -48,7 +48,7 @@ const AuthForm = () => {
     const password = e.target.password.value;
 
     try {
-        const response = await axios.post("http://localhost:7777/student-login", {
+        const response = await axios.post("http://localhost:7777/api/auth/student-login", {
             username,
             password
         });

@@ -6,6 +6,12 @@ module.exports = (req, res, next) => {
       return res.status(401).json({ error: "Unauthorized" });
     }
     req.user = user;
+
+    if (!req.session.userId) {
+      req.session.userId = user.id;
+    }
+      console.log(req.session.userId)
+
     next();
   })(req, res, next);
 };

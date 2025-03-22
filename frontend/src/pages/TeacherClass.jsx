@@ -136,16 +136,19 @@ const TeacherClass = () => {
     
     try {
       // Make API call to add a new topic
+      const token = localStorage.getItem('token');
       const response = await fetch(`http://localhost:7777/classroom/${classcode}/topic`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           title: newAssignment.title,
           description: newAssignment.description,
+          classcode: classcode
         }),
-        withCredentials: 'true', // Important for sending session cookies
+        withCredentials: 'true',
       });
       
       if (!response.ok) {
