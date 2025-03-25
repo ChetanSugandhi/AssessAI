@@ -5,3 +5,5 @@ frontend/.vite/
 backend/node_modules/
 backend/.env
 
+somet/node_modules/
+somet/.env
