@@ -7,9 +7,7 @@ const Header = () => {
   const navigate = useNavigate();
 
   const handleStudentLogin = async () => {
-      try {
-          const response = await axios.post("http://localhost:7777/set-role/student", {}, { withCredentials: true });
-  
+      try {  
           if (response.data.success) {
               window.location.href = "/authform";  // Redirect only after role is set
           }
@@ -30,7 +28,7 @@ const handleTeacherLogin = async () => {
         );
 
         if (response.data.success) {
-            window.location.href = "/authform";  // Redirect only after role is set
+            window.location.href = "/teacher-login";  // Redirect only after role is set
         } else {
             alert("Invalid Teacher Code"); // This will work only if backend sends `success: false`
         }

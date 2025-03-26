@@ -22,7 +22,7 @@ const TeacherLogin = () => {
     const teacherCode = e.target.teacherCode.value;
 
     try {
-      const response = await axios.post("http://localhost:7777/api/auth/teacher-signup", {
+      const response = await axios.post("http://localhost:7777/auth/teacher-signup", {
         name,
         username,
         email,
@@ -51,7 +51,7 @@ const TeacherLogin = () => {
     const password = e.target.password.value;
 
     try {
-        const response = await axios.post("http://localhost:7777/api/auth/teacher-login", {
+        const response = await axios.post("http://localhost:7777/auth/teacher-login", {
             username,
             password
         });

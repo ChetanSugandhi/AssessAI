@@ -111,7 +111,7 @@ const TeacherDashboard = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        "http://localhost:7777/create",
+        "http://localhost:7777/classroom/create",
         {
           name: newClassroom.name,
           subject: newClassroom.subject,
@@ -124,7 +124,7 @@ const TeacherDashboard = () => {
         },
       );
 
-      if (response.data.message === "Classroom created successfully") {
+      if (response.data.classCode) {
         // Refresh classroom data after creating a new one
         const dashboardResponse = await axios.get(
           "http://localhost:7777/teacher-dashboard",

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from "axios";
 import {
   Users,
   BookOpen,
@@ -40,12 +41,15 @@ const TeacherClass = () => {
     const fetchClassroomData = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:7777/classroom/${classcode}`);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch classroom data: ${response.status}`);
-        }
-        const data = await response.json();
-        setClassroom(data);
+        const token = localStorage.getItem("token");
+      const response = await axios.post(
+        "http://localhost:7777/classroom/"`${classcode}`,
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+        setClassroom(response.data);
         setLoading(false);
       } catch (err) {
         console.error("Error fetching classroom data:", err);
