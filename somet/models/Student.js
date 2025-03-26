@@ -12,6 +12,17 @@ const assignmentAttemptSchema = new mongoose.Schema({
   score: { type: Number }, // for quiz
 });
 
+const assessmentAttemptSchema = new mongoose.Schema({
+  assessmentId: { type: mongoose.Schema.Types.ObjectId, required: true },
+  classroomId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Classroom",
+    required: true,
+  },
+  attemptedDate: { type: Date, default: Date.now },
+  score: { type: Number }, // for mini quiz
+});
+
 const studentSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   username: { type: String, required: true, unique: true },
@@ -19,6 +30,8 @@ const studentSchema = new mongoose.Schema({
   name: { type: String, required: true },
   classrooms: [{ type: mongoose.Schema.Types.ObjectId, ref: "Classroom" }],
   assignmentAttempts: [assignmentAttemptSchema],
+  assessmentAttempts: [assessmentAttemptSchema],
+  feedback: { type: String },
 });
 
 studentSchema.pre("save", async function (next) {

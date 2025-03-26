@@ -1,0 +1,35 @@
+import mongoose from "mongoose";
+
+const assessmentSchema = new mongoose.Schema({
+  classroom: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Classroom",
+    required: true,
+  },
+  title: { type: String, required: true },
+  content: {
+    type: { type: String, enum: ["video", "audio", "text"], required: true },
+    urlOrText: { type: String, required: true },
+  },
+  quiz: [
+    {
+      question: { type: String },
+      options: {
+        A: String,
+        B: String,
+        C: String,
+        D: String,
+      },
+      correctAnswer: { type: String, enum: ["A", "B", "C", "D"] },
+    },
+  ],
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Teacher",
+    required: true,
+  },
+  dueDate: { type: Date },
+  createdAt: { type: Date, default: Date.now },
+});
+
+export default mongoose.model("Assessment", assessmentSchema);

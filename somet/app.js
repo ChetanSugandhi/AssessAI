@@ -7,6 +7,7 @@ import authRouter from "./routes/authRouter.js";
 import dashboardRouter from "./routes/dashboardRouter.js";
 import classroomRouter from "./routes/classroomRouter.js";
 import assignmentRouter from "./routes/assignmentRouter.js";
+import assessmentRouter from "./routes/assessmentRouter.js";
 
 const app = express();
 connectDB();
@@ -26,6 +27,7 @@ app.use("/auth", authRouter);
 app.use("/", dashboardRouter);
 app.use("/classroom", classroomRouter);
 app.use("/assignment", assignmentRouter);
+app.use("/assessment", assessmentRouter);
 
 app.get("/", (req, res) => res.send("assesai backend here"));
 app.post("/set-role/teacher", async (req, res) => {

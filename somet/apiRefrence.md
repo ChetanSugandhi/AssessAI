@@ -178,3 +178,58 @@ curl -X POST "http://localhost:7777/assignment/attempt/67e2dad5bf5ff4652fddd3eb"
 ```
 
 ---
+
+## learning assessment create (teacher)
+
+```
+curl -X POST http://localhost:7777/assessment/create \
+                     -H "Content-Type: application/json" \
+                     -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZTJjZmNlM2Y3YzM0ZDM0MDkyNjY0YiIsInJvbGUiOiJ0ZWFjaGVyIiwiaWF0IjoxNzQyOTE3NjEyLCJleHAiOjE3NDU1MDk2MTJ9.8emLWvxQnrCVawFTsqECc9mureSD-0XCujFS54zouLY" \
+                     -d '{
+                   "classcode": "MATH102",
+                   "title": "Linear Equations Basics",
+                   "contentType": "text",
+                   "contentUrlOrText": "To solve a linear equation like 2x + 3 = 7, subtract 3 from both sides, then divide by 2.",
+                   "quizDescription": "Generate questions about the steps to solve linear equations."
+                 }'
+
+{"id":"67e3f4e323f94f8d80a1dd7e","title":"Linear Equations Basics","content":{"type":"text","urlOrText":"To solve a linear equation like 2x + 3 = 7, subtract 3 from both sides, then divide by 2."},"quiz":[{"question":"What is the first step in solving the equation 2x + 5 = 9?","options":{"A":"Divide both sides by 2","B":"Subtract 5 from both sides","C":"Add 5 to both sides","D":"Multiply both sides by 2"}},{"question":"After subtracting 7 from both sides of the equation x + 7 = 12, what equation remains?","options":{"A":"x = 5","B":"x = 19","C":"x = -5","D":"x = 7"}},{"question":"To solve the equation 3x = 15, what operation should be performed on both sides?","options":{"A":"Addition","B":"Subtraction","C":"Multiplication","D":"Division"}},{"question":"What is the solution to the equation 4x - 2 = 10?","options":{"A":"x = 2","B":"x = 3","C":"x = 4","D":"x = 8"}},{"question":"If you have the equation 5x + 10 = 35, what is the value of x after subtracting 10 from both sides?","options":{"A":"x = 5","B":"x = 25","C":"x = 45","D":"x = 50"}}]}
+```
+
+---
+
+## learning assessment attempt (student)
+
+```
+curl -X POST "http://localhost:7777/assessment/attempt/67e3f4e323f94f8d80a1dd7e" \
+                      -H "Content-Type: application/json" \
+                      -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZTJkMWFkM2Y3YzM0ZDM0MDkyNjY1NSIsInJvbGUiOiJzdHVkZW50IiwiaWF0IjoxNzQyOTkyNzIyLCJleHAiOjE3NDU1ODQ3MjJ9.CJ8o1Q3q2wAV2hQxq4iQIS1w-D8z9vPG_vPBhCQxqCw" \
+                      -d '{
+                    "answers": {
+                      "0": "B",
+                      "1": "A",
+                      "2": "D",
+                      "3": "B",
+                      "4": "C",
+                      "5": "A",
+                      "6": "B",
+                      "7": "C"
+                    }
+                  }'
+
+{"assessmentId":"67e3f4e323f94f8d80a1dd7e","score":80,"submittedAt":"2025-03-26T12:51:51.284Z"}
+```
+
+---
+
+## learning assessment fetch for classroom
+
+```
+curl -X GET http://localhost:7777/assessment/classroom/MATH102 \
+                      -H "Content-Type: application/json" \
+                      -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZTJkMWFkM2Y3YzM0ZDM0MDkyNjY1NSIsInJvbGUiOiJzdHVkZW50IiwiaWF0IjoxNzQyOTkyNzIyLCJleHAiOjE3NDU1ODQ3MjJ9.CJ8o1Q3q2wAV2hQxq4iQIS1w-D8z9vPG_vPBhCQxqCw"
+
+[{"_id":"67e3f4e323f94f8d80a1dd7e","classroom":"67e2d2ee3f7c34d340926661","title":"Linear Equations Basics","content":{"type":"text","urlOrText":"To solve a linear equation like 2x + 3 = 7, subtract 3 from both sides, then divide by 2."},"quiz":[{"question":"What is the first step in solving the equation 2x + 5 = 9?","options":{"A":"Divide both sides by 2","B":"Subtract 5 from both sides","C":"Add 5 to both sides","D":"Multiply both sides by 2"},"correctAnswer":"B","_id":"67e3f4e323f94f8d80a1dd7f"},{"question":"After subtracting 7 from both sides of the equation x + 7 = 12, what equation remains?","options":{"A":"x = 5","B":"x = 19","C":"x = -5","D":"x = 7"},"correctAnswer":"A","_id":"67e3f4e323f94f8d80a1dd80"},{"question":"To solve the equation 3x = 15, what operation should be performed on both sides?","options":{"A":"Addition","B":"Subtraction","C":"Multiplication","D":"Division"},"correctAnswer":"D","_id":"67e3f4e323f94f8d80a1dd81"},{"question":"What is the solution to the equation 4x - 2 = 10?","options":{"A":"x = 2","B":"x = 3","C":"x = 4","D":"x = 8"},"correctAnswer":"B","_id":"67e3f4e323f94f8d80a1dd82"},{"question":"If you have the equation 5x + 10 = 35, what is the value of x after subtracting 10 from both sides?","options":{"A":"x = 5","B":"x = 25","C":"x = 45","D":"x = 50"},"correctAnswer":"A","_id":"67e3f4e323f94f8d80a1dd83"}],"createdBy":{"_id":"67e2cfce3f7c34d34092664b","email":"ac@ac.com","name":"Anupam Jain"},"createdAt":"2025-03-26T12:36:51.362Z","__v":0}]
+```
+
+---
