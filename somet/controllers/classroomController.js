@@ -1,6 +1,7 @@
 import Classroom from "../models/Classroom.js";
 import Student from "../models/Student.js";
 import Assignment from "../models/Assignment.js";
+import { generateClassroomFeedback } from "../utils/gemini/feedback.js";
 
 // Teacher: Create a new classroom
 export const createClassroom = async (req, res) => {
@@ -156,5 +157,56 @@ export const getClassroomDetails = async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const generateClassFeedback = async (req, res) => {
+  const { classcode } = req.params;
+  const teacherId = req.user._id;
+
+  try {
+    const classroom = await Classroom.findOne({ classroomCode: classcode });
+    if (!classroom || classroom.teacher.toString() !== teacherId.toString()) {
+      return res
+        .status(403)
+        .json({ message: "Unauthorized or classroom not found" });
+    }
+
+    const students = await Student.find({ classrooms: classroom._id }).select(
+      "assignmentAttempts assessmentAttempts",
+    );
+
+    const studentPerformances = students.map((student) => ({
+      studentId: student._id,
+      assignments: student.assignmentAttempts.map((a) => ({
+        score: a.score,
+        feedbacks: a.responses.map((r) => r.feedback),
+      })),
+      assessments: student.assessmentAttempts.map((a) => ({
+        score: a.score,
+        feedbacks: a.responses.map((r) => r.feedback),
+      })),
+    }));
+
+    const feedbackResult = await generateClassroomFeedback(studentPerformances);
+
+    classroom.overallFeedback = {
+      feedback: feedbackResult.feedback,
+      summary: feedbackResult.summary,
+      generatedAt: new Date(),
+    };
+    await classroom.save();
+
+    res.json({
+      feedback: classroom.overallFeedback.feedback,
+      summary: classroom.overallFeedback.summary,
+      generatedAt: classroom.overallFeedback.generatedAt,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({
+        message: "Failed to generate classroom feedback: " + error.message,
+      });
   }
 };

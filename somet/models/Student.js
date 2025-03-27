@@ -45,7 +45,11 @@ const studentSchema = new mongoose.Schema({
   classrooms: [{ type: mongoose.Schema.Types.ObjectId, ref: "Classroom" }],
   assignmentAttempts: [assignmentAttemptSchema],
   assessmentAttempts: [assessmentAttemptSchema],
-  feedback: { type: String },
+  feedback: {
+    detailed: { type: String },
+    summary: { type: String },
+    generatedAt: { type: Date },
+  },
 });
 
 studentSchema.pre("save", async function (next) {

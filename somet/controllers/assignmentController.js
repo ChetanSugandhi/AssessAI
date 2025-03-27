@@ -1,8 +1,11 @@
-// controllers/assignmentController.js
 import Assignment from "../models/Assignment.js";
 import Classroom from "../models/Classroom.js";
 import Student from "../models/Student.js";
-import { generateQuiz, gradeWritingResponse } from "../utils/gemini/quizGenerator.js";
+import {
+  generateQuiz,
+  gradeWritingResponse,
+} from "../utils/gemini/quizGenerator.js";
+import { generateStudentFeedback } from "../utils/gemini/feedback.js";
 
 export const createQuizAssignment = async (req, res) => {
   const { title, description } = req.body;
@@ -16,7 +19,9 @@ export const createQuizAssignment = async (req, res) => {
   try {
     const classroom = await Classroom.findOne({ classroomCode: classcode });
     if (!classroom || classroom.teacher.toString() !== teacherId.toString()) {
-      return res.status(403).json({ message: "Unauthorized or classroom not found" });
+      return res
+        .status(403)
+        .json({ message: "Unauthorized or classroom not found" });
     }
 
     const quizContent = await generateQuiz(title, description);
@@ -36,7 +41,7 @@ export const createQuizAssignment = async (req, res) => {
       title: assignment.title,
       description: assignment.description,
       type: assignment.type,
-      quizContent: assignment.quizContent.map(q => ({
+      quizContent: assignment.quizContent.map((q) => ({
         type: q.type,
         question: q.question,
         options: q.options || undefined,
@@ -44,7 +49,9 @@ export const createQuizAssignment = async (req, res) => {
       dueDate: assignment.dueDate,
     });
   } catch (error) {
-    res.status(500).json({ message: "Failed to create quiz assignment: " + error.message });
+    res
+      .status(500)
+      .json({ message: "Failed to create quiz assignment: " + error.message });
   }
 };
 
@@ -52,18 +59,23 @@ export const getClassroomAssignments = async (req, res) => {
   const { classcode } = req.params;
 
   try {
-    const classroom = await Classroom.findOne({ classroomCode: classcode }).select("_id");
+    const classroom = await Classroom.findOne({
+      classroomCode: classcode,
+    }).select("_id");
     if (!classroom) {
       return res.status(404).json({ message: "Classroom not found" });
     }
 
-    const assignments = await Assignment.find({ classroom: classroom._id }).lean();
+    const assignments = await Assignment.find({
+      classroom: classroom._id,
+    }).lean();
 
-    const processedAssignments = assignments.map(assignment => {
-      const isPastDue = assignment.dueDate && new Date(assignment.dueDate) < new Date();
-      
+    const processedAssignments = assignments.map((assignment) => {
+      const isPastDue =
+        assignment.dueDate && new Date(assignment.dueDate) < new Date();
+
       if (assignment.type === "quiz" && !isPastDue && assignment.quizContent) {
-        assignment.quizContent = assignment.quizContent.map(question => {
+        assignment.quizContent = assignment.quizContent.map((question) => {
           if (question.type === "mcq") {
             const { correctAnswer, ...rest } = question;
             return rest;
@@ -71,7 +83,7 @@ export const getClassroomAssignments = async (req, res) => {
           return question;
         });
       }
-      
+
       return assignment;
     });
 
@@ -84,7 +96,7 @@ export const getClassroomAssignments = async (req, res) => {
 
 export const attemptQuizAssignment = async (req, res) => {
   const { assignmentId } = req.params;
-  const { answers } = req.body; // Expects { "0": "A", "1": "Student's paragraph text", ... }
+  const { answers } = req.body;
   const studentId = req.user._id;
 
   try {
@@ -109,14 +121,14 @@ export const attemptQuizAssignment = async (req, res) => {
 
       if (question.type === "mcq") {
         if (answer === question.correctAnswer) {
-          score += 10; // 10 points per correct MCQ
+          score += 10;
           feedback = "Correct answer.";
         } else {
           feedback = `Incorrect. The correct answer is ${question.correctAnswer}.`;
         }
       } else if (question.type === "writing") {
         const grading = await gradeWritingResponse(question.question, answer);
-        score += grading.score; // Gemini-graded score out of 10
+        score += grading.score;
         feedback = grading.explanation;
       }
 
@@ -136,19 +148,48 @@ export const attemptQuizAssignment = async (req, res) => {
       score: percentageScore,
     });
 
+    // Generate updated feedback
+    const assignmentFeedbacks = student.assignmentAttempts.flatMap((attempt) =>
+      attempt.responses.map((r) => ({
+        question: r.questionIndex,
+        feedback: r.feedback,
+        score: attempt.score,
+      })),
+    );
+    const assessmentFeedbacks = student.assessmentAttempts.flatMap((attempt) =>
+      attempt.responses.map((r) => ({
+        question: r.questionIndex,
+        feedback: r.feedback,
+        score: attempt.score,
+      })),
+    );
+    const feedbackResult = await generateStudentFeedback(
+      assignmentFeedbacks,
+      assessmentFeedbacks,
+    );
+
+    student.feedback = {
+      detailed: feedbackResult.feedback,
+      summary: feedbackResult.summary,
+      generatedAt: new Date(),
+    };
+
     await student.save();
 
     res.status(200).json({
       message: "Quiz submitted successfully",
       score: percentageScore,
       totalScorePossible: totalQuestions * 10,
-      responses: responses.map(r => ({
+      responses: responses.map((r) => ({
         questionIndex: r.questionIndex,
         answer: r.answer,
         feedback: r.feedback,
       })),
+      studentFeedback: student.feedback,
     });
   } catch (error) {
-    res.status(500).json({ message: "Failed to submit quiz: " + error.message });
+    res
+      .status(500)
+      .json({ message: "Failed to submit quiz: " + error.message });
   }
 };
