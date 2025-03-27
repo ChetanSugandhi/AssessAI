@@ -13,7 +13,8 @@ const assessmentSchema = new mongoose.Schema({
   },
   quiz: [
     {
-      question: { type: String },
+      type: { type: String, enum: ["mcq", "writing"], required: true },
+      question: { type: String, required: true },
       options: {
         A: String,
         B: String,

@@ -2,19 +2,11 @@ import express from "express";
 import passport from "passport";
 import {
   attemptQuizAssignment,
-  createAssignment,
   createQuizAssignment,
   getClassroomAssignments,
 } from "../controllers/assignmentController.js";
 
 const router = express.Router();
-
-// Teacher: Create a regular assignment
-router.post(
-  "/create",
-  passport.authenticate("jwt", { session: false }),
-  createAssignment,
-);
 
 // Teacher: Create a quiz assignment
 router.post(

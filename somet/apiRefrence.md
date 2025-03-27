@@ -88,29 +88,27 @@ curl -X GET http://localhost:7777/classroom/MATH102 \
 
 ---
 
-## classroom assignment quiz (mcq) create (teacher)
+## classroom assignment quiz create (teacher)
 
 ```
 curl -X POST http://localhost:7777/assignment/MATH102/quiz \
-                     -H "Content-Type: application/json" \
-                     -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZTJjZmNlM2Y3YzM0ZDM0MDkyNjY0YiIsInJvbGUiOiJ0ZWFjaGVyIiwiaWF0IjoxNzQyOTE3NjEyLCJleHAiOjE3NDU1MDk2MTJ9.8emLWvxQnrCVawFTsqECc9mureSD-0XCujFS54zouLY" \
-                     -d '{"title": "Algebra", "description": "class 10: get to know basics of algebra topics"}'
+                                          -H "Content-Type: application/json" \
+                                          -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZTJjZmNlM2Y3YzM0ZDM0MDkyNjY0YiIsInJvbGUiOiJ0ZWFjaGVyIiwiaWF0IjoxNzQyOTE3NjEyLCJleHAiOjE3NDU1MDk2MTJ9.8emLWvxQnrCVawFTsqECc9mureSD-0XCujFS54zouLY" \
+                                          -d '{"title": "Calculus", "description": "class 12: get to know basics of Calculus topics"}'
 
-{"id":"67e2dad5bf5ff4652fddd3eb","title":"Algebra","description":"class 10: get to know basics of algebra topics","type":"quiz","quizContent":[{"question":"Simplify the expression: 3x + 2x - x","options":{"A":"6x","B":"4x","C":"5x","D":"2x"},"correctAnswer":"B","_id":"67e2dad5bf5ff4652fddd3ec"},{"question":"Solve for x: 2x + 5 = 11","options":{"A":"3","B":"8","C":"6","D":"16"},"correctAnswer":"A","_id":"67e2dad5bf5ff4652fddd3ed"},{"question":"Expand the expression: (x + 3)(x - 2)","options":{"A":"x² + x - 6","B":"x² + 5x - 6","C":"x² - x - 6","D":"x² - 5x - 6"},"correctAnswer":"A","_id":"67e2dad5bf5ff4652fddd3ee"},{"question":"What is the value of  y when x = 2 in the equation y = 3x - 1?","options":{"A":"4","B":"5","C":"6","D":"7"},"correctAnswer":"B","_id":"67e2dad5bf5ff4652fddd3ef"},{"question":"Solve the equation: x² - 9 = 0","options":{"A":"x = 3 only","B":"x = -3 only","C":"x = 3 or x = -3","D":"x = 0"},"correctAnswer":"C","_id":"67e2dad5bf5ff4652fddd3f0"},{"question":"If a = 4 and b = -2, what is the value of 2a + 3b?","options":{"A":"2","B":"10","C":"-2","D":"14"},"correctAnswer":"A","_id":"67e2dad5bf5ff4652fddd3f1"},{"question":"Factorize the expression: x² + 5x + 6","options":{"A":"(x + 1)(x + 6)","B":"(x + 2)(x + 3)","C":"(x - 2)(x - 3)","D":"(x + 1)(x - 6)"},"correctAnswer":"B","_id":"67e2dad5bf5ff4652fddd3f2"},{"question":"What is the slope of the line represented by the equation y = 2x + 4?","options":{"A":"4","B":"2","C":"-4","D":"-2"},"correctAnswer":"B","_id":"67e2dad5bf5ff4652fddd3f3"}],"dueDate":"2025-03-26T23:59:59.999Z"}
+{"id":"67e553b954bf19a0521869fc","title":"Calculus","description":"class 12: get to know basics of Calculus topics","type":"quiz","quizContent":[{"type":"mcq","question":"What is the derivative of f(x) = x³?","options":{"A":"x²","B":"3x²","C":"3x","D":"x⁴"}},{"type":"mcq","question":"Find the limit as x approaches 2 of (x² - 4) / (x - 2).","options":{"A":"0","B":"4","C":"undefined","D":"2"}},{"type":"mcq","question":"∫ 2x dx = ?","options":{"A":"2x² + C","B":"x² + C","C":"4x + C","D":"x + C"}},{"type":"mcq","question":"What is the slope of the tangent line to the curve y = x² at x = 1?","options":{"A":"0","B":"1","C":"2","D":"4"}},{"type":"writing","question":"Explain the difference between differentiation and integration in calculus.","options":{}},{"type":"writing","question":"Describe the concept of a limit in calculus and provide a simple example.","options":{}},{"type":"writing","question":"Explain how to find the critical points of a function and what their significance is.","options":{}},{"type":"writing","question":"Describe the relationship between the derivative of a function and its slope at a point.","options":{}}],"dueDate":"2025-03-28T23:59:59.999Z"}
 ```
 
 ---
 
 ## get all classroom assignments (teacher & student)
 
-- will show correctAnswer if dueDate passed
-
 ```
 curl -X GET http://localhost:7777/assignment/MATH102 \
                      -H "Content-Type: application/json" \
-                     -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZTJkMWFkM2Y3YzM0ZDM0MDkyNjY1NSIsInJvbGUiOiJzdHVkZW50IiwiaWF0IjoxNzQyOTE4MDk1LCJleHAiOjE3NDU1MTAwOTV9.BofayzB0I8rOSC92mOZcLcTzml1aYFVxmBVv1NpBECg"
+                     -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZTJjZmNlM2Y3YzM0ZDM0MDkyNjY0YiIsInJvbGUiOiJ0ZWFjaGVyIiwiaWF0IjoxNzQyOTE3NjEyLCJleHAiOjE3NDU1MDk2MTJ9.8emLWvxQnrCVawFTsqECc9mureSD-0XCujFS54zouLY"
 
-[{"_id":"67e2dad5bf5ff4652fddd3eb","classroom":"67e2d2ee3f7c34d340926661","title":"Algebra","description":"class 10: get to know basics of algebra topics","type":"quiz","createdBy":"67e2cfce3f7c34d34092664b","dueDate":"2025-03-26T23:59:59.999Z","quizContent":[{"question":"Simplify the expression: 3x + 2x - x","options":{"A":"6x","B":"4x","C":"5x","D":"2x"},"_id":"67e2dad5bf5ff4652fddd3ec"},{"question":"Solve for x: 2x + 5 = 11","options":{"A":"3","B":"8","C":"6","D":"16"},"_id":"67e2dad5bf5ff4652fddd3ed"},{"question":"Expand the expression: (x + 3)(x - 2)","options":{"A":"x² + x - 6","B":"x² + 5x - 6","C":"x² - x - 6","D":"x² - 5x - 6"},"_id":"67e2dad5bf5ff4652fddd3ee"},{"question":"What is the value of  y when x = 2 in the equation y = 3x - 1?","options":{"A":"4","B":"5","C":"6","D":"7"},"_id":"67e2dad5bf5ff4652fddd3ef"},{"question":"Solve the equation: x² - 9 = 0","options":{"A":"x = 3 only","B":"x = -3 only","C":"x = 3 or x = -3","D":"x = 0"},"_id":"67e2dad5bf5ff4652fddd3f0"},{"question":"If a = 4 and b = -2, what is the value of 2a + 3b?","options":{"A":"2","B":"10","C":"-2","D":"14"},"_id":"67e2dad5bf5ff4652fddd3f1"},{"question":"Factorize the expression: x² + 5x + 6","options":{"A":"(x + 1)(x + 6)","B":"(x + 2)(x + 3)","C":"(x - 2)(x - 3)","D":"(x + 1)(x - 6)"},"_id":"67e2dad5bf5ff4652fddd3f2"},{"question":"What is the slope of the line represented by the equation y = 2x + 4?","options":{"A":"4","B":"2","C":"-4","D":"-2"},"_id":"67e2dad5bf5ff4652fddd3f3"}],"createdAt":"2025-03-25T16:33:25.934Z","__v":0}]
+[{"_id":"67e55903d26a8da6e3e41a28","classroom":"67e2d2ee3f7c34d340926661","title":"Calculus","description":"class 12: get to know basics of Calculus topics","type":"quiz","createdBy":"67e2cfce3f7c34d34092664b","dueDate":"2025-03-28T23:59:59.999Z","quizContent":[{"type":"mcq","question":"Find the derivative of f(x) = 3x² + 2x - 1.","options":{"A":"6x + 2","B":"3x + 2","C":"6x² + 2","D":"9x + 2"},"_id":"67e55903d26a8da6e3e41a29"},{"type":"mcq","question":"What is the integral of 4x³ dx?","options":{"A":"x⁴ + C","B":"12x² + C","C":"x³ + C","D":"4x⁴ + C"},"_id":"67e55903d26a8da6e3e41a2a"},{"type":"mcq","question":"What is the limit of (x² - 1) / (x - 1) as x approaches 1?","options":{"A":"0","B":"1","C":"2","D":"undefined"},"_id":"67e55903d26a8da6e3e41a2b"},{"type":"mcq","question":"If f'(x) represents the derivative of f(x), what does f''(x) represent?","options":{"A":"The slope of f(x)","B":"The area under f(x)","C":"The second derivative of f(x)","D":"The integral of f(x)"},"_id":"67e55903d26a8da6e3e41a2c"},{"type":"writing","question":"Explain the difference between a derivative and an integral in the context of calculus.","_id":"67e55903d26a8da6e3e41a2d"},{"type":"writing","question":"Describe a real-world application where derivatives are used.","_id":"67e55903d26a8da6e3e41a2e"},{"type":"writing","question":"Explain the concept of a limit in calculus and provide a simple example.","_id":"67e55903d26a8da6e3e41a2f"},{"type":"writing","question":"What is the power rule for differentiation, and how is it applied?","_id":"67e55903d26a8da6e3e41a30"}],"createdAt":"2025-03-27T13:56:19.051Z","__v":0}]
 ```
 
 ---
@@ -153,28 +151,28 @@ curl -X GET http://localhost:7777/classroom/MATH102 \
 
 ---
 
-## classroom assignment quiz (mcq) attempt (student)
+## classroom assignment quiz attempt (student)
 
 - takes assignment id (can get from /assignment/:classcode)
 
 ```
-curl -X POST "http://localhost:7777/assignment/attempt/67e2dad5bf5ff4652fddd3eb" \
-                     -H "Content-Type: application/json" \
-                     -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZTJkMWFkM2Y3YzM0ZDM0MDkyNjY1NSIsInJvbGUiOiJzdHVkZW50IiwiaWF0IjoxNzQyOTE4MDk1LCJleHAiOjE3NDU1MTAwOTV9.BofayzB0I8rOSC92mOZcLcTzml1aYFVxmBVv1NpBECg" \
-                     -d '{
-                   "answers": {
-                     "0": "B",
-                     "1": "A",
-                     "2": "D",
-                     "3": "B",
-                     "4": "C",
-                     "5": "A",
-                     "6": "B",
-                     "7": "C"
-                   }
-                 }'
+curl -X POST "http://localhost:7777/assignment/attempt/67e55903d26a8da6e3e41a28" \
+                          -H "Content-Type: application/json" \
+                          -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZTJkMWFkM2Y3YzM0ZDM0MDkyNjY1NSIsInJvbGUiOiJzdHVkZW50IiwiaWF0IjoxNzQyOTE4MDk1LCJleHAiOjE3NDU1MTAwOTV9.BofayzB0I8rOSC92mOZcLcTzml1aYFVxmBVv1NpBECg" \
+                          -d '{
+                        "answers": {
+                          "0": "A",
+                          "1": "D",
+                          "2": "C",
+                          "3": "B",
+                          "4": "A",
+                          "5": "Wrong approach",
+                          "6": "A limit is the value a function approaches as x approaches a point.",
+                          "7": "The power rule states d/dx [x^n] = nx^(n-1). Used in differentiating polynomials."
+                        }
+                      }'
 
-{"message":"Quiz submitted successfully","score":6,"totalQuestions":8}
+{"message":"Quiz submitted successfully","score":41.25,"totalScorePossible":80,"responses":[{"questionIndex":0,"answer":"A","feedback":"Correct answer."},{"questionIndex":1,"answer":"D","feedback":"Incorrect. The correct answer is A."},{"questionIndex":2,"answer":"C","feedback":"Correct answer."},{"questionIndex":3,"answer":"B","feedback":"Incorrect. The correct answer is C."},{"questionIndex":4,"answer":"A","feedback":"The response is completely inadequate.  The student provided only a single letter, offering no explanation of derivatives or integrals.  It demonstrates a complete lack of understanding of the concepts."},{"questionIndex":5,"answer":"Wrong approach","feedback":"The student response 'Wrong approach' provides no information about a real-world application of derivatives.  It demonstrates a complete lack of understanding of the question and the topic."},{"questionIndex":6,"answer":"A limit is the value a function approaches as x approaches a point.","feedback":"The response correctly defines the basic concept of a limit. However, it's too brief and lacks crucial details.  It doesn't address the possibility of the limit not existing or being different from the function's value at the point. A simple example is missing, which was explicitly requested in the question. While the core idea is present, the lack of depth and the missing example significantly detract from the response."},{"questionIndex":7,"answer":"The power rule states d/dx [x^n] = nx^(n-1). Used in differentiating polynomials.","feedback":"The response correctly states the power rule. However, it lacks explanation of how 'n' is restricted (it should mention that n is a real number) and doesn't provide examples of its application beyond mentioning polynomials.  A more complete answer would demonstrate the application with at least one specific example, showing the steps involved in differentiating a simple polynomial term using the power rule."}]}
 ```
 
 ---
@@ -183,17 +181,17 @@ curl -X POST "http://localhost:7777/assignment/attempt/67e2dad5bf5ff4652fddd3eb"
 
 ```
 curl -X POST http://localhost:7777/assessment/create \
-                     -H "Content-Type: application/json" \
-                     -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZTJjZmNlM2Y3YzM0ZDM0MDkyNjY0YiIsInJvbGUiOiJ0ZWFjaGVyIiwiaWF0IjoxNzQyOTE3NjEyLCJleHAiOjE3NDU1MDk2MTJ9.8emLWvxQnrCVawFTsqECc9mureSD-0XCujFS54zouLY" \
-                     -d '{
-                   "classcode": "MATH102",
-                   "title": "Linear Equations Basics",
-                   "contentType": "text",
-                   "contentUrlOrText": "To solve a linear equation like 2x + 3 = 7, subtract 3 from both sides, then divide by 2.",
-                   "quizDescription": "Generate questions about the steps to solve linear equations."
-                 }'
+                          -H "Content-Type: application/json" \
+                          -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZTJjZmNlM2Y3YzM0ZDM0MDkyNjY0YiIsInJvbGUiOiJ0ZWFjaGVyIiwiaWF0IjoxNzQyOTE3NjEyLCJleHAiOjE3NDU1MDk2MTJ9.8emLWvxQnrCVawFTsqECc9mureSD-0XCujFS54zouLY" \
+                          -d '{
+                        "classcode": "MATH102",
+                        "title": "Introduction to Calculus",
+                        "contentType": "video",
+                        "contentUrlOrText": "https://www.youtube.com/watch?v=5vVbG9YPZOc",
+                        "quizDescription": "The video explains the basics of calculus, covering limits, differentiation, and integration. Generate questions that test students on these concepts, including definitions, problem-solving, and real-world applications."
+                      }'
 
-{"id":"67e3f4e323f94f8d80a1dd7e","title":"Linear Equations Basics","content":{"type":"text","urlOrText":"To solve a linear equation like 2x + 3 = 7, subtract 3 from both sides, then divide by 2."},"quiz":[{"question":"What is the first step in solving the equation 2x + 5 = 9?","options":{"A":"Divide both sides by 2","B":"Subtract 5 from both sides","C":"Add 5 to both sides","D":"Multiply both sides by 2"}},{"question":"After subtracting 7 from both sides of the equation x + 7 = 12, what equation remains?","options":{"A":"x = 5","B":"x = 19","C":"x = -5","D":"x = 7"}},{"question":"To solve the equation 3x = 15, what operation should be performed on both sides?","options":{"A":"Addition","B":"Subtraction","C":"Multiplication","D":"Division"}},{"question":"What is the solution to the equation 4x - 2 = 10?","options":{"A":"x = 2","B":"x = 3","C":"x = 4","D":"x = 8"}},{"question":"If you have the equation 5x + 10 = 35, what is the value of x after subtracting 10 from both sides?","options":{"A":"x = 5","B":"x = 25","C":"x = 45","D":"x = 50"}}]}
+{"id":"67e562243ffd90db6e09b146","title":"Introduction to Calculus","content":{"type":"video","urlOrText":"https://www.youtube.com/watch?v=5vVbG9YPZOc"},"quiz":[{"type":"mcq","question":"What does the limit of a function represent?","options":{"A":"The average rate of change of the function","B":"The instantaneous rate of change of the function","C":"The value the function approaches as the input approaches a specific value","D":"The area under the curve of the function"}},{"type":"mcq","question":"Differentiation is primarily used to find:","options":{"A":"The area under a curve","B":"The slope of a tangent line to a curve","C":"The accumulation of a quantity over time","D":"The limit of a function"}},{"type":"mcq","question":"Which of the following is a real-world application of integration?","options":{"A":"Finding the velocity of an object given its acceleration","B":"Determining the slope of a curve at a specific point","C":"Calculating the total distance traveled by a moving object given its velocity","D":"Predicting the future value of an investment"}},{"type":"writing","question":"Explain the relationship between differentiation and integration.  How are they inverse operations?","options":{}},{"type":"writing","question":"Give a real-world example (different from those in the video) where understanding limits could be helpful in solving a problem.","options":{}}]}
 ```
 
 ---
@@ -201,23 +199,20 @@ curl -X POST http://localhost:7777/assessment/create \
 ## learning assessment attempt (student)
 
 ```
-curl -X POST "http://localhost:7777/assessment/attempt/67e3f4e323f94f8d80a1dd7e" \
-                      -H "Content-Type: application/json" \
-                      -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZTJkMWFkM2Y3YzM0ZDM0MDkyNjY1NSIsInJvbGUiOiJzdHVkZW50IiwiaWF0IjoxNzQyOTkyNzIyLCJleHAiOjE3NDU1ODQ3MjJ9.CJ8o1Q3q2wAV2hQxq4iQIS1w-D8z9vPG_vPBhCQxqCw" \
-                      -d '{
-                    "answers": {
-                      "0": "B",
-                      "1": "A",
-                      "2": "D",
-                      "3": "B",
-                      "4": "C",
-                      "5": "A",
-                      "6": "B",
-                      "7": "C"
-                    }
-                  }'
+curl -X POST "http://localhost:7777/assessment/attempt/67e562243ffd90db6e09b146" \
+                          -H "Content-Type: application/json" \
+                          -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZTJkMWFkM2Y3YzM0ZDM0MDkyNjY1NSIsInJvbGUiOiJzdHVkZW50IiwiaWF0IjoxNzQyOTkyNzIyLCJleHAiOjE3NDU1ODQ3MjJ9.CJ8o1Q3q2wAV2hQxq4iQIS1w-D8z9vPG_vPBhCQxqCw" \
+                          -d '{
+                        "answers": {
+                          "0": "C",
+                          "1": "A",
+                          "2": "C",
+                          "3": "The Fundamental Theorem of Calculus states that differentiation and integration are inverse operations. Differentiation finds the rate of change, while integration accumulates values over an interval.",
+                          "4": "In manufacturing, understanding limits helps ensure machine tolerances. If a part\'s dimension approaches a limit, adjustments are needed to maintain precision."
+                        }
+                      }'
 
-{"assessmentId":"67e3f4e323f94f8d80a1dd7e","score":80,"submittedAt":"2025-03-26T12:51:51.284Z"}
+{"assessmentId":"67e562243ffd90db6e09b146","score":66,"totalScorePossible":50,"responses":[{"questionIndex":0,"answer":"C","feedback":"Correct answer."},{"questionIndex":1,"answer":"A","feedback":"Incorrect. The correct answer is B."},{"questionIndex":2,"answer":"C","feedback":"Correct answer."},{"questionIndex":3,"answer":"The Fundamental Theorem of Calculus states that differentiation and integration are inverse operations. Differentiation finds the rate of change, while integration accumulates values over an interval.","feedback":"The response correctly identifies the Fundamental Theorem of Calculus as the key to understanding the inverse relationship between differentiation and integration, and gives accurate, albeit brief, definitions of each operation. However, it lacks a crucial explanation of *how* they are inverse operations.  The student merely states they are, without demonstrating it through an example or further elaboration (e.g., the derivative of an integral, or vice-versa).  More detail is needed to fully explain the inverse relationship."},{"questionIndex":4,"answer":"In manufacturing, understanding limits helps ensure machine tolerances. If a part's dimension approaches a limit, adjustments are needed to maintain precision.","feedback":"The response correctly identifies a real-world application of understanding limits in manufacturing.  However, it's somewhat brief and lacks specific examples of the types of limits involved (e.g., upper and lower bounds on dimensions) or how the adjustments are made.  More detail on the problem-solving aspect would improve the response."}],"submittedAt":"2025-03-27T14:38:21.928Z"}
 ```
 
 ---

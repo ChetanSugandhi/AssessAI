@@ -17,7 +17,8 @@ const assignmentSchema = new mongoose.Schema({
   dueDate: { type: Date },
   quizContent: [
     {
-      question: { type: String },
+      type: { type: String, enum: ["mcq", "writing"], required: true },
+      question: { type: String, required: true },
       options: {
         A: String,
         B: String,
@@ -26,7 +27,7 @@ const assignmentSchema = new mongoose.Schema({
       },
       correctAnswer: { type: String, enum: ["A", "B", "C", "D"] },
     },
-  ], // for quiz
+  ],
   createdAt: { type: Date, default: Date.now },
 });
 

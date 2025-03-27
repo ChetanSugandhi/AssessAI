@@ -9,7 +9,14 @@ const assignmentAttemptSchema = new mongoose.Schema({
     required: true,
   },
   attemptedDate: { type: Date, default: Date.now },
-  score: { type: Number }, // for quiz
+  responses: [
+    {
+      questionIndex: { type: Number, required: true },
+      answer: { type: String, required: true },
+      feedback: { type: String },
+    },
+  ],
+  score: { type: Number },
 });
 
 const assessmentAttemptSchema = new mongoose.Schema({
@@ -20,7 +27,14 @@ const assessmentAttemptSchema = new mongoose.Schema({
     required: true,
   },
   attemptedDate: { type: Date, default: Date.now },
-  score: { type: Number }, // for mini quiz
+  responses: [
+    {
+      questionIndex: { type: Number, required: true },
+      answer: { type: String, required: true },
+      feedback: { type: String },
+    },
+  ],
+  score: { type: Number },
 });
 
 const studentSchema = new mongoose.Schema({
