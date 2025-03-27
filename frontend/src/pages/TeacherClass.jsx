@@ -43,7 +43,7 @@ const TeacherClass = () => {
         setLoading(true);
         const token = localStorage.getItem("token");
       const response = await axios.post(
-        "http://localhost:7777/classroom/"`${classcode}`,
+        `http://localhost:7777/classroom/${classcode}`,
         {
           withCredentials: true,
           headers: { Authorization: `Bearer ${token}` },
@@ -232,6 +232,16 @@ const TeacherClass = () => {
 
   const students = 28; // Placeholder - would come from API
 
+  const handleClassDelete = async () => {
+      try {  
+          if (response.data.success) {
+              window.location.href = "/authform";  // Redirect only after role is set
+          }
+      } catch (error) {
+          console.error("Error setting student role:", error);
+      }
+  };
+  
   return (
     <div className="min-h-screen bg-slate-950 text-white p-6">
       {/* Header */}
@@ -249,6 +259,12 @@ const TeacherClass = () => {
           </div>
         </div>
         <div className="flex space-x-4">
+        <button
+              onClick={handleClassDelete}
+              className="px-4 py-2 text-sm font-medium rounded-md bg-red-500/20 text-red-400 hover:bg-indigo-100 transition duration-150 ease-in-out"
+            >
+              Delete Class
+            </button>
           <button
             onClick={() => setIsAddingAssignment(true)}
             className="bg-cyan-600 hover:bg-cyan-700 px-4 py-2 rounded-lg transition-colors flex items-center"

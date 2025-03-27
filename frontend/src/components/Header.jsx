@@ -8,9 +8,8 @@ const Header = () => {
 
   const handleStudentLogin = async () => {
       try {  
-          if (response.data.success) {
               window.location.href = "/authform";  // Redirect only after role is set
-          }
+          
       } catch (error) {
           console.error("Error setting student role:", error);
       }

@@ -32,8 +32,7 @@ const AuthForm = () => {
       if (response.data === "Student already exist") {
         alert("Student already exists. Please use a different email.");
       } else {
-        alert("Signup successful!");
-        navigate("/");
+        alert("Signup successful! Please login to continue.");
       }
     } catch (error) {
       console.error("Error signing up:", error);
@@ -53,10 +52,11 @@ const AuthForm = () => {
             password
         });
 
-        if (response.data.success) {
-            alert("Login successful!");
-            window.location.href = "/student-dashboard";  // Redirect to the dashboard
-        }
+        if (response.data.token) {
+          localStorage.setItem("token", response.data.token)
+          alert("Login successful!");
+          window.location.href = "/student-dashboard";  // Redirect to the dashboard
+      }
     } catch (error) {
         alert(error.response?.data?.message || "Login failed! Please check your credentials.");
     }

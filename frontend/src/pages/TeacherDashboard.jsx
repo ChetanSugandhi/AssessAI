@@ -125,44 +125,7 @@ const TeacherDashboard = () => {
       );
 
       if (response.data.classCode) {
-        // Refresh classroom data after creating a new one
-        const dashboardResponse = await axios.get(
-          "http://localhost:7777/teacher-dashboard",
-          { withCredentials: true },
-        );
-
-        if (
-          dashboardResponse.data &&
-          dashboardResponse.data.createdClassrooms
-        ) {
-          const mappedClassrooms = dashboardResponse.data.createdClassrooms.map(
-            (classroom, index) => ({
-              id: index + 1,
-              name: classroom.className,
-              subject: classroom.subject,
-              students: classroom.studentCount,
-              assignmentsCount: classroom.topicCount,
-              learningAssessment:
-                classroom.learningAssessmentStatus === "Available",
-              recentAssignments:
-                classroom.recentTopics.map((topic, topicIndex) => ({
-                  id: topicIndex + 1,
-                  title: topic.title || topic.name || "Untitled Topic",
-                  status: topic.status || "pending",
-                })) || [],
-            }),
-          );
-
-          setClassrooms(mappedClassrooms);
-        }
-
-        setNewClassroom({
-          name: "",
-          subject: "",
-          description: "",
-          classroomCode: "",
-        });
-        setIsDialogOpen(false);
+        navigate()
       } else {
         alert("Error: " + response.data.message);
       }
@@ -386,7 +349,7 @@ const TeacherDashboard = () => {
                         </p>
                       </div>
                     </div>
-
+                    
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div className="bg-slate-900 p-4 rounded-lg flex items-center">
                         <Users className="text-blue-400 mr-3" />
