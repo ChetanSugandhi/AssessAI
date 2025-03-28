@@ -83,6 +83,7 @@ export const getStudentDashboard = async (req, res) => {
     const formattedData = classrooms.map((classroom) => ({
       className: classroom.name,
       subject: classroom.subject,
+      classCode: classroom.classroomCode,
       description: classroom.description,
       teacher: { name: classroom.teacher.name, email: classroom.teacher.email },
       topics: classroom.topics.map((topic) => ({

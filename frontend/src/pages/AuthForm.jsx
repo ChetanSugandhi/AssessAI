@@ -51,7 +51,7 @@ const AuthForm = () => {
             username,
             password
         });
-
+        console.log(response.data); // for checking
         if (response.data.token) {
           localStorage.setItem("token", response.data.token)
           alert("Login successful!");

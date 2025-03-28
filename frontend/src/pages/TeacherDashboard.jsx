@@ -70,19 +70,19 @@ const TeacherDashboard = () => {
             headers: { Authorization: `Bearer ${token}` },
           },
         );
-
-        if (response.data && response.data.createdClassrooms) {
+        console.log(response.data);
+        if (response.data) {
           // Map the backend data structure to match our component's expected format
-          const mappedClassrooms = response.data.createdClassrooms.map(
+          const mappedClassrooms = response.data.map(
             (classroom, index) => ({
               id: index + 1,
               name: classroom.className,
               subject: classroom.subject,
               classCode: classroom.classCode,
               students: classroom.studentCount,
-              assignmentsCount: classroom.topicCount,
+              assignmentsCount: classroom.topicCount ,
               learningAssessment:
-                classroom.learningAssessmentStatus === "Available",
+              classroom.learningAssessmentStatus === "Available",
               recentAssignments:
                 classroom.recentTopics.map((topic, topicIndex) => ({
                   id: topicIndex + 1,
@@ -111,7 +111,7 @@ const TeacherDashboard = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        "http://localhost:7777/classroom/create",
+        `http://localhost:7777/assignment/${classcode}/quiz`,
         {
           name: newClassroom.name,
           subject: newClassroom.subject,

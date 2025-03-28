@@ -72,18 +72,18 @@ const StudentDashboard = () => {
             headers: { Authorization: `Bearer ${token}` },
           },
         );
-
-        if (response.data && response.data.classrooms) {
+        console.log(response.data);
+        if (response.data) {
           // Map the backend data structure to our component's format
           const mappedClassrooms = response.data.classrooms.map((classroom, index) => ({
-            id: classroom._id || index,
-            name: classroom.name,
+            id:  index,
+            name: classroom.className,
+            classcode: classroom.classCode,
             subject: classroom.subject,
-            teacher: classroom.teacher?.name || 'Unassigned',
+            teacher: classroom.teacher.name ,
             color: getRandomClassColor(),
             feedbackAvailable: false, // Placeholder, update with actual backend data if available
-            learningAssessmentCompleted: classroom.learningAssessmentStatus === "Completed",
-            recentAssignments: classroom.recentTopics.map((topic, topicIndex) => ({
+            recentAssignments: classroom.topics.map((topic, topicIndex) => ({
               id: topicIndex + 1,
               name: topic.title,
               description: topic.description,
@@ -91,7 +91,7 @@ const StudentDashboard = () => {
               createdAt: new Date(topic.createdAt).toLocaleDateString()
             }))
           }));
-
+          console.log(mappedClassrooms)
           setClassrooms(mappedClassrooms);
         }
         setLoading(false);
@@ -232,7 +232,9 @@ const StudentDashboard = () => {
                 <div
                   key={classroom.id}
                   className="bg-slate-800 rounded-lg p-4 hover:bg-slate-700 cursor-pointer transition-colors"
-                  onClick={handleClick}
+                  onClick={() =>
+                    navigate(`/classroom/${classroom.classcode}`)
+                  }
                 >
                   <div className="flex justify-between items-center mb-3">
                     <h3 className="text-xl font-semibold text-cyan-300">{classroom.name}</h3>

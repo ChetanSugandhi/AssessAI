@@ -35,7 +35,7 @@ const router = createBrowserRouter([
             element:<AuthForm/>
          },
          {
-            path:"/classroom",
+            path:"/classroom/:classcode",
             element:<ClassDetails/>
          },
          {

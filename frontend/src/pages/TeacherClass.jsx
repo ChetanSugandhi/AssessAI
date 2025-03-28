@@ -42,7 +42,7 @@ const TeacherClass = () => {
       try {
         setLoading(true);
         const token = localStorage.getItem("token");
-      const response = await axios.post(
+      const response = await axios.get(
         `http://localhost:7777/classroom/${classcode}`,
         {
           withCredentials: true,
@@ -57,12 +57,12 @@ const TeacherClass = () => {
         setLoading(false);
       }
     };
-
+    
     if (classcode) {
       fetchClassroomData();
     }
   }, [classcode]);
-
+console.log(classroom)
   // Refresh data after adding a new assignment/topic
   const refreshClassroomData = async () => {
     try {
@@ -141,7 +141,7 @@ const TeacherClass = () => {
     try {
       // Make API call to add a new topic
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:7777/classroom/${classcode}/topic`, {
+      const response = await fetch(`http://localhost:7777/assignment/${classcode}/quiz`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -150,7 +150,6 @@ const TeacherClass = () => {
         body: JSON.stringify({
           title: newAssignment.title,
           description: newAssignment.description,
-          classcode: classcode
         }),
         withCredentials: 'true',
       });
