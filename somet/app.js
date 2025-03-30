@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import 'dotenv/config'; 
 
 import connectDB from "./config/db.js";
 import passport from "./middleware/passport.js";
