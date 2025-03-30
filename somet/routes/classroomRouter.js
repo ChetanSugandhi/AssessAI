@@ -5,6 +5,7 @@ import {
   getClassroomDetails,
   joinClassroom,
   generateClassFeedback,
+  getAssignment,
 } from "../controllers/classroomController.js";
 
 const router = express.Router();
@@ -31,6 +32,12 @@ router.post(
   "/:classcode/feedback",
   passport.authenticate("jwt", { session: false }),
   generateClassFeedback,
+);
+
+router.get(
+  "/:classcode/:assignmentId",
+  passport.authenticate("jwt", { session: false }),
+  getAssignment,
 );
 
 export default router;

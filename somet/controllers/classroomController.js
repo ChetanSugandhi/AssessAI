@@ -203,10 +203,21 @@ export const generateClassFeedback = async (req, res) => {
       generatedAt: classroom.overallFeedback.generatedAt,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Failed to generate classroom feedback: " + error.message,
-      });
+    res.status(500).json({
+      message: "Failed to generate classroom feedback: " + error.message,
+    });
+  }
+};
+
+export const getAssignment = async (req, res) => {
+  const { assignmentId } = req.params;
+
+  try {
+    const assignment = await Assignment.findById(assignmentId);
+
+    res.json(assignment);
+  } catch (error) {
+    console.error("Error fetching assignments:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
