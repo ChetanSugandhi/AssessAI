@@ -39,7 +39,7 @@ const router = createBrowserRouter([
             element:<ClassDetails/>
          },
          {
-            path:"/quizform",
+            path:"/quizform/:quizcode",
             element:<QuizForm/>
          },
          {

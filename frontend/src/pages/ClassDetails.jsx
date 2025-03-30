@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ArrowLeft, 
   FileText, 
@@ -22,58 +22,142 @@ import {
   Lightbulb,
   BookMarked
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const ClassDetails = () => {
-  // Mock data for the selected classroom
-  const [classroom] = useState({
-    id: 1,
-    name: 'Advanced Mathematics',
-    teacher: 'Dr. Robert Chen',
-    subject: 'Mathematics',
-    description: 'An advanced course covering calculus, algebra, and trigonometry for college preparation.',
-    color: 'bg-cyan-500',
-    students: 28,
-    startDate: 'Sep 5, 2024',
+  const [classroom, setClassroom] = useState({
+    className: '',
+    classJoinedDate: '',
+    teacherName: '',
+    subject: '',
+    classDescription: '',
+    assignments: [],
+    learningAssessment: {
+      completed: false,
+      lastAssessmentDate: null,
+      strengths: [],
+      areasToImprove: [],
+      recommendedStrategies: []
+    },
     overallFeedback: {
       performance: {
-        score: 88,
-        trend: 'improving',
-        strengths: [
-          'Exceptional problem-solving skills in calculus',
-          'Strong grasp of algebraic concepts',
-          'Consistent completion of assignments'
-        ],
-        areasForImprovement: [
-          'Time management during quizzes',
-          'Showing detailed work in solutions',
-          'Complex integration techniques'
-        ]
+        score: 0,
+        trend: '',
+        strengths: [],
+        areasForImprovement: []
       },
-      progressInsights: [
-        {
-          topic: 'Calculus',
-          proficiency: 90,
-          comment: 'Excellent understanding of derivatives and basic integration'
-        },
-        {
-          topic: 'Algebra',
-          proficiency: 85,
-          comment: 'Good grasp of matrix operations, needs work on complex equations'
-        },
-        {
-          topic: 'Trigonometry',
-          proficiency: 88,
-          comment: 'Strong foundation in identities, room for improvement in applications'
+      progressInsights: [],
+      recommendations: [],
+      detailedFeedback: ''
+    }
+  });
+  
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('assignments');
+  const { classId } = useParams();
+  const { classcode } = useParams();
+  
+  useEffect(() => {
+    const fetchClassroomData = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem('token'); // Assuming you store the token in localStorage
+        const response = await fetch(`http://localhost:7777/classroom/${classcode}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch classroom data');
         }
-      ],
-      recommendations: [
-        'Focus on time management strategies during problem-solving',
-        'Practice showing detailed steps in solutions',
-        'Dedicate extra time to complex integration techniques',
-        'Continue strong performance in calculus fundamentals'
-      ],
-      detailedFeedback: `Your performance in Advanced Mathematics has been consistently strong, demonstrating a particularly impressive grasp of calculus concepts and problem-solving techniques. Your work shows a natural aptitude for mathematical thinking and a dedicated approach to learning.
+        const data = await response.json();
+        
+        // Transform the data to match our component's expected structure
+        const transformedData = {
+          className: data.className,
+          classJoinedDate: new Date(data.classJoinedDate).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+          }),
+          teacherName: data.teacherName,
+          subject: data.subject,
+          classDescription: data.classDescription,
+          assignments: data.assignments.map(assignment => ({
+            id: assignment.id,
+            name: assignment.title,
+            description: assignment.description,
+            status: assignment.attemptedDate ? 'Completed' : 'Not Started',
+            releaseDate: new Date(assignment.creationDate).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric'
+            }),
+            submittedOn: assignment.attemptedDate ? new Date(assignment.attemptedDate).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric'
+            }) : null,
+            score: assignment.score,
+            feedback: null // Assuming feedback is not provided in the API response
+          })),
+          // Keep the default values for learningAssessment and overallFeedback
+          // until we have API endpoints for these
+          learningAssessment: {
+            completed: false,
+            lastAssessmentDate: 'Feb 15, 2025',
+            strengths: ['Visual learning', 'Problem solving'],
+            areasToImprove: ['Time management', 'Test anxiety'],
+            recommendedStrategies: [
+              'Use visual aids when studying complex concepts',
+              'Break down problems into smaller steps',
+              'Schedule specific time blocks for practice'
+            ]
+          },
+          overallFeedback: {
+            performance: {
+              score: 88,
+              trend: 'improving',
+              strengths: [
+                'Exceptional problem-solving skills in calculus',
+                'Strong grasp of algebraic concepts',
+                'Consistent completion of assignments'
+              ],
+              areasForImprovement: [
+                'Time management during quizzes',
+                'Showing detailed work in solutions',
+                'Complex integration techniques'
+              ]
+            },
+            progressInsights: [
+              {
+                topic: 'Calculus',
+                proficiency: 90,
+                comment: 'Excellent understanding of derivatives and basic integration'
+              },
+              {
+                topic: 'Algebra',
+                proficiency: 85,
+                comment: 'Good grasp of matrix operations, needs work on complex equations'
+              },
+              {
+                topic: 'Trigonometry',
+                proficiency: 88,
+                comment: 'Strong foundation in identities, room for improvement in applications'
+              }
+            ],
+            recommendations: [
+              'Focus on time management strategies during problem-solving',
+              'Practice showing detailed steps in solutions',
+              'Dedicate extra time to complex integration techniques',
+              'Continue strong performance in calculus fundamentals'
+            ],
+            detailedFeedback: `Your performance in Advanced Mathematics has been consistently strong, demonstrating a particularly impressive grasp of calculus concepts and problem-solving techniques. Your work shows a natural aptitude for mathematical thinking and a dedicated approach to learning.
 
 In calculus, your understanding of derivatives and basic integration is exemplary, scoring in the top percentile of the class. Your solutions demonstrate clear logical progression and strong analytical skills. However, when dealing with complex integration problems, there's room for improvement in showing detailed step-by-step work.
 
@@ -84,68 +168,65 @@ Regarding trigonometry, you've built a strong foundation in fundamental identiti
 Time management during assessments has been identified as an area for development. Consider practicing with timed exercises to improve efficiency while maintaining accuracy. Remember, showing your work clearly not only helps in grading but also in identifying any misconceptions or areas needing clarification.
 
 Overall, your trajectory in this course is positive, with your dedication to learning and strong problem-solving abilities setting you up for continued success. Keep focusing on the recommended improvement areas while maintaining your strengths, and you're well-positioned to excel in advanced mathematical concepts.`
-    },
-    assignments: [
-      { 
-        id: 1,
-        name: 'Calculus Quiz 1', 
-        description: 'Covers differentiation and basic integration techniques',
-        status: 'Completed', 
-        releaseDate: 'Mar 1, 2025',
-        submittedOn: 'Mar 3, 2025',
-        score: 92,
-        feedback: 'Excellent work on integration techniques. Work on showing all steps in differential equations.'
-      },
-      { 
-        id: 2,
-        name: 'Algebra Quiz', 
-        description: 'Covers matrices, determinants, and linear systems',
-        status: 'Completed', 
-        releaseDate: 'Mar 5, 2025',
-        submittedOn: 'Mar 8, 2025',
-        score: 84,
-        feedback: null
-      },
-      { 
-        id: 3,
-        name: 'Trigonometry Quiz', 
-        description: 'Covers unit circle, identities, and inverse functions',
-        status: 'Not Started', 
-        releaseDate: 'Mar 10, 2025',
-        submittedOn: null,
-        score: null,
-        feedback: null
-      },
-      { 
-        id: 4,
-        name: 'Applied Calculus Quiz', 
-        description: 'Covers real-world applications of differential and integral calculus',
-        status: 'Not Started', 
-        releaseDate: 'Mar 15, 2025',
-        submittedOn: null,
-        score: null,
-        feedback: null
+          }
+        };
+        console.log(response.data);
+        setClassroom(transformedData);
+      } catch (err) {
+        setError(err.message);
+        console.error('Error fetching classroom data:', err);
+      } finally {
+        setLoading(false);
       }
-    ],
-    learningAssessment: {
-      completed: false,
-      lastAssessmentDate: 'Feb 15, 2025',
-      strengths: ['Visual learning', 'Problem solving'],
-      areasToImprove: ['Time management', 'Test anxiety'],
-      recommendedStrategies: [
-        'Use visual aids when studying complex concepts',
-        'Break down problems into smaller steps',
-        'Schedule specific time blocks for practice'
-      ]
-    }
-  });
-
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('assignments');
+    };
+    fetchClassroomData();
+  }, [classId]);
   
-  const takeQuiz = () => { navigate('/quizform'); }
-  const goBack = () => { navigate(-1); }
-  const goSolution = () => { navigate('/quiz-solution'); }
+  const takeAssignment = (assignmentId) => { 
+    navigate(`/quizform/${assignmentId}`); 
+  };
+  
+  const goBack = () => { 
+    navigate(-1); 
+  };
+  
+  const viewSolution = (assignmentId) => { 
+    navigate(`/assignment-solution/${assignmentId}`); 
+  };
+  
+  const viewFeedback = (assignmentId) => {
+    navigate(`/assignment-feedback/${assignmentId}`);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-400 mx-auto mb-4"></div>
+          <p>Loading classroom data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
+        <div className="bg-slate-900 p-6 rounded-xl max-w-md text-center">
+          <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-red-400 mb-2">Error Loading Classroom</h2>
+          <p className="text-slate-300 mb-4">{error}</p>
+          <button 
+            onClick={goBack} 
+            className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-950 text-white p-6">
       {/* Header with back button */}
@@ -155,7 +236,7 @@ Overall, your trajectory in this course is positive, with your dedication to lea
         </button>
         
         <div>
-          <h1 className="text-2xl font-bold text-cyan-400">{classroom.name}</h1>
+          <h1 className="text-2xl font-bold text-cyan-400">{classroom.className}</h1>
         </div>
       </div>
       
@@ -165,8 +246,8 @@ Overall, your trajectory in this course is positive, with your dedication to lea
           <div className="bg-slate-800 p-4 rounded-lg flex items-center">
             <Calendar className="text-cyan-500 mr-3" />
             <div>
-              <p className="text-sm text-slate-400">Start Date</p>
-              <p className="font-semibold">{classroom.startDate}</p>
+              <p className="text-sm text-slate-400">Joined Date</p>
+              <p className="font-semibold">{classroom.classJoinedDate}</p>
             </div>
           </div>
           
@@ -174,7 +255,7 @@ Overall, your trajectory in this course is positive, with your dedication to lea
             <Users className="text-cyan-500 mr-3" />
             <div>
               <p className="text-sm text-slate-400">Teacher</p>
-              <p className="font-semibold">{classroom.teacher}</p>
+              <p className="font-semibold">{classroom.teacherName}</p>
             </div>
           </div>
           
@@ -187,7 +268,7 @@ Overall, your trajectory in this course is positive, with your dedication to lea
           </div>
         </div>
         
-        <p className="text-slate-300">{classroom.description}</p>
+        <p className="text-slate-300">{classroom.classDescription}</p>
       </div>
       
       {/* Tabs Navigation */}
@@ -196,7 +277,7 @@ Overall, your trajectory in this course is positive, with your dedication to lea
           className={`px-4 py-2 font-medium ${activeTab === 'assignments' ? 'text-cyan-400 border-b-2 border-cyan-400' : 'text-slate-400 hover:text-slate-300'}`}
           onClick={() => setActiveTab('assignments')}
         >
-          Quizzes
+          Assignments
         </button>
         <button 
           className={`px-4 py-2 font-medium ${activeTab === 'learning' ? 'text-cyan-400 border-b-2 border-cyan-400' : 'text-slate-400 hover:text-slate-300'}`}
@@ -217,7 +298,7 @@ Overall, your trajectory in this course is positive, with your dedication to lea
         {activeTab === 'assignments' && (
           <div>
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-cyan-400">Quizzes</h2>
+              <h2 className="text-xl font-bold text-cyan-400">Assignments</h2>
               
               <div className="flex space-x-2">
                 <span className="flex items-center text-xs bg-slate-800 px-3 py-1 rounded-full">
@@ -232,79 +313,99 @@ Overall, your trajectory in this course is positive, with your dedication to lea
               </div>
             </div>
             
-            <div className="space-y-4">
-              {classroom.assignments.map((assignment) => (
-                <div key={assignment.id} className="bg-slate-800 rounded-lg p-4 hover:bg-slate-700 transition-colors">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h3 className="text-lg font-semibold text-cyan-300">{assignment.name}</h3>
-                      <p className="text-sm text-slate-400">{assignment.description}</p>
-                    </div>
-                    <span className={`
-                      ${assignment.status === 'Completed' ? 'bg-green-500' : 
-                        'bg-red-500'} 
-                      text-white px-3 py-1 rounded-full text-xs`}
-                    >
-                      {assignment.status}
-                    </span>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-4 text-sm">
-                    <div className="bg-slate-700 p-2 rounded flex items-center">
-                      <Calendar className="h-4 w-4 mr-2 text-cyan-400" />
+            {classroom.assignments.length > 0 ? (
+              <div className="space-y-4">
+                {classroom.assignments.map((assignment) => (
+                  <div key={assignment.id} className="bg-slate-800 rounded-lg p-4 hover:bg-slate-700 transition-colors">
+                    <div className="flex justify-between items-start mb-2">
                       <div>
-                        <span className="text-xs text-slate-400">Released</span>
-                        <p>{assignment.releaseDate}</p>
+                        <h3 className="text-lg font-semibold text-cyan-300">{assignment.name}</h3>
+                        <p className="text-sm text-slate-400">{assignment.description}</p>
                       </div>
+                      <span className={`
+                        ${assignment.status === 'Completed' ? 'bg-green-500' : 
+                          'bg-red-500'} 
+                        text-white px-3 py-1 rounded-full text-xs`}
+                      >
+                        {assignment.status}
+                      </span>
                     </div>
                     
-                    {assignment.submittedOn && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-4 text-sm">
                       <div className="bg-slate-700 p-2 rounded flex items-center">
-                        <Upload className="h-4 w-4 mr-2 text-green-400" />
+                        <Calendar className="h-4 w-4 mr-2 text-cyan-400" />
                         <div>
-                          <span className="text-xs text-slate-400">Attempted</span>
-                          <p>{assignment.submittedOn}</p>
+                          <span className="text-xs text-slate-400">Released</span>
+                          <p>{assignment.releaseDate}</p>
                         </div>
+                      </div>
+                      
+                      {assignment.submittedOn && (
+                        <div className="bg-slate-700 p-2 rounded flex items-center">
+                          <Upload className="h-4 w-4 mr-2 text-green-400" />
+                          <div>
+                            <span className="text-xs text-slate-400">Attempted</span>
+                            <p>{assignment.submittedOn}</p>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {assignment.score !== null && (
+                        <div className="bg-slate-700 p-2 rounded flex items-center">
+                          <Award className="h-4 w-4 mr-2 text-yellow-400" />
+                          <div>
+                            <span className="text-xs text-slate-400">Score</span>
+                            <p>{assignment.score}%</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {assignment.feedback && (
+                      <div className="mt-4 bg-slate-700 p-3 rounded-lg border-l-4 border-cyan-500">
+                        <h4 className="text-sm font-semibold text-cyan-300 mb-1">Feedback</h4>
+                        <p className="text-sm">{assignment.feedback}</p>
                       </div>
                     )}
                     
-                    {assignment.score !== null && (
-                      <div className="bg-slate-700 p-2 rounded flex items-center">
-                        <Award className="h-4 w-4 mr-2 text-yellow-400" />
-                        <div>
-                          <span className="text-xs text-slate-400">Score</span>
-                          <p>{assignment.score}%</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {assignment.feedback && (
-                    <div className="mt-4 bg-slate-700 p-3 rounded-lg border-l-4 border-cyan-500">
-                      <h4 className="text-sm font-semibold text-cyan-300 mb-1">Feedback</h4>
-                      <p className="text-sm">{assignment.feedback}</p>
+                    <div className="mt-4 flex justify-end space-x-2">
+                      {assignment.status === 'Not Started' || assignment.status === 'In Progress' ? (
+                        <button 
+                          onClick={() => takeAssignment(assignment.id)} 
+                          className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg text-sm flex items-center transition-colors"
+                        >
+                          <Upload className="mr-2 h-4 w-4" /> Start Assignment
+                        </button>
+                      ) : (
+                        <>
+                          <button 
+                            onClick={() => viewSolution(assignment.id)} 
+                            className="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm flex items-center transition-colors"
+                          >
+                            <Eye className="mr-2 h-4 w-4" /> View Solution
+                          </button>
+                          <button 
+                            onClick={() => viewFeedback(assignment.id)}
+                            className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg text-sm flex items-center transition-colors"
+                          >
+                            <MessageSquare className="mr-2 h-4 w-4" /> View Feedback
+                          </button>
+                        </>
+                      )}
                     </div>
-                  )}
-                  
-                  <div className="mt-4 flex justify-end space-x-2">
-                    {assignment.status === 'Not Started' || assignment.status === 'In Progress' ? (
-                      <button onClick={takeQuiz} className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg text-sm flex items-center transition-colors">
-                        <Upload className="mr-2 h-4 w-4" /> Take Quiz
-                      </button>
-                    ) : (
-                      <>
-                        <button onClick={goSolution} className="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm flex items-center transition-colors">
-                          <Eye className="mr-2 h-4 w-4" /> View Solution
-                        </button>
-                        <button className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg text-sm flex items-center transition-colors">
-                          <MessageSquare className="mr-2 h-4 w-4" /> View Feedback
-                        </button>
-                      </>
-                    )}
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-slate-800 p-8 rounded-lg text-center">
+                <FileText className="h-16 w-16 text-slate-500 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-white mb-2">No Assignments Yet</h3>
+                <p className="text-slate-400 mb-6 max-w-md mx-auto">
+                  There are currently no assignments available for this class.
+                  Check back later or contact your teacher for more information.
+                </p>
+              </div>
+            )}
           </div>
         )}
         
