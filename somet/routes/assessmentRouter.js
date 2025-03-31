@@ -2,7 +2,7 @@ import express from "express";
 import passport from "passport";
 import {
   createLearningAssessment,
-  submitAssessment,
+  submitAssessmentQuiz,
   getClassroomAssessments,
   getStudentAssessmentAttempts,
 } from "../controllers/assessmentController.js";
@@ -18,9 +18,9 @@ router.post(
 
 // Student: Submit assessment answers
 router.post(
-  "/attempt/:assessmentId",
+  "/submit/:assessmentId",
   passport.authenticate("jwt", { session: false }),
-  submitAssessment,
+  submitAssessmentQuiz,
 );
 
 // Get assessments for a classroom

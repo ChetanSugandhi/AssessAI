@@ -8,8 +8,16 @@ import {
 import { generateStudentFeedback } from "../utils/gemini/feedback.js";
 
 export const createLearningAssessment = async (req, res) => {
-  const { classcode, title, contentType, contentUrlOrText, quizDescription } =
-    req.body;
+  const {
+    classcode,
+    title,
+    videolink,
+    audiolink,
+    textlink,
+    videodescription,
+    audiodescription,
+    textdescription,
+  } = req.body;
   const teacherId = req.user._id;
 
   try {
@@ -20,21 +28,43 @@ export const createLearningAssessment = async (req, res) => {
         .json({ message: "Unauthorized or classroom not found" });
     }
 
-    const quiz = await generateMiniQuiz(contentUrlOrText, quizDescription);
+    const videoContent = { link: videolink, description: videodescription };
+    const audioContent = { link: audiolink, description: audiodescription };
+    const textContent = { link: textlink, description: textdescription };
+
+    const videoQuiz = await generateMiniQuiz(videoContent, "video");
+    const audioQuiz = await generateMiniQuiz(audioContent, "audio");
+    const textQuiz = await generateMiniQuiz(textContent, "text");
 
     const assessment = await LearningAssessment.create({
       classroom: classroom._id,
       title,
-      content: { type: contentType, urlOrText: contentUrlOrText },
-      quiz,
+      videoContent,
+      audioContent,
+      textContent,
+      videoQuiz,
+      audioQuiz,
+      textQuiz,
       createdBy: teacherId,
     });
 
     res.status(201).json({
       id: assessment._id,
       title: assessment.title,
-      content: assessment.content,
-      quiz: assessment.quiz.map((q) => ({
+      videoContent: assessment.videoContent,
+      audioContent: assessment.audioContent,
+      textContent: assessment.textContent,
+      videoQuiz: assessment.videoQuiz.map((q) => ({
+        type: q.type,
+        question: q.question,
+        options: q.options || undefined,
+      })),
+      audioQuiz: assessment.audioQuiz.map((q) => ({
+        type: q.type,
+        question: q.question,
+        options: q.options || undefined,
+      })),
+      textQuiz: assessment.textQuiz.map((q) => ({
         type: q.type,
         question: q.question,
         options: q.options || undefined,
@@ -47,8 +77,8 @@ export const createLearningAssessment = async (req, res) => {
   }
 };
 
-export const submitAssessment = async (req, res) => {
-  const { answers } = req.body;
+export const submitAssessmentQuiz = async (req, res) => {
+  const { answers, quizType } = req.body; // quizType: "video", "audio", or "text"
   const { assessmentId } = req.params;
   const studentId = req.user._id;
 
@@ -65,28 +95,40 @@ export const submitAssessment = async (req, res) => {
         .json({ message: "You are not enrolled in this classroom" });
     }
 
+    const quizMap = {
+      video: assessment.videoQuiz,
+      audio: assessment.audioQuiz,
+      text: assessment.textQuiz,
+    };
+    const quiz = quizMap[quizType];
+    if (!quiz) {
+      return res.status(400).json({ message: "Invalid quiz type" });
+    }
+
     let score = 0;
-    const totalQuestions = assessment.quiz.length;
+    const totalQuestions = quiz.length;
     const responses = [];
 
     for (const [index, answer] of Object.entries(answers)) {
       const questionIndex = parseInt(index);
-      const question = assessment.quiz[questionIndex];
+      const question = quiz[questionIndex];
       let feedback = null;
+      let questionScore = 0;
 
       if (question.type === "mcq") {
         if (answer === question.correctAnswer) {
-          score += 10;
+          questionScore = 10;
           feedback = "Correct answer.";
         } else {
           feedback = `Incorrect. The correct answer is ${question.correctAnswer}.`;
         }
       } else if (question.type === "writing") {
         const grading = await gradeWritingResponse(question.question, answer);
-        score += grading.score;
+        questionScore = grading.score;
         feedback = grading.explanation;
       }
 
+      score += questionScore;
       responses.push({
         questionIndex,
         answer,
@@ -97,14 +139,34 @@ export const submitAssessment = async (req, res) => {
     const percentageScore = (score / (totalQuestions * 10)) * 100;
 
     const student = await Student.findById(studentId);
-    student.assessmentAttempts.push({
-      assessmentId,
-      classroomId: assessment.classroom,
-      responses,
-      score: percentageScore,
-    });
+    let attempt = student.assessmentAttempts.find(
+      (a) => a.assessmentId.toString() === assessmentId.toString(),
+    );
 
-    // Generate updated feedback
+    if (!attempt) {
+      attempt = {
+        assessmentId,
+        classroomId: assessment.classroom,
+        responsesByType: {},
+        scoresByType: { video: 0, audio: 0, text: 0 },
+        attemptedDate: new Date(),
+      };
+      student.assessmentAttempts.push(attempt);
+    }
+
+    attempt.responsesByType[quizType] = responses;
+    attempt.scoresByType[quizType] = percentageScore;
+
+    const allQuizzesAttempted = Object.keys(attempt.scoresByType).length === 3;
+    if (allQuizzesAttempted) {
+      attempt.score = (
+        (attempt.scoresByType.video +
+          attempt.scoresByType.audio +
+          attempt.scoresByType.text) /
+        3
+      ).toFixed(2);
+    }
+
     const assignmentFeedbacks = student.assignmentAttempts.flatMap((attempt) =>
       attempt.responses.map((r) => ({
         question: r.questionIndex,
@@ -112,12 +174,23 @@ export const submitAssessment = async (req, res) => {
         score: attempt.score,
       })),
     );
-    const assessmentFeedbacks = student.assessmentAttempts.flatMap((attempt) =>
-      attempt.responses.map((r) => ({
-        question: r.questionIndex,
-        feedback: r.feedback,
-        score: attempt.score,
-      })),
+    const assessmentFeedbacks = student.assessmentAttempts.flatMap(
+      (attempt) => {
+        const feedbacks = [];
+        for (const [type, responses] of Object.entries(
+          attempt.responsesByType || {},
+        )) {
+          responses.forEach((r) =>
+            feedbacks.push({
+              question: r.questionIndex,
+              feedback: r.feedback,
+              contentType: type,
+              score: attempt.scoresByType[type],
+            }),
+          );
+        }
+        return feedbacks;
+      },
     );
     const feedbackResult = await generateStudentFeedback(
       assignmentFeedbacks,
@@ -134,6 +207,7 @@ export const submitAssessment = async (req, res) => {
 
     res.json({
       assessmentId,
+      quizType,
       score: percentageScore,
       totalScorePossible: totalQuestions * 10,
       responses: responses.map((r) => ({
@@ -141,6 +215,8 @@ export const submitAssessment = async (req, res) => {
         answer: r.answer,
         feedback: r.feedback,
       })),
+      overallScore: attempt.score || "Pending all quizzes",
+      studentFeedback: student.feedback,
       submittedAt: new Date(),
     });
   } catch (error) {
@@ -165,15 +241,19 @@ export const getClassroomAssessments = async (req, res) => {
       const assessmentCopy = { ...assessment };
 
       if (assessment.dueDate && new Date(assessment.dueDate) > now) {
-        if (assessment.quiz && assessment.quiz.length > 0) {
-          assessmentCopy.quiz = assessment.quiz.map((question) => {
-            if (question.type === "mcq") {
-              const { correctAnswer, ...rest } = question;
-              return rest;
-            }
-            return question;
-          });
-        }
+        ["videoQuiz", "audioQuiz", "textQuiz"].forEach((quizType) => {
+          if (assessmentCopy[quizType] && assessmentCopy[quizType].length > 0) {
+            assessmentCopy[quizType] = assessmentCopy[quizType].map(
+              (question) => {
+                if (question.type === "mcq") {
+                  const { correctAnswer, ...rest } = question;
+                  return rest;
+                }
+                return question;
+              },
+            );
+          }
+        });
       }
 
       return assessmentCopy;
@@ -190,8 +270,9 @@ export const getStudentAssessmentAttempts = async (req, res) => {
   const studentId = req.user._id;
 
   try {
-    const student =
-      await Student.findById(studentId).select("assessmentAttempts");
+    const student = await Student.findById(studentId).select(
+      "assessmentAttempts feedback",
+    );
     const attempts = await Promise.all(
       student.assessmentAttempts.map(async (attempt) => {
         const assessment = await LearningAssessment.findById(
@@ -201,18 +282,21 @@ export const getStudentAssessmentAttempts = async (req, res) => {
           assessmentId: attempt.assessmentId,
           title: assessment?.title || "Unknown",
           classroomId: attempt.classroomId,
-          score: attempt.score,
+          score: attempt.score || "Pending all quizzes",
+          scoresByType: attempt.scoresByType,
+          responsesByType: attempt.responsesByType,
           attemptedDate: attempt.attemptedDate,
-          responses: attempt.responses.map((r) => ({
-            questionIndex: r.questionIndex,
-            answer: r.answer,
-            feedback: r.feedback,
-          })),
         };
       }),
     );
 
-    res.json(attempts);
+    res.json({
+      attempts,
+      feedback: student.feedback || {
+        detailed: "No feedback yet",
+        summary: "N/A",
+      },
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }

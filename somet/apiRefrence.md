@@ -184,18 +184,17 @@ curl -X POST http://localhost:7777/assessment/create \
                           -H "Content-Type: application/json" \
                           -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZTJjZmNlM2Y3YzM0ZDM0MDkyNjY0YiIsInJvbGUiOiJ0ZWFjaGVyIiwiaWF0IjoxNzQyOTE3NjEyLCJleHAiOjE3NDU1MDk2MTJ9.8emLWvxQnrCVawFTsqECc9mureSD-0XCujFS54zouLY" \
                           -d '{
-                        "classcode": "MATH102",
-                        "title": "Introduction to Calculus",
-                        
-                        "videolink": "https://www.youtube.com/watch?v=5vVbG9YPZOc",
-                        "videodescription": "The video explains the basics of calculus, covering limits, differentiation, and integration. Generate questions that test students on these concepts, including definitions, problem-solving, and real-world applications.",
-                        "audiolink": "https://www.youtube.com/watch?v=5vVbG9YPZOc",
-                        "audiodescription": "The video explains the basics of calculus, covering limits, differentiation, and integration. Generate questions that test students on these concepts, including definitions, problem-solving, and real-world applications.",
-                        "textlink": "https://www.youtube.com/watch?v=5vVbG9YPZOc",
-                        "textdescription": "The video explains the basics of calculus, covering limits, differentiation, and integration. Generate questions that test students on these concepts, including definitions, problem-solving, and real-world applications."
-                      }'
+                   "classcode": "MATH102",
+                   "title": "Multimedia Math Assessment",
+                   "videolink": "https://example.com/video.mp4",
+                   "audiolink": "https://example.com/audio.mp3",
+                   "textlink": "https://example.com/text.pdf",
+                   "videodescription": "Video explaining linear equations",
+                   "audiodescription": "Audio lecture on solving equations",
+                   "textdescription": "Text document on algebraic methods"
+                 }'
 
-{"id":"67e562243ffd90db6e09b146","title":"Introduction to Calculus","content":{"type":"video","urlOrText":"https://www.youtube.com/watch?v=5vVbG9YPZOc"},"quiz":[{"type":"mcq","question":"What does the limit of a function represent?","options":{"A":"The average rate of change of the function","B":"The instantaneous rate of change of the function","C":"The value the function approaches as the input approaches a specific value","D":"The area under the curve of the function"}},{"type":"mcq","question":"Differentiation is primarily used to find:","options":{"A":"The area under a curve","B":"The slope of a tangent line to a curve","C":"The accumulation of a quantity over time","D":"The limit of a function"}},{"type":"mcq","question":"Which of the following is a real-world application of integration?","options":{"A":"Finding the velocity of an object given its acceleration","B":"Determining the slope of a curve at a specific point","C":"Calculating the total distance traveled by a moving object given its velocity","D":"Predicting the future value of an investment"}},{"type":"writing","question":"Explain the relationship between differentiation and integration.  How are they inverse operations?","options":{}},{"type":"writing","question":"Give a real-world example (different from those in the video) where understanding limits could be helpful in solving a problem.","options":{}}]}
+{"id":"67eaad0bb96326fe93a17cac","title":"Multimedia Math Assessment","videoContent":{"link":"https://example.com/video.mp4","description":"Video explaining linear equations"},"audioContent":{"link":"https://example.com/audio.mp3","description":"Audio lecture on solving equations"},"textContent":{"link":"https://example.com/text.pdf","description":"Text document on algebraic methods"},"videoQuiz":[{"type":"mcq","question":"What is the slope of the line represented by the equation y = 2x + 3?","options":{"A":"3","B":"2","C":"-3","D":"-2"}},{"type":"mcq","question":"Which of the following equations represents a horizontal line?","options":{"A":"x = 5","B":"y = 5","C":"y = x + 5","D":"x + y = 5"}},{"type":"writing","question":"Describe the process of finding the x-intercept of a linear equation. Provide a simple example.","options":{}},{"type":"writing","question":"Explain how the slope and y-intercept of a linear equation can be used to graph the equation.  Give an example.","options":{}}],"audioQuiz":[{"type":"mcq","question":"What is the first step typically recommended when solving a linear equation?","options":{"A":"Subtract the constant from both sides","B":"Divide both sides by the coefficient of x","C":"Simplify both sides of the equation","D":"Add the variable terms together"}},{"type":"mcq","question":"Which of the following is NOT a valid method for solving equations?","options":{"A":"Adding the same value to both sides","B":"Subtracting the same value from both sides","C":"Multiplying both sides by zero","D":"Dividing both sides by the same non-zero value"}},{"type":"writing","question":"Describe the process of solving a simple two-step equation, providing an example.","options":{}},{"type":"writing","question":"Explain how to check your solution after solving an equation. Why is this important?","options":{}}],"textQuiz":[{"type":"mcq","question":"Which algebraic method is primarily discussed in the text?","options":{"A":"Quadratic Formula","B":"Gaussian Elimination","C":"Newton-Raphson Method","D":"Linear Programming"}},{"type":"mcq","question":"What is a key application of the algebraic method described in the text?","options":{"A":"Solving systems of differential equations","B":"Analyzing statistical data","C":"Solving quadratic equations","D":"Modeling biological processes"}},{"type":"writing","question":"Describe the steps involved in applying the main algebraic method discussed in the text.","options":{}},{"type":"writing","question":"Explain how the concepts in the text could be applied to a real-world problem.","options":{}}]}
 ```
 
 ---
@@ -203,20 +202,54 @@ curl -X POST http://localhost:7777/assessment/create \
 ## learning assessment attempt (student)
 
 ```
-curl -X POST "http://localhost:7777/assessment/attempt/67e562243ffd90db6e09b146" \
-                          -H "Content-Type: application/json" \
-                          -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZTJkMWFkM2Y3YzM0ZDM0MDkyNjY1NSIsInJvbGUiOiJzdHVkZW50IiwiaWF0IjoxNzQyOTkyNzIyLCJleHAiOjE3NDU1ODQ3MjJ9.CJ8o1Q3q2wAV2hQxq4iQIS1w-D8z9vPG_vPBhCQxqCw" \
-                          -d '{
-                        "answers": {
-                          "0": "C",
-                          "1": "A",
-                          "2": "C",
-                          "3": "The Fundamental Theorem of Calculus states that differentiation and integration are inverse operations. Differentiation finds the rate of change, while integration accumulates values over an interval.",
-                          "4": "In manufacturing, understanding limits helps ensure machine tolerances. If a part\'s dimension approaches a limit, adjustments are needed to maintain precision."
-                        }
-                      }'
+curl -X POST http://localhost:7777/assessment/submit/67eaad0bb96326fe93a17cac \
+                     -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZTJkMWFkM2Y3YzM0ZDM0MDkyNjY1NSIsInJvbGUiOiJzdHVkZW50IiwiaWF0IjoxNzQzNDMzMTg1LCJleHAiOjE3NDYwMjUxODV9.hNA7htCI5AlHKB8qm3TK9arQW3sRACjnvD1viUKnDtA" \
+                     -H "Content-Type: application/json" \
+                     -d '{
+                   "quizType": "video",
+                   "answers": {
+                     "0": "B",
+                     "1": "B",
+                     "2": "To find the x-intercept, set y = 0 and solve for x. For example, in y = 2x + 3, 0 = 2x + 3, 2x = -3, x = -1.5.",
+                     "3": "The slope (m) shows the steepness, and the y-intercept (b) is where the line crosses the y-axis. For y = 2x + 3, slope is 2, y-intercept is 3. Plot (0, 3), then use slope to find (1, 5) and draw the line."
+                   }
+                 }'
 
-{"assessmentId":"67e562243ffd90db6e09b146","score":66,"totalScorePossible":50,"responses":[{"questionIndex":0,"answer":"C","feedback":"Correct answer."},{"questionIndex":1,"answer":"A","feedback":"Incorrect. The correct answer is B."},{"questionIndex":2,"answer":"C","feedback":"Correct answer."},{"questionIndex":3,"answer":"The Fundamental Theorem of Calculus states that differentiation and integration are inverse operations. Differentiation finds the rate of change, while integration accumulates values over an interval.","feedback":"The response correctly identifies the Fundamental Theorem of Calculus as the key to understanding the inverse relationship between differentiation and integration, and gives accurate, albeit brief, definitions of each operation. However, it lacks a crucial explanation of *how* they are inverse operations.  The student merely states they are, without demonstrating it through an example or further elaboration (e.g., the derivative of an integral, or vice-versa).  More detail is needed to fully explain the inverse relationship."},{"questionIndex":4,"answer":"In manufacturing, understanding limits helps ensure machine tolerances. If a part's dimension approaches a limit, adjustments are needed to maintain precision.","feedback":"The response correctly identifies a real-world application of understanding limits in manufacturing.  However, it's somewhat brief and lacks specific examples of the types of limits involved (e.g., upper and lower bounds on dimensions) or how the adjustments are made.  More detail on the problem-solving aspect would improve the response."}],"submittedAt":"2025-03-27T14:38:21.928Z"}
+{"assessmentId":"67eaad0bb96326fe93a17cac","quizType":"video","score":90,"totalScorePossible":40,"responses":[{"questionIndex":0,"answer":"B","feedback":"Correct answer."},{"questionIndex":1,"answer":"B","feedback":"Correct answer."},{"questionIndex":2,"answer":"To find the x-intercept, set y = 0 and solve for x. For example, in y = 2x + 3, 0 = 2x + 3, 2x = -3, x = -1.5.","feedback":"The response accurately describes the process of finding the x-intercept and provides a correct and clear example.  It could be slightly improved by explicitly stating that the x-intercept is the point where the line crosses the x-axis (although this is implied).  The brevity is a strength, as it directly addresses the prompt's request for a simple explanation and example."},{"questionIndex":3,"answer":"The slope (m) shows the steepness, and the y-intercept (b) is where the line crosses the y-axis. For y = 2x + 3, slope is 2, y-intercept is 3. Plot (0, 3), then use slope to find (1, 5) and draw the line.","feedback":"The response correctly identifies the roles of slope and y-intercept in graphing a linear equation and provides a valid example. However, it lacks a thorough explanation of *how* the slope is used to find the second point (1,5).  Saying 'use slope to find (1,5)' is insufficient; it should explain that the slope of 2 means a rise of 2 and a run of 1 from the y-intercept.  More detail on the process would improve the score."}],"overallScore":"30.00","studentFeedback":{"detailed":"Your performance on this assignment demonstrates a mixed understanding of the material.  You correctly answered questions 0 and 2, showcasing a grasp of the underlying concepts in those specific instances. However, you missed questions 1 and 3, indicating a need for further review of those particular topics.  More significantly, your responses to questions 4, 5, and 6 reveal a substantial gap in your understanding of key concepts: derivatives and integrals (question 4), real-world applications of derivatives (question 5), and limits (question 6).  These responses were deemed completely inadequate due to a lack of explanation and crucial detail.  While you correctly stated the power rule in question 7, your explanation lacked depth and detail regarding its application to polynomials and the restrictions on 'n'.  To improve your grade, focus on a deeper understanding of the core concepts, providing thorough explanations and examples in your responses.  Practice applying the concepts to various scenarios to solidify your comprehension.  Pay special attention to the feedback provided for questions 4, 5, and 6, as these areas require significant improvement.","summary":"Inconsistent understanding.  Strong in some areas but needs significant improvement in core concepts (derivatives, integrals, limits, application of concepts). Provide more detail and examples in future responses.","generatedAt":"2025-03-31T15:01:10.760Z"},"submittedAt":"2025-03-31T15:01:10.798Z"}
+```
+
+```
+curl -X POST http://localhost:7777/assessment/submit/67eaad0bb96326fe93a17cac \
+                     -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZTJkMWFkM2Y3YzM0ZDM0MDkyNjY1NSIsInJvbGUiOiJzdHVkZW50IiwiaWF0IjoxNzQzNDMzMTg1LCJleHAiOjE3NDYwMjUxODV9.hNA7htCI5AlHKB8qm3TK9arQW3sRACjnvD1viUKnDtA" \
+                     -H "Content-Type: application/json" \
+                     -d '{
+                   "quizType": "audio",
+                   "answers": {
+                     "0": "C",
+                     "1": "C",
+                     "2": "For 2x + 3 = 7, subtract 3 from both sides to get 2x = 4, then divide by 2, so x = 2.",
+                     "3": "Substitute x back into the original equation. For 2x + 3 = 7, if x = 2, then 2(2) + 3 = 7, which is true. This ensures accuracy."
+                   }
+                 }'
+
+{"assessmentId":"67eaad0bb96326fe93a17cac","quizType":"audio","score":82.5,"totalScorePossible":40,"responses":[{"questionIndex":0,"answer":"C","feedback":"Correct answer."},{"questionIndex":1,"answer":"C","feedback":"Correct answer."},{"questionIndex":2,"answer":"For 2x + 3 = 7, subtract 3 from both sides to get 2x = 4, then divide by 2, so x = 2.","feedback":"The student correctly solves the equation and shows the steps. However, the response lacks a description of the *process*.  It only shows the process by example, without explaining the general steps involved in solving two-step equations (e.g., isolating the variable term, then isolating the variable).  A more complete answer would describe the general strategy before applying it to a specific example."},{"questionIndex":3,"answer":"Substitute x back into the original equation. For 2x + 3 = 7, if x = 2, then 2(2) + 3 = 7, which is true. This ensures accuracy.","feedback":"The student correctly explains the substitution method for checking solutions.  The example is clear and accurate. However, the explanation of *why* this is important is too brief.  A more thorough response would discuss the potential for errors in solving equations and how verification ensures accuracy and builds confidence in the solution.  The response only mentions 'ensures accuracy' without elaborating on the significance of this in mathematics."}],"overallScore":27.5,"studentFeedback":{"detailed":"The student shows inconsistent understanding, excelling in some multiple-choice questions but struggling with conceptual explanations and detailed justifications.  Performance in written assignments reveals significant gaps in understanding of fundamental concepts (derivatives, integrals, limits).  While some audio responses are correct, they often lack depth and fail to fully explain underlying processes.  Improved conceptual understanding and more detailed explanations, both written and verbal, are required.","summary":"Inconsistent understanding; needs improved conceptual understanding and detailed explanations.","generatedAt":"2025-03-31T15:02:11.736Z"},"submittedAt":"2025-03-31T15:02:11.749Z"}
+```
+
+```
+curl -X POST http://localhost:7777/assessment/submit/67eaad0bb96326fe93a17cac \
+                     -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZTJkMWFkM2Y3YzM0ZDM0MDkyNjY1NSIsInJvbGUiOiJzdHVkZW50IiwiaWF0IjoxNzQzNDMzMTg1LCJleHAiOjE3NDYwMjUxODV9.hNA7htCI5AlHKB8qm3TK9arQW3sRACjnvD1viUKnDtA" \
+                     -H "Content-Type: application/json" \
+                     -d '{
+                   "quizType": "text",
+                   "answers": {
+                     "0": "B",
+                     "1": "C",
+                     "2": "Gaussian Elimination involves writing equations in matrix form, using row operations to reduce to row-echelon form, then solving for variables.",
+                     "3": "In budgeting, Gaussian Elimination can solve a system of equations to allocate resources efficiently, like determining costs for multiple projects."
+                   }
+                 }'
+
+{"assessmentId":"67eaad0bb96326fe93a17cac","quizType":"text","score":55.00000000000001,"totalScorePossible":40,"responses":[{"questionIndex":0,"answer":"B","feedback":"Incorrect. The correct answer is A."},{"questionIndex":1,"answer":"C","feedback":"Correct answer."},{"questionIndex":2,"answer":"Gaussian Elimination involves writing equations in matrix form, using row operations to reduce to row-echelon form, then solving for variables.","feedback":"The response correctly identifies the main steps of Gaussian elimination: matrix representation, row reduction to row-echelon form, and back-substitution (implied in 'solving for variables'). However, it lacks crucial detail.  It doesn't explain what constitutes 'row operations' (e.g., swapping rows, multiplying rows by constants, adding multiples of rows), nor does it describe how to actually solve for the variables once in row-echelon form.  More detail and precision would significantly improve the response."},{"questionIndex":3,"answer":"In budgeting, Gaussian Elimination can solve a system of equations to allocate resources efficiently, like determining costs for multiple projects.","feedback":"The response correctly identifies a real-world application (budgeting) and connects it to a relevant mathematical concept (Gaussian Elimination). However, it lacks depth.  The explanation is very brief and doesn't fully explain *how* Gaussian Elimination solves the system of equations or the specifics of resource allocation.  More detail on the process and the nature of the equations would significantly improve the response."}],"overallScore":45.83,"studentFeedback":{"detailed":"The student demonstrates inconsistent performance. Strong in some multiple-choice questions, but consistently lacks depth and detail in written explanations across assignment and assessment questions, particularly regarding application and process explanation. Significant improvement needed in providing comprehensive and well-reasoned answers.","summary":"Inconsistent performance; needs improvement in written explanation and demonstrating a deeper understanding of concepts.","generatedAt":"2025-03-31T15:02:43.611Z"},"submittedAt":"2025-03-31T15:02:43.626Z"}
 ```
 
 ---

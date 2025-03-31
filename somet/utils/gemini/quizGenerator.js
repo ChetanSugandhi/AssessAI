@@ -60,18 +60,16 @@ export async function generateQuiz(
   }
 }
 
-export async function generateMiniQuiz(
-  content,
-  teacherDescription,
-  numMcqs = 3,
-  numWriting = 2,
-) {
+export async function generateMiniQuiz(content, contentType, numQuestions = 4) {
+  const numMcqs = Math.ceil(numQuestions / 2); // Half MCQs
+  const numWriting = numQuestions - numMcqs; // Half writing
+
   const prompt = `
-    Generate a quiz with ${numMcqs + numWriting} questions based on:
-    Content: ${content || ""}
-    Teacher Instructions: ${teacherDescription}
+    Generate a quiz with ${numQuestions} questions based on:
+    ${contentType.charAt(0).toUpperCase() + contentType.slice(1)} Content: ${content.link}
+    Description: ${content.description}
     - ${numMcqs} multiple-choice questions (MCQs), each with:
-      - A clear question related to the content and instructions
+      - A clear question related to the content and description
       - 4 answer options (labeled A, B, C, D)
       - The correct answer (specify A, B, C, or D)
     - ${numWriting} paragraph-based writing questions, each with:
@@ -80,13 +78,13 @@ export async function generateMiniQuiz(
     [
       {
         "type": "mcq",
-        "question": "What is 2 + 2?",
-        "options": { "A": "3", "B": "4", "C": "5", "D": "6" },
-        "correctAnswer": "B"
+        "question": "What is the main topic of the ${contentType}?",
+        "options": { "A": "Math", "B": "Science", "C": "History", "D": "Art" },
+        "correctAnswer": "A"
       },
       {
         "type": "writing",
-        "question": "Explain why 2 + 2 equals 4."
+        "question": "Explain the key concept presented in the ${contentType}."
       }
     ]
   `;
@@ -110,7 +108,7 @@ export async function generateMiniQuiz(
       return JSON.parse(cleanedJson);
     } catch (jsonError) {
       console.error("Invalid JSON received:", cleanedJson);
-      return await generateMiniQuiz(content, teacherDescription, numQuestions);
+      return await generateMiniQuiz(content, contentType, numQuestions);
     }
   } catch (error) {
     console.error("Error generating mini-quiz:", error.message);
