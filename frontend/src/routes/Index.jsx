@@ -12,7 +12,7 @@ import TeacherLogin from '../pages/TeacherLogin'
 import QuizSolution from '../pages/QuizSolution'
 import Features from '../pages/Features'
 import About from '../pages/About'
-
+import AssessmentAttempt from '../pages/AssessmentAttempt'
 const router = createBrowserRouter([
     {
         path: "/",
@@ -61,6 +61,9 @@ const router = createBrowserRouter([
          {
             path:"/about",
             element:<About/>
+         },{
+            path:"/classroom/:classcode/assessment/:assessmentId",
+            element:<AssessmentAttempt/>
          }
         ]
     }

@@ -186,9 +186,13 @@ curl -X POST http://localhost:7777/assessment/create \
                           -d '{
                         "classcode": "MATH102",
                         "title": "Introduction to Calculus",
-                        "contentType": "video",
-                        "contentUrlOrText": "https://www.youtube.com/watch?v=5vVbG9YPZOc",
-                        "quizDescription": "The video explains the basics of calculus, covering limits, differentiation, and integration. Generate questions that test students on these concepts, including definitions, problem-solving, and real-world applications."
+                        
+                        "videolink": "https://www.youtube.com/watch?v=5vVbG9YPZOc",
+                        "videodescription": "The video explains the basics of calculus, covering limits, differentiation, and integration. Generate questions that test students on these concepts, including definitions, problem-solving, and real-world applications.",
+                        "audiolink": "https://www.youtube.com/watch?v=5vVbG9YPZOc",
+                        "audiodescription": "The video explains the basics of calculus, covering limits, differentiation, and integration. Generate questions that test students on these concepts, including definitions, problem-solving, and real-world applications.",
+                        "textlink": "https://www.youtube.com/watch?v=5vVbG9YPZOc",
+                        "textdescription": "The video explains the basics of calculus, covering limits, differentiation, and integration. Generate questions that test students on these concepts, including definitions, problem-solving, and real-world applications."
                       }'
 
 {"id":"67e562243ffd90db6e09b146","title":"Introduction to Calculus","content":{"type":"video","urlOrText":"https://www.youtube.com/watch?v=5vVbG9YPZOc"},"quiz":[{"type":"mcq","question":"What does the limit of a function represent?","options":{"A":"The average rate of change of the function","B":"The instantaneous rate of change of the function","C":"The value the function approaches as the input approaches a specific value","D":"The area under the curve of the function"}},{"type":"mcq","question":"Differentiation is primarily used to find:","options":{"A":"The area under a curve","B":"The slope of a tangent line to a curve","C":"The accumulation of a quantity over time","D":"The limit of a function"}},{"type":"mcq","question":"Which of the following is a real-world application of integration?","options":{"A":"Finding the velocity of an object given its acceleration","B":"Determining the slope of a curve at a specific point","C":"Calculating the total distance traveled by a moving object given its velocity","D":"Predicting the future value of an investment"}},{"type":"writing","question":"Explain the relationship between differentiation and integration.  How are they inverse operations?","options":{}},{"type":"writing","question":"Give a real-world example (different from those in the video) where understanding limits could be helpful in solving a problem.","options":{}}]}

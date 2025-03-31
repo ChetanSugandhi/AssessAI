@@ -83,7 +83,7 @@ const StudentDashboard = () => {
             teacher: classroom.teacher.name ,
             color: getRandomClassColor(),
             feedbackAvailable: false, // Placeholder, update with actual backend data if available
-            recentAssignments: classroom.topics.map((topic, topicIndex) => ({
+            recentAssignments: classroom.assignments.map((topic, topicIndex) => ({
               id: topicIndex + 1,
               name: topic.title,
               description: topic.description,
@@ -246,7 +246,7 @@ const StudentDashboard = () => {
 
                   <div className="mb-4">
                     <h4 className="text-sm text-slate-300 mb-2 flex items-center">
-                      <FileText className="mr-1 h-4 w-4" /> Recent Topics
+                      <FileText className="mr-1 h-4 w-4" /> Recent Assignments
                     </h4>
                     {classroom.recentAssignments.map((topic) => (
                       <div
