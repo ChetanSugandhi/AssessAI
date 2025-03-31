@@ -5,13 +5,14 @@ export async function generateStudentFeedback(
   assessmentFeedbacks,
 ) {
   const prompt = `
-    Generate a comprehensive feedback summary for a student based on the following:
+    Generate a comprehensive feedback summary for a student based on:
     Assignment Feedbacks: ${JSON.stringify(assignmentFeedbacks)}
     Assessment Feedbacks: ${JSON.stringify(assessmentFeedbacks)}
+    Assessment feedbacks include responses and scores by content type (video, audio, text).
     Provide a detailed feedback paragraph and a concise summary in JSON format, like:
     {
-      "feedback": "The student shows a strong grasp of basic concepts but needs to work on elaboration in writing responses.",
-      "summary": "Good performance overall, with room for improvement in detailed explanations."
+      "feedback": "The student excels in video quizzes (90%) but struggles with audio (60%). Writing responses need more detail.",
+      "summary": "Strong in video, improve audio and writing."
     }
   `;
 

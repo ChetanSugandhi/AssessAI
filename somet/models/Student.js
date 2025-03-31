@@ -27,13 +27,34 @@ const assessmentAttemptSchema = new mongoose.Schema({
     required: true,
   },
   attemptedDate: { type: Date, default: Date.now },
-  responses: [
-    {
-      questionIndex: { type: Number, required: true },
-      answer: { type: String, required: true },
-      feedback: { type: String },
-    },
-  ],
+  responsesByType: {
+    video: [
+      {
+        questionIndex: { type: Number, required: true },
+        answer: { type: String, required: true },
+        feedback: { type: String },
+      },
+    ],
+    audio: [
+      {
+        questionIndex: { type: Number, required: true },
+        answer: { type: String, required: true },
+        feedback: { type: String },
+      },
+    ],
+    text: [
+      {
+        questionIndex: { type: Number, required: true },
+        answer: { type: String, required: true },
+        feedback: { type: String },
+      },
+    ],
+  },
+  scoresByType: {
+    video: { type: Number, default: 0 },
+    audio: { type: Number, default: 0 },
+    text: { type: Number, default: 0 },
+  },
   score: { type: Number },
 });
 
