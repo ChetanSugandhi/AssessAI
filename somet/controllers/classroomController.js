@@ -90,7 +90,8 @@ export const getClassroomDetails = async (req, res) => {
   try {
     const classroom = await Classroom.findOne({ classroomCode: classcode })
       .populate("teacher", "name")
-      .populate("students", "_id");
+      .populate("students", "name _id") // Fetch student names properly
+      .populate("overallFeedback", "feedback");
 
     if (!classroom) {
       return res.status(404).json({ message: "Classroom not found" });
@@ -111,9 +112,9 @@ export const getClassroomDetails = async (req, res) => {
         classDescription: classroom.description,
         students: classroom.students.map((student) => ({
           id: student._id,
-          name: Student.findById(student._id).name
+          name: student.name, // No need to fetch separately
         })),
-        classFeedback: classroom.overallFeedback.feedback,
+        classFeedback: classroom.overallFeedback?.feedback || "No feedback yet",
         assignments: assignments.map((assignment) => ({
           title: assignment.title,
           description: assignment.description,
@@ -123,20 +124,15 @@ export const getClassroomDetails = async (req, res) => {
     }
 
     if (userRole === "student") {
-      if (
-        !classroom.students.some((s) => s._id.toString() === userId.toString())
-      ) {
+      const student = await Student.findById(userId).populate("assignmentAttempts");
+
+      if (!classroom.students.some((s) => s._id.toString() === userId.toString())) {
         return res.status(403).json({ message: "Unauthorized" });
       }
 
-      const student = await Student.findById(userId);
-      const classJoinedDate = student.classrooms.includes(classroom._id)
-        ? classroom.createdAt
-        : null;
-
       const formattedAssignments = assignments.map((assignment) => {
         const attempt = student.assignmentAttempts.find(
-          (a) => a.assignmentId.toString() === assignment._id.toString(),
+          (a) => a.assignmentId.toString() === assignment._id.toString()
         );
 
         return {
@@ -144,25 +140,29 @@ export const getClassroomDetails = async (req, res) => {
           title: assignment.title,
           description: assignment.description,
           creationDate: assignment.createdAt,
-          attemptedDate: attempt ? attempt.attemptedDate : null,
-          score: attempt ? attempt.score : null,
+          attemptedDate: attempt?.attemptedDate || null,
+          score: attempt?.score || null,
         };
       });
 
       return res.json({
         className: classroom.name,
-        classJoinedDate,
+        classJoinedDate: classroom.createdAt, // No need to check if joined again
         teacherName: classroom.teacher.name,
         subject: classroom.subject,
         classDescription: classroom.description,
-        classFeedback: classroom.overallFeedback.feedback,
+        classFeedback: classroom.overallFeedback?.feedback || "No feedback yet",
         assignments: formattedAssignments,
       });
     }
+
+    return res.status(400).json({ message: "Invalid role" });
   } catch (error) {
+    console.error("Error fetching classroom details:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 export const generateClassFeedback = async (req, res) => {
   const { classcode } = req.params;
