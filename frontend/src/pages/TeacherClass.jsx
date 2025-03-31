@@ -49,6 +49,7 @@ const TeacherClass = () => {
           headers: { Authorization: `Bearer ${token}` },
         },
       );
+      console.log(response)
         setClassroom(response.data);
         setLoading(false);
       } catch (err) {
@@ -219,7 +220,7 @@ console.log(classroom)
     teacherName = '',
     classJoinedDate = '',
     classFeedback = 'No feedback available',
-    assignments = []
+    assignments = [],
   } = classroom || {};
 
   // Format the date for display
@@ -514,28 +515,45 @@ console.log(classroom)
         </div>
       )}
 
-      {activeTab === 'students' && (
-        <div className="space-y-6">
-          <h2 className="text-2xl font-bold text-cyan-400 mb-4">Students</h2>
-          <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
-            <ul className="divide-y divide-slate-800">
-              {studentsData.map(student => (
-                <li key={student.id} className="p-4 hover:bg-slate-800 transition-colors">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h3 className="font-medium text-lg text-cyan-300">{student.name}</h3>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-slate-400 text-sm">Grade: {student.grade}%</p>
-                      <p className="text-slate-400 text-sm">Participation: {student.participation}%</p>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      )}
+      
+{activeTab === 'students' && (
+  <div className="space-y-6">
+    <h2 className="text-2xl font-bold text-cyan-400 mb-4">Students</h2>
+    <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
+      <ul className="divide-y divide-slate-800">
+        {classroom.students.map(student => (
+          <li key={student.id} className="p-4 hover:bg-slate-800 transition-colors">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="font-medium text-lg text-cyan-300">{student.name}</h3>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="text-right">
+                  <p className="text-slate-400 text-sm">Grade: {student.grade}%</p>
+                  <p className="text-slate-400 text-sm">Participation: {student.participation}%</p>
+                </div>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => showStudentAssessment(student.id)} 
+                    className="px-3 py-1 bg-cyan-600 hover:bg-cyan-700 text-white text-sm rounded transition-colors"
+                  >
+                    Assessment Result
+                  </button>
+                  <button 
+                    onClick={() => removeStudent(student.id)} 
+                    className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded transition-colors"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+)}
 
       {activeTab === 'analytics' && (
         <div className="space-y-6">
@@ -670,47 +688,115 @@ console.log(classroom)
 
       {/* Add Learning Assessment Data Dialog */}
       {isAddingAssessmentData && (
-        <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-slate-900 rounded-xl p-6 w-full max-w-md">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-cyan-400">Add Learning Assessment Data</h2>
-              <button
-                onClick={() => setIsAddingAssessmentData(false)}
-                className="text-slate-400 hover:text-white"
-              >
-                <X size={24} />
-              </button>
-            </div>
-            <form className="space-y-4" onSubmit={handleSubmitAssessmentData}>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">
-                  Assessment Data Input
-                </label>
-                <textarea
-                  placeholder="Enter assessment data here..."
-                  className="w-full bg-slate-800 rounded-lg border border-slate-700 p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent h-32"
-                />
-              </div>
-
-              <div className="flex space-x-3 mt-6">
-                <button
-                  type="button"
-                  onClick={() => setIsAddingAssessmentData(false)}
-                  className="flex-1 bg-slate-800 hover:bg-slate-700 text-white py-2 rounded-lg transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white py-2 rounded-lg transition-colors"
-                >
-                  Add Assessment Data
-                </button>
-              </div>
-            </form>
+  <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-sm flex items-center justify-center z-50">
+    <div className="bg-slate-900 rounded-xl p-6 w-full max-w-2xl">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-cyan-400">Add Learning Assessment Data</h2>
+        <button
+          onClick={() => setIsAddingAssessmentData(false)}
+          className="text-slate-400 hover:text-white"
+        >
+          <X size={24} />
+        </button>
+      </div>
+      <form className="space-y-6" onSubmit={handleSubmitAssessmentData}>
+        {/* Video Data */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium text-cyan-300">Video Resource</h3>
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">
+              Video Link
+            </label>
+            <input
+              type="url"
+              name="videolink"
+              placeholder="https://www.youtube.com/watch?v=..."
+              className="w-full bg-slate-800 rounded-lg border border-slate-700 p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">
+              Video Description
+            </label>
+            <textarea
+              name="videodescription"
+              placeholder="Describe the video content and learning objectives..."
+              className="w-full bg-slate-800 rounded-lg border border-slate-700 p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent h-24"
+            />
           </div>
         </div>
-      )}
+
+        {/* Audio Data */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium text-cyan-300">Audio Resource</h3>
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">
+              Audio Link
+            </label>
+            <input
+              type="url"
+              name="audiolink"
+              placeholder="https://www.youtube.com/watch?v=..."
+              className="w-full bg-slate-800 rounded-lg border border-slate-700 p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">
+              Audio Description
+            </label>
+            <textarea
+              name="audiodescription"
+              placeholder="Describe the audio content and learning objectives..."
+              className="w-full bg-slate-800 rounded-lg border border-slate-700 p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent h-24"
+            />
+          </div>
+        </div>
+
+        {/* Text Data */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium text-cyan-300">Text Resource</h3>
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">
+              Text Link
+            </label>
+            <input
+              type="url"
+              name="textlink"
+              placeholder="https://www.example.com/article..."
+              className="w-full bg-slate-800 rounded-lg border border-slate-700 p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">
+              Text Description
+            </label>
+            <textarea
+              name="textdescription"
+              placeholder="Describe the text content and learning objectives..."
+              className="w-full bg-slate-800 rounded-lg border border-slate-700 p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent h-24"
+            />
+          </div>
+        </div>
+
+        <div className="flex space-x-3 mt-6">
+          <button
+            type="button"
+            onClick={() => setIsAddingAssessmentData(false)}
+            className="flex-1 bg-slate-800 hover:bg-slate-700 text-white py-2 rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white py-2 rounded-lg transition-colors"
+          >
+            Add Assessment Data
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
     </div>
   );
 };

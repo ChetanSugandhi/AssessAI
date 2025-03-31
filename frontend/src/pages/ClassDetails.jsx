@@ -198,6 +198,10 @@ Overall, your trajectory in this course is positive, with your dedication to lea
     navigate(`/assignment-feedback/${assignmentId}`);
   };
 
+  const handleAssessmentAttempt = () => {
+    navigate(`/classroom/${classcode}/assessment/0101`);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
@@ -485,7 +489,9 @@ Overall, your trajectory in this course is positive, with your dedication to lea
                 <p className="text-slate-400 mb-6 max-w-md mx-auto">
                   Take a short assessment to identify your learning strengths and receive personalized strategies to improve your performance in this class.
                 </p>
-                <button className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg text-md flex items-center mx-auto transition-colors">
+                <button className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg text-md flex items-center mx-auto transition-colors"
+                onClick={handleAssessmentAttempt}
+                >
                   <Brain className="mr-2" /> Start Assessment Now
                 </button>
               </div>
@@ -537,7 +543,7 @@ Overall, your trajectory in this course is positive, with your dedication to lea
             </div>
 
             {/* Topic Progress */}
-            <div className="bg-slate-800 p-6 rounded-lg mb-6">
+            {/* <div className="bg-slate-800 p-6 rounded-lg mb-6">
               <h3 className="text-lg font-semibold text-cyan-400 mb-4 flex items-center">
                 <BookMarked className="mr-2 h-5 w-5" /> Topic Progress
               </h3>
@@ -558,7 +564,7 @@ Overall, your trajectory in this course is positive, with your dedication to lea
                   </div>
                 ))}
               </div>
-            </div>
+            </div> */}
 
             {/* Recommendations */}
             <div className="bg-slate-800 p-6 rounded-lg mb-6">

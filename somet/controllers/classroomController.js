@@ -109,6 +109,10 @@ export const getClassroomDetails = async (req, res) => {
         teacherName: classroom.teacher.name,
         subject: classroom.subject,
         classDescription: classroom.description,
+        students: classroom.students.map((student) => ({
+          id: student._id,
+          name: Student.findById(student._id).name
+        })),
         classFeedback: classroom.overallFeedback.feedback,
         assignments: assignments.map((assignment) => ({
           title: assignment.title,

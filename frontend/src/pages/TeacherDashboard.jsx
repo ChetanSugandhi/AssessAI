@@ -70,7 +70,6 @@ const TeacherDashboard = () => {
             headers: { Authorization: `Bearer ${token}` },
           },
         );
-        console.log(response.data);
         if (response.data) {
           // Map the backend data structure to match our component's expected format
           const mappedClassrooms = response.data.map(
@@ -84,14 +83,13 @@ const TeacherDashboard = () => {
               learningAssessment:
               classroom.learningAssessmentStatus === "Available",
               recentAssignments:
-                classroom.recentTopics.map((topic, topicIndex) => ({
+                classroom.assignments.map((topic, topicIndex) => ({
                   id: topicIndex + 1,
                   title: topic.title || topic.name || "Untitled Topic",
                   status: topic.status || "pending",
                 })) || [],
             }),
           );
-
           setClassrooms(mappedClassrooms);
         }
         setLoading(false);
