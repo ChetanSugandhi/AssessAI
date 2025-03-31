@@ -111,7 +111,7 @@ const TeacherDashboard = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        `http://localhost:7777/assignment/${classcode}/quiz`,
+        `http://localhost:7777/classroom/create`,
         {
           name: newClassroom.name,
           subject: newClassroom.subject,

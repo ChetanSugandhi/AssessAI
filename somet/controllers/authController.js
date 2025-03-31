@@ -47,6 +47,7 @@ export const studentSignup = async (req, res) => {
   const { email, password, name, username } = req.body;
   try {
     const studentExists = await Student.findOne({ email });
+    console.log(email);
     if (studentExists)
       return res.status(400).json({ message: "Student already exists" });
 
