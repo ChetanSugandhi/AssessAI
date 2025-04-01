@@ -522,11 +522,18 @@ console.log(classroom)
     <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
       <ul className="divide-y divide-slate-800">
         {classroom.students.map(student => (
-          <li key={student.id} className="p-4 hover:bg-slate-800 transition-colors">
+          <li key={student.id} className="p-4  transition-colors">
             <div className="flex justify-between items-center">
               <div>
                 <h3 className="font-medium text-lg text-cyan-300">{student.name}</h3>
+                <button 
+                    onClick={() => showStudentAssessment(student.id)} 
+                    className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm rounded transition-colors"
+                  >
+                  Add-on Feedback
+                  </button>
               </div>
+              
               <div className="flex items-center gap-4">
                 <div className="text-right">
                   <p className="text-slate-400 text-sm">Grade: {student.grade}%</p>
@@ -538,6 +545,12 @@ console.log(classroom)
                     className="px-3 py-1 bg-cyan-600 hover:bg-cyan-700 text-white text-sm rounded transition-colors"
                   >
                     Assessment Result
+                  </button>
+                  <button 
+                    onClick={() => showStudentAssessment(student.id)} 
+                    className="px-3 py-1 bg-cyan-600 hover:bg-cyan-700 text-white text-sm rounded transition-colors"
+                  >
+                  Generated Feedback
                   </button>
                   <button 
                     onClick={() => removeStudent(student.id)} 

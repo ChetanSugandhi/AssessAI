@@ -242,6 +242,13 @@ Overall, your trajectory in this course is positive, with your dedication to lea
         <div>
           <h1 className="text-2xl font-bold text-cyan-400">{classroom.className}</h1>
         </div>
+        <div className="flex space-x-4">
+        <button
+              className="px-4 py-2 text-sm ml-365 font-medium rounded-md bg-red-500/20 text-red-400 hover:bg-indigo-100 transition duration-150 ease-in-out"
+            >
+              Leave Class
+            </button>
+            </div>
       </div>
       
       {/* Classroom Overview Card */}

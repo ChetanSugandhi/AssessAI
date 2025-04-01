@@ -80,8 +80,7 @@ const TeacherDashboard = () => {
               classCode: classroom.classCode,
               students: classroom.studentCount,
               assignmentsCount: classroom.topicCount ,
-              learningAssessment:
-              classroom.learningAssessmentStatus === "Available",
+              learningAssessment:true,
               recentAssignments:
                 classroom.assignments.map((topic, topicIndex) => ({
                   id: topicIndex + 1,

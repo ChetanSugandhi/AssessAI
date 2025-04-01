@@ -256,7 +256,6 @@ const StudentDashboard = () => {
                         <div className="overflow-hidden">
                           <span className="text-sm text-white truncate block">{topic.name}</span>
                           <span className="text-xs text-slate-400 truncate block">{topic.description}</span>
-                          <span className="text-xs text-slate-400">{topic.createdAt}</span>
                         </div>
                         <span className={`
                           ${topic.status === 'Completed' ? 'bg-green-500' :
