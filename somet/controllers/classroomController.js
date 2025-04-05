@@ -213,6 +213,29 @@ export const generateClassFeedback = async (req, res) => {
   }
 };
 
+export const removeStudent = async (req, res) => {
+  const { studentId } = req.params;
+  const classroomId = req.params.classroomId; // Classroom ID from URL
+  const teacherId = req.user._id; // From JWT passport auth
+
+  try {
+    const classroom = await Classroom.findById(classroomId);
+    if (!classroom || classroom.teacher.toString() !== teacherId.toString()) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    classroom.students = classroom.students.filter(
+      (student) => student.toString() !== studentId
+    );
+    await classroom.save();
+
+    res.json({ message: "Student removed successfully" });
+  } catch (error) {
+    console.error("Error removing student:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
 export const getAssignment = async (req, res) => {
   const { assignmentId } = req.params;
 

@@ -133,6 +133,30 @@ console.log(classroom)
     setIsAddingAssessmentData(true);
   };
 
+  const removeStudent = async (studentId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:7777/remove/${studentId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        withCredentials: 'true',
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to remove student');
+      }
+      
+      // Refresh classroom data after removing a student
+      await refreshClassroomData();
+    } catch (err) {
+      console.error('Error removing student:', err);
+    }
+  }
+
   const handleSubmitAssignment = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -547,7 +571,7 @@ console.log(classroom)
                     Assessment Result
                   </button>
                   <button 
-                    onClick={() => showStudentAssessment(student.id)} 
+                    onClick={() => showStudentFeedback(student.id)} 
                     className="px-3 py-1 bg-cyan-600 hover:bg-cyan-700 text-white text-sm rounded transition-colors"
                   >
                   Generated Feedback
@@ -556,7 +580,7 @@ console.log(classroom)
                     onClick={() => removeStudent(student.id)} 
                     className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded transition-colors"
                   >
-                    Remove
+                    Remove Student
                   </button>
                 </div>
               </div>

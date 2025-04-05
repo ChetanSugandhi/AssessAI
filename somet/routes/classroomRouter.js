@@ -6,6 +6,7 @@ import {
   joinClassroom,
   generateClassFeedback,
   getAssignment,
+  removeStudent,
 } from "../controllers/classroomController.js";
 
 const router = express.Router();
@@ -38,6 +39,12 @@ router.get(
   "/:classcode/:assignmentId",
   passport.authenticate("jwt", { session: false }),
   getAssignment,
+);
+
+router.delete(
+  "/remove/:studentId",
+  passport.authenticate("jwt", { session: false }),
+  removeStudent,
 );
 
 export default router;
