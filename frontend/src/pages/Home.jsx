@@ -42,7 +42,7 @@ function Home() {
 
   const handleStudentDashboard = async () => {
     try {
-        const response = await axios.get("http://localhost:7777/auth/check", { withCredentials: true });
+        const response = await axios.get("/api/auth/check", { withCredentials: true });
         console.log("Auth Check Response:", response.data);
         navigate(response.data.redirectTo);
     } catch (error) {

@@ -64,7 +64,7 @@ const TeacherDashboard = () => {
         setLoading(true);
         const token = localStorage.getItem("token");
         const response = await axios.get(
-          "http://localhost:7777/teacher-dashboard",
+          "/api/teacher-dashboard",
           {
             withCredentials: true,
             headers: { Authorization: `Bearer ${token}` },
@@ -108,7 +108,7 @@ const TeacherDashboard = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        `http://localhost:7777/classroom/create`,
+        `/api/classroom/create`,
         {
           name: newClassroom.name,
           subject: newClassroom.subject,

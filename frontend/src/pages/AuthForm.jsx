@@ -8,7 +8,7 @@ const AuthForm = () => {
   const navigate = useNavigate();
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:7777/auth/google"; // Redirect to Google Auth
+    window.location.href = "/api/auth/google"; // Redirect to Google Auth
   };
 
   const handleSignUp = async (e) => {
@@ -20,7 +20,7 @@ const AuthForm = () => {
     const password = e.target.password.value;
 
     try {
-      const response = await axios.post("http://localhost:7777/auth/student-signup", {
+      const response = await axios.post("/api/auth/student-signup", {
         name,
         username,
         email,
@@ -47,7 +47,7 @@ const AuthForm = () => {
     const password = e.target.password.value;
 
     try {
-        const response = await axios.post("http://localhost:7777/auth/student-login", {
+        const response = await axios.post("/api/auth/student-login", {
             username,
             password
         });

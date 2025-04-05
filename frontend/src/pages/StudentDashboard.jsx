@@ -66,7 +66,7 @@ const StudentDashboard = () => {
         setLoading(true);
         const token = localStorage.getItem("token");
         const response = await axios.get(
-          "http://localhost:7777/student-dashboard",
+          "/api/student-dashboard",
           {
             withCredentials: true,
             headers: { Authorization: `Bearer ${token}` },
@@ -140,7 +140,7 @@ const StudentDashboard = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        "http://localhost:7777/classroom/join", 
+        "/api/classroom/join", 
         { classroomCode: trimmedCode }, 
         { 
           withCredentials: true,

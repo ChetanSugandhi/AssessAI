@@ -43,7 +43,7 @@ const TeacherClass = () => {
         setLoading(true);
         const token = localStorage.getItem("token");
       const response = await axios.get(
-        `http://localhost:7777/classroom/${classcode}`,
+        `/api/classroom/${classcode}`,
         {
           withCredentials: true,
           headers: { Authorization: `Bearer ${token}` },
@@ -67,7 +67,7 @@ console.log(classroom)
   // Refresh data after adding a new assignment/topic
   const refreshClassroomData = async () => {
     try {
-      const response = await fetch(`http://localhost:7777/classroom/${classcode}`);
+      const response = await fetch(`/api/classroom/${classcode}`);
       if (!response.ok) {
         throw new Error(`Failed to fetch classroom data: ${response.status}`);
       }
@@ -136,7 +136,7 @@ console.log(classroom)
   const removeStudent = async (studentId) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:7777/remove/${studentId}`, {
+      const response = await fetch(`/api/remove/${studentId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -166,7 +166,7 @@ console.log(classroom)
     try {
       // Make API call to add a new topic
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:7777/assignment/${classcode}/quiz`, {
+      const response = await fetch(`/api/assignment/${classcode}/quiz`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

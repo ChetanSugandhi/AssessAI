@@ -21,7 +21,7 @@ const handleTeacherLogin = async () => {
 
     try {
         const response = await axios.post(
-            "http://localhost:7777/set-role/teacher",
+            "/api/set-role/teacher",
             { teacherCode },
             { headers: { "Content-Type": "application/json" }, withCredentials: true }
         );

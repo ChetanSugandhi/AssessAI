@@ -64,7 +64,7 @@ const ClassDetails = () => {
       try {
         setLoading(true);
         const token = localStorage.getItem('token'); // Assuming you store the token in localStorage
-        const response = await fetch(`http://localhost:7777/classroom/${classcode}`, {
+        const response = await fetch(`/api/classroom/${classcode}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
