@@ -6,7 +6,6 @@ import axios from "axios";
 const Header = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  console.log("Token in Header:", token);
   const handleStudentLogin = async () => {
       try {  
               window.location.href = "/authform";  // Redirect only after role is set
