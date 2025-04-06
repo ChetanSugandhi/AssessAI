@@ -64,7 +64,6 @@ const handleTeacherLogin = async () => {
           </nav>
           
           <>
-      {!token && (
         <div className="flex space-x-4">
           <button
             onClick={handleStudentLogin}
@@ -81,8 +80,7 @@ const handleTeacherLogin = async () => {
             <ArrowRight className="ml-1 h-4 w-4" />
           </button>
         </div>
-      )}
-    </>
+    
         </div>
       </div>
     </header>
