@@ -171,7 +171,7 @@ const TeacherLogin = () => {
             <button className="bg-cyan-500 text-white text-sm px-11 py-2.5 border border-transparent rounded-lg font-semibold tracking-wider uppercase mt-2.5 cursor-pointer hover:bg-cyan-600 transition-colors">
               Sign In
             </button>
-            <p className="text-sm text-gray-400 hover:text-cyan-500 mt-4">Demo Student Login:</p>
+            <p className="text-sm text-gray-400 hover:text-cyan-500 mt-4">Demo Teacher Login:</p>
             <p className="text-sm text-gray-400 hover:text-cyan-500 ">Username - demo, Password - demo</p>          </form>
         </div>
 
