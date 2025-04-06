@@ -65,7 +65,7 @@ const handleTeacherLogin = async () => {
           </nav>
           
           <>
-      {token && (
+      {!token && (
         <div className="flex space-x-4">
           <button
             onClick={handleStudentLogin}
