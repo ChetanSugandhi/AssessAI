@@ -63,22 +63,26 @@ const handleTeacherLogin = async () => {
             <a href="/about" className="text-gray-100 hover:text-blue-500 transition-colors">About</a>
           </nav>
           
-          if(!{token}){<div className="flex space-x-4">
-            <button
-              onClick={handleStudentLogin}
-              className="px-4 py-2 text-sm font-medium rounded-md text-indigo-50 bg-cyan-500 hover:bg-indigo-100 transition duration-150 ease-in-out"
-            >
-              Student Login
-            </button>
+          <>
+      {token && (
+        <div className="flex space-x-4">
+          <button
+            onClick={handleStudentLogin}
+            className="px-4 py-2 text-sm font-medium rounded-md text-indigo-50 bg-cyan-500 hover:bg-indigo-100 transition duration-150 ease-in-out"
+          >
+            Student Login
+          </button>
 
-            <button
-              onClick={handleTeacherLogin}
-              className="px-4 py-2 text-sm font-medium rounded-md text-cyan-500 bg-slate-800 hover:bg-slate-700 transition duration-150 ease-in-out flex items-center"
-            >
-              Teacher Login
-              <ArrowRight className="ml-1 h-4 w-4" />
-            </button>
-          </div>}
+          <button
+            onClick={handleTeacherLogin}
+            className="px-4 py-2 text-sm font-medium rounded-md text-cyan-500 bg-slate-800 hover:bg-slate-700 transition duration-150 ease-in-out flex items-center"
+          >
+            Teacher Login
+            <ArrowRight className="ml-1 h-4 w-4" />
+          </button>
+        </div>
+      )}
+    </>
         </div>
       </div>
     </header>
