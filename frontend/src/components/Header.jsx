@@ -5,7 +5,7 @@ import axios from "axios";
 
 const Header = () => {
   const navigate = useNavigate();
-
+  const token = localStorage.getItem("token");
   const handleStudentLogin = async () => {
       try {  
               window.location.href = "/authform";  // Redirect only after role is set
@@ -62,8 +62,8 @@ const handleTeacherLogin = async () => {
             <a href="/features" className="text-gray-100 hover:text-blue-500 transition-colors">Features</a>
             <a href="/about" className="text-gray-100 hover:text-blue-500 transition-colors">About</a>
           </nav>
-
-          <div className="flex space-x-4">
+          
+          if(!{token}){<div className="flex space-x-4">
             <button
               onClick={handleStudentLogin}
               className="px-4 py-2 text-sm font-medium rounded-md text-indigo-50 bg-cyan-500 hover:bg-indigo-100 transition duration-150 ease-in-out"
@@ -78,7 +78,7 @@ const handleTeacherLogin = async () => {
               Teacher Login
               <ArrowRight className="ml-1 h-4 w-4" />
             </button>
-          </div>
+          </div>}
         </div>
       </div>
     </header>

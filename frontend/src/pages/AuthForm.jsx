@@ -84,7 +84,7 @@ const AuthForm = () => {
                   <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
                 </svg>
               </div>
-              <span onClick={handleGoogleLogin} >Sign up with Google</span>
+              <span  >Sign up with Google</span>
             </button>
             <div className="flex items-center gap-4 w-full max-w-xs my-4">
               <div className="flex-1 h-px bg-gray-600"></div>
@@ -138,7 +138,7 @@ const AuthForm = () => {
                   <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
                 </svg>
               </div>
-              <span onClick={handleGoogleLogin} > Sign in with Google</span>
+              <span  > Sign in with Google</span>
             </button>
             <div className="flex items-center gap-4 w-full max-w-xs my-4">
               <div className="flex-1 h-px bg-gray-600"></div>
@@ -161,6 +161,8 @@ const AuthForm = () => {
             <button className="bg-cyan-500 text-white text-sm px-11 py-2.5 border border-transparent rounded-lg font-semibold tracking-wider uppercase mt-2.5 cursor-pointer hover:bg-cyan-600 transition-colors">
               Sign In
             </button>
+            <p className="text-sm text-gray-400 hover:text-cyan-500 my-4">Demo Student Login: Username - demo, Password - demo</p>
+
           </form>
         </div>
 
