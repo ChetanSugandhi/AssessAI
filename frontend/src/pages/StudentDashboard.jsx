@@ -160,7 +160,14 @@ const StudentDashboard = () => {
     }
   };
 
-  if (loading) return <div className="text-white p-6">Loading classrooms...</div>;
+  if (loading) return (
+      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-400 mx-auto mb-4"></div>
+          <p>Loading classroom data...</p>
+        </div>
+      </div>
+);
   if (error) return <div className="text-red-500 p-6">{error}</div>;
 
   return (
