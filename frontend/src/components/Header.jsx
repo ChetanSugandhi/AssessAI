@@ -63,7 +63,7 @@ const handleTeacherLogin = async () => {
             <a href="/about" className="text-gray-100 hover:text-blue-500 transition-colors">About</a>
           </nav>
           
-          <>
+          <div>
         <div className="flex space-x-4">
           <button
             onClick={handleStudentLogin}
@@ -80,7 +80,7 @@ const handleTeacherLogin = async () => {
             <ArrowRight className="ml-1 h-4 w-4" />
           </button>
         </div>
-    
+    </div>
         </div>
       </div>
     </header>
