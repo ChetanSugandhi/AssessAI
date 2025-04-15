@@ -16,7 +16,8 @@ const Header = () => {
   };
   
 const handleTeacherLogin = async () => {
-    const teacherCode = prompt("Enter Teacher Code:");
+    const teacherCode = prompt("Enter Teacher Code:
+#Education");
     if (!teacherCode) return;  // Stop if no code entered
 
     try {
