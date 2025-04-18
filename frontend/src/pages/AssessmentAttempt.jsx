@@ -302,9 +302,9 @@ const LearningAssessment = () => {
   // Render loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
-        <Loader className="h-8 w-8 animate-spin text-cyan-400 mr-3" />
-        <p className="text-xl font-semibold">Loading assessment...</p>
+      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-4">
+        <Loader className="h-6 w-6 md:h-8 md:w-8 animate-spin text-cyan-400 mr-2 md:mr-3" />
+        <p className="text-base md:text-xl font-semibold">Loading assessment...</p>
       </div>
     );
   }
@@ -316,35 +316,36 @@ const LearningAssessment = () => {
     switch (currentSection) {
       case 0:
         return (
-          <div className="bg-slate-900 rounded-xl shadow-2xl p-6 border border-slate-800 mb-6">
-            <div className="flex items-center mb-4">
-              <Video className="text-cyan-400 mr-2 h-5 w-5" />
-              <h2 className="text-xl font-semibold">Watch the Video</h2>
+          <div className="bg-slate-900 rounded-xl shadow-lg md:shadow-2xl p-4 md:p-6 border border-slate-800 mb-4 md:mb-6">
+            <div className="flex items-center mb-3 md:mb-4">
+              <Video className="text-cyan-400 mr-2 h-4 w-4 md:h-5 md:w-5" />
+              <h2 className="text-lg md:text-xl font-semibold">Watch the Video</h2>
             </div>
-            <div className="aspect-video bg-slate-800 rounded-lg overflow-hidden mb-4">
+            <div className="aspect-video bg-slate-800 rounded-lg overflow-hidden mb-3 md:mb-4">
               <video 
                 src={assessmentData.videoUrl} 
                 controls 
                 className="w-full h-full" 
                 onEnded={handleVideoEnded}
+                playsInline
               />
             </div>
-            <div className="flex justify-between items-center">
-              <p className="text-slate-400 text-sm">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center">
+              <p className="text-slate-400 text-xs md:text-sm mb-2 md:mb-0">
                 Please watch the complete video before proceeding to the questions.
               </p>
               {/* Development aid - remove in production */}
               <button 
                 onClick={skipMediaRequirement}
-                className="text-xs text-slate-500 hover:text-slate-400"
+                className="text-xs text-slate-500 hover:text-slate-400 self-end md:self-auto"
               >
                 (Skip for development)
               </button>
             </div>
             {!mediaCompleted.video && (
-              <div className="mt-4 bg-amber-900/30 border border-amber-800/50 rounded-lg p-3 flex items-center">
-                <AlertCircle className="text-amber-400 mr-2 h-5 w-5" />
-                <p className="text-amber-300 text-sm">
+              <div className="mt-3 md:mt-4 bg-amber-900/30 border border-amber-800/50 rounded-lg p-2 md:p-3 flex items-center">
+                <AlertCircle className="text-amber-400 mr-2 h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
+                <p className="text-amber-300 text-xs md:text-sm">
                   You must watch the entire video before answering questions.
                 </p>
               </div>
@@ -353,12 +354,12 @@ const LearningAssessment = () => {
         );
       case 1:
         return (
-          <div className="bg-slate-900 rounded-xl shadow-2xl p-6 border border-slate-800 mb-6">
-            <div className="flex items-center mb-4">
-              <Headphones className="text-cyan-400 mr-2 h-5 w-5" />
-              <h2 className="text-xl font-semibold">Listen to the Audio</h2>
+          <div className="bg-slate-900 rounded-xl shadow-lg md:shadow-2xl p-4 md:p-6 border border-slate-800 mb-4 md:mb-6">
+            <div className="flex items-center mb-3 md:mb-4">
+              <Headphones className="text-cyan-400 mr-2 h-4 w-4 md:h-5 md:w-5" />
+              <h2 className="text-lg md:text-xl font-semibold">Listen to the Audio</h2>
             </div>
-            <div className="bg-slate-800 rounded-lg p-4 mb-4">
+            <div className="bg-slate-800 rounded-lg p-3 md:p-4 mb-3 md:mb-4">
               <audio 
                 src={assessmentData.audioUrl} 
                 controls 
@@ -366,22 +367,22 @@ const LearningAssessment = () => {
                 onEnded={handleAudioEnded}
               />
             </div>
-            <div className="flex justify-between items-center">
-              <p className="text-slate-400 text-sm">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center">
+              <p className="text-slate-400 text-xs md:text-sm mb-2 md:mb-0">
                 Please listen to the complete audio before proceeding to the questions.
               </p>
               {/* Development aid - remove in production */}
               <button 
                 onClick={skipMediaRequirement}
-                className="text-xs text-slate-500 hover:text-slate-400"
+                className="text-xs text-slate-500 hover:text-slate-400 self-end md:self-auto"
               >
                 (Skip for development)
               </button>
             </div>
             {!mediaCompleted.audio && (
-              <div className="mt-4 bg-amber-900/30 border border-amber-800/50 rounded-lg p-3 flex items-center">
-                <AlertCircle className="text-amber-400 mr-2 h-5 w-5" />
-                <p className="text-amber-300 text-sm">
+              <div className="mt-3 md:mt-4 bg-amber-900/30 border border-amber-800/50 rounded-lg p-2 md:p-3 flex items-center">
+                <AlertCircle className="text-amber-400 mr-2 h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
+                <p className="text-amber-300 text-xs md:text-sm">
                   You must listen to the entire audio before answering questions.
                 </p>
               </div>
@@ -390,17 +391,17 @@ const LearningAssessment = () => {
         );
       case 2:
         return (
-          <div className="bg-slate-900 rounded-xl shadow-2xl p-6 border border-slate-800 mb-6">
-            <div className="flex items-center mb-4">
-              <FileText className="text-cyan-400 mr-2 h-5 w-5" />
-              <h2 className="text-xl font-semibold">Read the Text</h2>
+          <div className="bg-slate-900 rounded-xl shadow-lg md:shadow-2xl p-4 md:p-6 border border-slate-800 mb-4 md:mb-6">
+            <div className="flex items-center mb-3 md:mb-4">
+              <FileText className="text-cyan-400 mr-2 h-4 w-4 md:h-5 md:w-5" />
+              <h2 className="text-lg md:text-xl font-semibold">Read the Text</h2>
             </div>
-            <div className="bg-slate-800 rounded-lg p-4 mb-4 max-h-80 overflow-y-auto">
-              <div className="prose prose-invert prose-cyan">
+            <div className="bg-slate-800 rounded-lg p-3 md:p-4 mb-3 md:mb-4 max-h-60 md:max-h-80 overflow-y-auto">
+              <div className="prose prose-sm md:prose prose-invert prose-cyan">
                 <div dangerouslySetInnerHTML={{ __html: assessmentData.textContent }} />
               </div>
             </div>
-            <p className="text-slate-400 text-sm">
+            <p className="text-slate-400 text-xs md:text-sm">
               Please read the text carefully before answering the questions.
             </p>
           </div>
@@ -411,29 +412,29 @@ const LearningAssessment = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-6">
+    <div className="min-h-screen bg-slate-950 text-white p-3 md:p-6">
       {/* Confirmation Dialog */}
       {showConfirmSubmit && (
-        <div className="fixed inset-0 flex items-center justify-center z-[1000]">
+        <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"></div>
-          <div className="relative bg-slate-900 rounded-xl p-6 w-full max-w-md border border-slate-800 shadow-xl">
-            <h3 className="text-xl font-bold text-cyan-400 mb-4">Submit Assessment?</h3>
-            <p className="text-slate-300 mb-6">
+          <div className="relative bg-slate-900 rounded-xl p-4 md:p-6 w-full max-w-md mx-4 border border-slate-800 shadow-xl">
+            <h3 className="text-lg md:text-xl font-bold text-cyan-400 mb-3 md:mb-4">Submit Assessment?</h3>
+            <p className="text-slate-300 text-sm md:text-base mb-4 md:mb-6">
               Are you sure you want to submit your learning assessment? Make sure you have reviewed all your answers.
               This action cannot be undone.
             </p>
-            <div className="flex justify-end space-x-3">
+            <div className="flex flex-col space-y-2 md:flex-row md:space-y-0 md:justify-end md:space-x-3">
               <button
                 onClick={() => setShowConfirmSubmit(false)}
-                className="px-4 py-2 text-slate-300 hover:text-white transition-colors"
+                className="px-4 py-2 text-slate-300 hover:text-white transition-colors text-sm md:text-base order-2 md:order-1"
               >
                 Review Answers
               </button>
               <button
                 onClick={handleSubmit}
-                className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center"
+                className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center justify-center text-sm md:text-base order-1 md:order-2"
               >
-                <Send className="mr-2 h-4 w-4" /> Submit Assessment
+                <Send className="mr-2 h-4 w-4" /> Submit
               </button>
             </div>
           </div>
@@ -441,32 +442,32 @@ const LearningAssessment = () => {
       )}
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4 md:mb-6">
         <div className="flex items-center">
           <button 
             onClick={goBack} 
-            className="bg-slate-800 p-2 rounded-full mr-4 hover:bg-slate-700 transition-colors"
+            className="bg-slate-800 p-1.5 md:p-2 rounded-full mr-2 md:mr-4 hover:bg-slate-700 transition-colors"
           >
-            <ArrowLeft />
+            <ArrowLeft className="h-4 w-4 md:h-5 md:w-5" />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-cyan-400">Learning Pattern Assessment</h1>
-            <p className="text-slate-400">Assess your learning through video, audio, and text content</p>
+            <h1 className="text-lg md:text-2xl font-bold text-cyan-400 truncate">Learning Pattern Assessment</h1>
+            <p className="text-xs md:text-sm text-slate-400 hidden sm:block">Assess your learning through video, audio, and text content</p>
           </div>
         </div>
       </div>
 
       {/* Progress Indicator */}
-      <div className="mb-6">
-        <div className="flex justify-between mb-2">
-          <span className="text-sm text-slate-400">Progress</span>
-          <span className="text-sm text-cyan-400">
+      <div className="mb-4 md:mb-6">
+        <div className="flex justify-between mb-1 md:mb-2">
+          <span className="text-xs md:text-sm text-slate-400">Progress</span>
+          <span className="text-xs md:text-sm text-cyan-400">
             {currentSection === 0 ? "Video Section" : currentSection === 1 ? "Audio Section" : "Text Section"}
           </span>
         </div>
-        <div className="bg-slate-800 rounded-full h-2">
+        <div className="bg-slate-800 rounded-full h-1.5 md:h-2">
           <div 
-            className="bg-cyan-500 h-2 rounded-full transition-all duration-300"
+            className="bg-cyan-500 h-1.5 md:h-2 rounded-full transition-all duration-300"
             style={{ 
               width: `${(currentSection / 3) * 100 + (currentQuestion / getSectionQuestions().length) * (100 / 3)}%` 
             }}
@@ -475,20 +476,20 @@ const LearningAssessment = () => {
       </div>
 
       {/* Section Navigation */}
-      <div className="flex space-x-2 mb-6 overflow-x-auto pb-2">
+      <div className="flex mb-4 md:mb-6 overflow-x-auto pb-2 gap-2">
         <button
           onClick={() => {
             if (currentSection >= 0) setCurrentSection(0);
           }}
           className={`
-            flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-colors
+            flex items-center justify-center px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-medium transition-colors text-xs md:text-sm flex-shrink-0
             ${currentSection === 0 
               ? 'bg-cyan-600 text-white' 
               : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
             }
           `}
         >
-          <Video className="h-4 w-4 mr-2" /> Video
+          <Video className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" /> Video
         </button>
         <button
           onClick={() => {
@@ -496,7 +497,7 @@ const LearningAssessment = () => {
           }}
           disabled={currentSection < 1}
           className={`
-            flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-colors
+            flex items-center justify-center px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-medium transition-colors text-xs md:text-sm flex-shrink-0
             ${currentSection === 1 
               ? 'bg-cyan-600 text-white' 
               : currentSection < 1 
@@ -505,7 +506,7 @@ const LearningAssessment = () => {
             }
           `}
         >
-          <Headphones className="h-4 w-4 mr-2" /> Audio
+          <Headphones className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" /> Audio
         </button>
         <button
           onClick={() => {
@@ -513,7 +514,7 @@ const LearningAssessment = () => {
           }}
           disabled={currentSection < 2}
           className={`
-            flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-colors
+            flex items-center justify-center px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-medium transition-colors text-xs md:text-sm flex-shrink-0
             ${currentSection === 2 
               ? 'bg-cyan-600 text-white' 
               : currentSection < 2 
@@ -522,7 +523,7 @@ const LearningAssessment = () => {
             }
           `}
         >
-          <FileText className="h-4 w-4 mr-2" /> Text
+          <FileText className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" /> Text
         </button>
       </div>
 
@@ -535,13 +536,13 @@ const LearningAssessment = () => {
          currentSection === 2) && (
         <>
           {/* Question Navigation */}
-          <div className="flex space-x-2 mb-6 overflow-x-auto pb-2">
+          <div className="flex space-x-1 md:space-x-2 mb-4 md:mb-6 overflow-x-auto pb-2 scrollbar-hide">
             {getSectionQuestions().map((question, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentQuestion(index)}
                 className={`
-                  flex items-center justify-center w-10 h-10 rounded-lg font-medium transition-colors
+                  flex items-center justify-center min-w-8 w-8 h-8 md:w-10 md:h-10 rounded-lg font-medium transition-colors flex-shrink-0
                   ${currentQuestion === index 
                     ? 'bg-cyan-600 text-white' 
                     : isQuestionAnswered(currentSection, question.id) 
@@ -550,20 +551,20 @@ const LearningAssessment = () => {
                   }
                 `}
               >
-                {isQuestionAnswered(currentSection, question.id) ? <CheckCircle className="h-4 w-4" /> : index + 1}
+                {isQuestionAnswered(currentSection, question.id) ? <CheckCircle className="h-3 w-3 md:h-4 md:w-4" /> : index + 1}
               </button>
             ))}
           </div>
 
           {/* Question Card */}
           {getCurrentQuestion() && (
-            <div className="bg-slate-900 rounded-xl shadow-2xl p-6 border border-slate-800 mb-6">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-slate-400">
+            <div className="bg-slate-900 rounded-xl shadow-lg md:shadow-2xl p-4 md:p-6 border border-slate-800 mb-4 md:mb-6">
+              <div className="flex items-center justify-between mb-3 md:mb-4">
+                <span className="text-xs md:text-sm text-slate-400">
                   Question {currentQuestion + 1} of {getSectionQuestions().length} ({getSectionName()})
                 </span>
                 <span className={`
-                  px-3 py-1 rounded-full text-xs
+                  px-2 py-0.5 md:px-3 md:py-1 rounded-full text-xs
                   ${getCurrentQuestion().type === 'mcq' 
                     ? 'bg-purple-900 text-purple-400' 
                     : 'bg-cyan-900 text-cyan-400'
@@ -573,10 +574,10 @@ const LearningAssessment = () => {
                 </span>
               </div>
 
-              <h2 className="text-xl font-semibold mb-6">{getCurrentQuestion().question}</h2>
+              <h2 className="text-base md:text-xl font-semibold mb-4 md:mb-6">{getCurrentQuestion().question}</h2>
 
               {getCurrentQuestion().type === 'mcq' ? (
-                <div className="space-y-3">
+                <div className="space-y-2 md:space-y-3">
                   {getCurrentQuestion().options.map((option, index) => {
                     const currentAnswer = answers[getCurrentQuestion().id];
                     const isSelected = currentAnswer && currentAnswer.optionIndex === index;
@@ -585,7 +586,7 @@ const LearningAssessment = () => {
                       <label 
                         key={index}
                         className={`
-                          block p-4 rounded-lg border-2 transition-all cursor-pointer
+                          block p-3 md:p-4 rounded-lg border-2 transition-all cursor-pointer text-sm md:text-base
                           ${isSelected
                             ? 'bg-cyan-900/50 border-cyan-500'
                             : 'bg-slate-800 border-transparent hover:border-slate-600'
@@ -602,17 +603,17 @@ const LearningAssessment = () => {
                         />
                         <div className="flex items-center">
                           <div className={`
-                            w-5 h-5 rounded-full border-2 mr-3 flex items-center justify-center
+                            w-4 h-4 md:w-5 md:h-5 rounded-full border-2 mr-2 md:mr-3 flex items-center justify-center flex-shrink-0
                             ${isSelected
                               ? 'border-cyan-500 bg-cyan-500'
                               : 'border-slate-600'
                             }
                           `}>
                             {isSelected && (
-                              <div className="w-2 h-2 rounded-full bg-white"></div>
+                              <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-white"></div>
                             )}
                           </div>
-                          {option}
+                          <div className="flex-1">{option}</div>
                         </div>
                       </label>
                     );
@@ -622,7 +623,7 @@ const LearningAssessment = () => {
                 <textarea
                   value={answers[getCurrentQuestion().id]?.text || ''}
                   onChange={(e) => handleParagraphAnswerChange(getCurrentQuestion().id, e.target.value)}
-                  className="w-full h-48 bg-slate-800 border border-slate-700 rounded-lg p-4 text-white resize-none focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                  className="w-full h-28 md:h-48 bg-slate-800 border border-slate-700 rounded-lg p-3 md:p-4 text-sm md:text-base text-white resize-none focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                   placeholder="Type your answer here..."
                 />
               )}
@@ -635,17 +636,17 @@ const LearningAssessment = () => {
               onClick={() => setCurrentQuestion(prev => Math.max(0, prev - 1))}
               disabled={currentQuestion === 0}
               className={`
-                px-4 py-2 rounded-lg flex items-center transition-colors
+                px-3 py-1.5 md:px-4 md:py-2 rounded-lg flex items-center transition-colors text-xs md:text-sm
                 ${currentQuestion === 0
                   ? 'bg-slate-800 text-slate-500 cursor-not-allowed'
                   : 'bg-slate-800 text-white hover:bg-slate-700'
                 }
               `}
             >
-              <ArrowLeft className="mr-2 h-4 w-4" /> Previous
+              <ArrowLeft className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" /> Previous
             </button>
 
-            <div className="flex space-x-3">
+            <div className="flex space-x-2 md:space-x-3">
               {isLastQuestionInSection() && isLastSection() && (
                 <button
                   onClick={() => {
@@ -658,14 +659,14 @@ const LearningAssessment = () => {
                     }
                   }}
                   className={`
-                    px-4 py-2 rounded-lg transition-colors flex items-center
+                    px-3 py-1.5 md:px-4 md:py-2 rounded-lg transition-colors flex items-center text-xs md:text-sm
                     ${areAllQuestionsAnswered()
                       ? 'bg-cyan-600 hover:bg-cyan-700 text-white'
                       : 'bg-slate-700 text-slate-300'
                     }
                   `}
                 >
-                  <Send className="mr-2 h-4 w-4" /> Submit Assessment
+                  <Send className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" /> Submit
                 </button>
               )}
               
@@ -674,14 +675,14 @@ const LearningAssessment = () => {
                   onClick={moveToNextSection}
                   disabled={!areAllCurrentSectionQuestionsAnswered()}
                   className={`
-                    px-4 py-2 rounded-lg transition-colors flex items-center
+                    px-3 py-1.5 md:px-4 md:py-2 rounded-lg transition-colors flex items-center text-xs md:text-sm
                     ${areAllCurrentSectionQuestionsAnswered()
                       ? 'bg-cyan-600 hover:bg-cyan-700 text-white'
                       : 'bg-slate-700 text-slate-300 cursor-not-allowed'
                     }
                   `}
                 >
-                  Next Section <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
+                  Next <ArrowLeft className="ml-1 md:ml-2 h-3 w-3 md:h-4 md:w-4 rotate-180" />
                 </button>
               )}
               

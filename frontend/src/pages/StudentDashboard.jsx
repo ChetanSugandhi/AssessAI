@@ -12,7 +12,8 @@ import {
   MessageSquare,
   Brain,
   Award,
-  X
+  X,
+  Menu
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -22,6 +23,7 @@ const StudentDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [classroomCode, setClassroomCode] = useState('');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const [studentProfile] = useState({
     name: 'Emma Thompson',
@@ -80,7 +82,7 @@ const StudentDashboard = () => {
             name: classroom.className,
             classcode: classroom.classCode,
             subject: classroom.subject,
-            teacher: classroom.teacher.name ,
+            teacher: classroom.teacher.name,
             color: getRandomClassColor(),
             feedbackAvailable: false, // Placeholder, update with actual backend data if available
             recentAssignments: classroom.assignments.map((topic, topicIndex) => ({
@@ -167,23 +169,24 @@ const StudentDashboard = () => {
           <p>Loading classroom data...</p>
         </div>
       </div>
-);
+  );
+
   if (error) return <div className="text-red-500 p-6">{error}</div>;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-6">
-      {/* Join Classroom Dialog - Previously implemented code remains the same */}
+    <div className="min-h-screen bg-slate-950 text-white p-3 sm:p-6">
+      {/* Join Classroom Dialog */}
       {isDialogOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-[1000]">
-          <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"></div>
-          <div className="relative bg-slate-900 rounded-xl p-6 w-full max-w-md border border-slate-800 shadow-xl">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold text-cyan-400">Join Classroom</h3>
+          <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={() => setIsDialogOpen(false)}></div>
+          <div className="relative bg-slate-900 rounded-xl p-4 sm:p-6 w-full max-w-md mx-4 border border-slate-800 shadow-xl">
+            <div className="flex justify-between items-center mb-4 sm:mb-6">
+              <h3 className="text-lg sm:text-xl font-bold text-cyan-400">Join Classroom</h3>
               <button
                 onClick={() => setIsDialogOpen(false)}
                 className="text-slate-400 hover:text-white transition-colors"
               >
-                <X className="h-6 w-6" />
+                <X className="h-5 w-5 sm:h-6 sm:w-6" />
               </button>
             </div>
             <form onSubmit={handleJoinClassroom}>
@@ -212,77 +215,80 @@ const StudentDashboard = () => {
         </div>
       )}
 
-      <div className="space-y-6">
-        <div className="bg-slate-900 rounded-xl shadow-2xl p-6 border border-slate-800 transform transition-all hover:scale-[1.02]">
-          <div className="flex justify-between items-center mb-6">
-            <button onClick={goBack} className="bg-slate-800 p-2 rounded-full mr-4 hover:bg-slate-700 transition-colors">
-              <ArrowLeft />
-            </button>
-            <h2 className="text-2xl font-bold text-cyan-400 flex items-center">
-              <BookOpen className="mr-3 text-cyan-500" /> My Classrooms
-            </h2>
+      <div className="space-y-4 sm:space-y-6">
+        <div className="bg-slate-900 rounded-xl shadow-2xl p-4 sm:p-6 border border-slate-800 transform transition-all hover:scale-[1.01] sm:hover:scale-[1.02]">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-3">
+            <div className="flex items-center">
+              <button onClick={goBack} className="bg-slate-800 p-2 rounded-full mr-3 hover:bg-slate-700 transition-colors">
+                <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+              </button>
+              <h2 className="text-xl sm:text-2xl font-bold text-cyan-400 flex items-center">
+                <BookOpen className="mr-2 sm:mr-3 h-5 w-5 sm:h-6 sm:w-6 text-cyan-500" /> 
+                <span className="truncate">My Classrooms</span>
+              </h2>
+            </div>
             <button
               onClick={() => setIsDialogOpen(true)}
-              className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors"
+              className="bg-cyan-600 hover:bg-cyan-700 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg flex items-center justify-center transition-colors w-full sm:w-auto"
             >
-              <UserPlus className="mr-2" /> Join Classroom
+              <UserPlus className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" /> Join Classroom
             </button>
           </div>
 
           {classrooms.length === 0 ? (
-            <div className="text-center text-slate-400 py-10">
+            <div className="text-center text-slate-400 py-8 sm:py-10">
               No classrooms joined yet. Click "Join Classroom" to get started!
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {classrooms.map((classroom) => (
                 <div
                   key={classroom.id}
-                  className="bg-slate-800 rounded-lg p-4 hover:bg-slate-700 cursor-pointer transition-colors"
-                  onClick={() =>
-                    navigate(`/classroom/${classroom.classcode}`)
-                  }
+                  className="bg-slate-800 rounded-lg p-3 sm:p-4 hover:bg-slate-700 cursor-pointer transition-colors"
+                  onClick={() => navigate(`/classroom/${classroom.classcode}`)}
                 >
-                  <div className="flex justify-between items-center mb-3">
-                    <h3 className="text-xl font-semibold text-cyan-300">{classroom.name}</h3>
-                    <div className={`w-3 h-3 rounded-full ${classroom.color}`}></div>
+                  <div className="flex justify-between items-center mb-2 sm:mb-3">
+                    <h3 className="text-lg sm:text-xl font-semibold text-cyan-300 truncate">{classroom.name}</h3>
+                    <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${classroom.color}`}></div>
                   </div>
 
-                  <p className="text-sm text-slate-400 mb-4">Subject: {classroom.subject}</p>
-                  <p className="text-sm text-slate-400 mb-4">Teacher: {classroom.teacher}</p>
+                  <p className="text-xs sm:text-sm text-slate-400 mb-2 sm:mb-3">Subject: {classroom.subject}</p>
+                  <p className="text-xs sm:text-sm text-slate-400 mb-3 sm:mb-4">Teacher: {classroom.teacher}</p>
 
-                  <div className="mb-4">
-                    <h4 className="text-sm text-slate-300 mb-2 flex items-center">
-                      <FileText className="mr-1 h-4 w-4" /> Recent Assignments
+                  <div className="mb-3 sm:mb-4">
+                    <h4 className="text-xs sm:text-sm text-slate-300 mb-1.5 sm:mb-2 flex items-center">
+                      <FileText className="mr-1 h-3 w-3 sm:h-4 sm:w-4" /> Recent Assignments
                     </h4>
-                    {classroom.recentAssignments.map((topic) => (
-                      <div
-                        key={topic.id}
-                        className="flex justify-between items-center bg-slate-700 p-2 rounded mb-2"
-                      >
-                        <div className="overflow-hidden">
-                          <span className="text-sm text-white truncate block">{topic.name}</span>
-                          <span className="text-xs text-slate-400 truncate block">{topic.description}</span>
-                        </div>
-                        <span className={`
-                          ${topic.status === 'Completed' ? 'bg-green-500' :
-                            topic.status === 'In Progress' ? 'bg-blue-500' :
-                              'bg-red-500'} 
-                          text-white px-2 py-1 rounded-full text-xs`}
+                    <div className="max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-800">
+                      {classroom.recentAssignments.slice(0, 3).map((topic) => (
+                        <div
+                          key={topic.id}
+                          className="flex justify-between items-center bg-slate-700 p-1.5 sm:p-2 rounded mb-1.5 sm:mb-2"
                         >
-                          {topic.status}
-                        </span>
-                      </div>
-                    ))}
+                          <div className="overflow-hidden flex-1 mr-2">
+                            <span className="text-xs sm:text-sm text-white truncate block">{topic.name}</span>
+                            <span className="text-xs text-slate-400 truncate block hidden sm:block">{topic.description}</span>
+                          </div>
+                          <span className={`
+                            ${topic.status === 'Completed' ? 'bg-green-500' :
+                              topic.status === 'In Progress' ? 'bg-blue-500' :
+                                'bg-red-500'} 
+                            text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs whitespace-nowrap`}
+                          >
+                            {topic.status}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 mt-3">
-                    <div className={`flex items-center justify-center p-2 rounded-lg ${classroom.feedbackAvailable ? 'bg-green-900 text-green-400' : 'bg-slate-700 text-slate-400'}`}>
-                      <MessageSquare className="mr-1 h-4 w-4" />
+                  <div className="grid grid-cols-2 gap-2 mt-2 sm:mt-3">
+                    <div className={`flex items-center justify-center p-1.5 sm:p-2 rounded-lg ${classroom.feedbackAvailable ? 'bg-green-900 text-green-400' : 'bg-slate-700 text-slate-400'}`}>
+                      <MessageSquare className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
                       <span className="text-xs">Feedback</span>
                     </div>
-                    <div className={`flex items-center justify-center p-2 rounded-lg ${classroom.learningAssessmentCompleted ? 'bg-purple-900 text-purple-400' : 'bg-slate-700 text-slate-400'}`}>
-                      <Brain className="mr-1 h-4 w-4" />
+                    <div className={`flex items-center justify-center p-1.5 sm:p-2 rounded-lg ${classroom.learningAssessmentCompleted ? 'bg-purple-900 text-purple-400' : 'bg-slate-700 text-slate-400'}`}>
+                      <Brain className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
                       <span className="text-xs">Assessment</span>
                     </div>
                   </div>
@@ -291,61 +297,62 @@ const StudentDashboard = () => {
             </div>
           )}
         </div>
-        {/* Learning Goals and Achievements sections remain unchanged */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-slate-900 rounded-xl shadow-2xl p-6 border border-slate-800 transform transition-all hover:scale-[1.02]">
-            <h2 className="text-2xl font-bold text-cyan-400 flex items-center mb-6">
-              <Trophy className="mr-3 text-cyan-500" /> Achievements
+        
+        {/* Learning Goals and Achievements in stacked layout on mobile, side by side on desktop */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          <div className="bg-slate-900 rounded-xl shadow-2xl p-4 sm:p-6 border border-slate-800 transform transition-all hover:scale-[1.01] sm:hover:scale-[1.02]">
+            <h2 className="text-xl sm:text-2xl font-bold text-cyan-400 flex items-center mb-4 sm:mb-6">
+              <Trophy className="mr-2 sm:mr-3 h-5 w-5 sm:h-6 sm:w-6 text-cyan-500" /> Achievements
             </h2>
 
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {studentProfile.achievements.map((achievement) => (
                 <div
                   key={achievement.id}
-                  className="bg-slate-800 rounded-lg p-4 flex items-center justify-between hover:bg-slate-700 transition-colors"
+                  className="bg-slate-800 rounded-lg p-3 sm:p-4 flex items-center justify-between hover:bg-slate-700 transition-colors"
                 >
                   <div className="flex items-center">
-                    {achievement.icon}
-                    <div className="ml-4">
-                      <h3 className="text-lg font-semibold text-cyan-300">{achievement.name}</h3>
-                      <span className="text-sm text-slate-400">Level: {achievement.level}</span>
+                    {React.cloneElement(achievement.icon, { className: achievement.icon.props.className + ' h-4 w-4 sm:h-5 sm:w-5' })}
+                    <div className="ml-3 sm:ml-4">
+                      <h3 className="text-base sm:text-lg font-semibold text-cyan-300">{achievement.name}</h3>
+                      <span className="text-xs sm:text-sm text-slate-400">Level: {achievement.level}</span>
                     </div>
                   </div>
-                  <Award className="text-yellow-500" />
+                  <Award className="text-yellow-500 h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
               ))}
             </div>
 
-            <button className="mt-6 w-full bg-cyan-600 hover:bg-cyan-700 text-white py-3 rounded-lg transition-colors">
+            <button className="mt-4 sm:mt-6 w-full bg-cyan-600 hover:bg-cyan-700 text-white py-2 sm:py-3 rounded-lg transition-colors text-sm sm:text-base">
               View All Achievements
             </button>
           </div>
 
-          <div className="bg-slate-900 rounded-xl shadow-2xl p-6 border border-slate-800 transform transition-all hover:scale-[1.02]">
-            <h2 className="text-2xl font-bold text-cyan-400 flex items-center mb-6">
-              <Target className="mr-3 text-cyan-500" /> Learning Goals
+          <div className="bg-slate-900 rounded-xl shadow-2xl p-4 sm:p-6 border border-slate-800 transform transition-all hover:scale-[1.01] sm:hover:scale-[1.02]">
+            <h2 className="text-xl sm:text-2xl font-bold text-cyan-400 flex items-center mb-4 sm:mb-6">
+              <Target className="mr-2 sm:mr-3 h-5 w-5 sm:h-6 sm:w-6 text-cyan-500" /> Learning Goals
             </h2>
 
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {studentProfile.learningGoals.map((goal) => (
                 <div
                   key={goal.id}
-                  className="bg-slate-800 rounded-lg p-4 hover:bg-slate-700 transition-colors"
+                  className="bg-slate-800 rounded-lg p-3 sm:p-4 hover:bg-slate-700 transition-colors"
                 >
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="text-lg font-semibold text-cyan-300">{goal.title}</h3>
-                    <span className="text-sm text-slate-400">{goal.progress}%</span>
+                  <div className="flex justify-between items-center mb-1.5 sm:mb-2">
+                    <h3 className="text-base sm:text-lg font-semibold text-cyan-300 truncate mr-2">{goal.title}</h3>
+                    <span className="text-xs sm:text-sm text-slate-400 whitespace-nowrap">{goal.progress}%</span>
                   </div>
-                  <div className="w-full bg-slate-700 rounded-full h-2.5 mb-2">
+                  <div className="w-full bg-slate-700 rounded-full h-2 sm:h-2.5 mb-1.5 sm:mb-2">
                     <div
-                      className="bg-cyan-500 h-2.5 rounded-full"
+                      className="bg-cyan-500 h-2 sm:h-2.5 rounded-full"
                       style={{ width: `${goal.progress}%` }}
                     ></div>
                   </div>
-                  <p className="text-sm text-slate-300">{goal.description}</p>
-                  <div className="mt-2 flex justify-between items-center">
-                    <span className="text-xs text-purple-400">Reward: {goal.reward}</span>
-                    <button className="text-xs bg-cyan-600 text-white px-3 py-1 rounded-full hover:bg-cyan-700 transition-colors">
+                  <p className="text-xs sm:text-sm text-slate-300">{goal.description}</p>
+                  <div className="mt-2 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+                    <span className="text-xs text-purple-400 truncate">Reward: {goal.reward}</span>
+                    <button className="text-xs bg-cyan-600 text-white px-3 py-1 rounded-full hover:bg-cyan-700 transition-colors w-full sm:w-auto text-center">
                       Update Goal
                     </button>
                   </div>

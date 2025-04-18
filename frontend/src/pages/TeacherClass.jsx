@@ -17,7 +17,9 @@ import {
   FileText,
   Plus,
   ArrowLeft,
-  X
+  X,
+  Menu,
+  ChevronDown
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -36,20 +38,21 @@ const TeacherClass = () => {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const fetchClassroomData = async () => {
       try {
         setLoading(true);
         const token = localStorage.getItem("token");
-      const response = await axios.get(
-        `/api/classroom/${classcode}`,
-        {
-          withCredentials: true,
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
-      console.log(response)
+        const response = await axios.get(
+          `/api/classroom/${classcode}`,
+          {
+            withCredentials: true,
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
+        console.log(response);
         setClassroom(response.data);
         setLoading(false);
       } catch (err) {
@@ -63,16 +66,19 @@ const TeacherClass = () => {
       fetchClassroomData();
     }
   }, [classcode]);
-console.log(classroom)
+
   // Refresh data after adding a new assignment/topic
   const refreshClassroomData = async () => {
     try {
-      const response = await fetch(`/api/classroom/${classcode}`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch classroom data: ${response.status}`);
-      }
-      const data = await response.json();
-      setClassroom(data);
+      const token = localStorage.getItem("token");
+      const response = await axios.get(
+        `/api/classroom/${classcode}`,
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+      setClassroom(response.data);
     } catch (err) {
       console.error("Error refreshing classroom data:", err);
     }
@@ -103,16 +109,6 @@ console.log(classroom)
   // Dummy data for assignments tab
   const assignmentsData = classroom?.assignments || [];
 
-  // Dummy data for students tab
-  const studentsData = [
-    { id: 's1', name: 'Alice Wonderland', grade: 92, participation: 95 },
-    { id: 's2', name: 'Bob The Builder', grade: 88, participation: 90},
-    { id: 's3', name: 'Charlie Chaplin', grade: 78, participation: 85  },
-    { id: 's4', name: 'Diana Prince', grade: 95, participation: 98 },
-    { id: 's5', name: 'Ethan Hunt', grade: 85, participation: 92 },
-    { id: 's6', name: 'Fiona Goode', grade: 80, participation: 88  },
-  ];
-
   const getStatusColor = (status) => {
     switch (status) {
       case 'active':
@@ -131,6 +127,16 @@ console.log(classroom)
 
   const handleAddAssessmentData = () => {
     setIsAddingAssessmentData(true);
+  };
+
+  const showStudentAssessment = (studentId) => {
+    // Logic to show student assessment
+    console.log(`Showing assessment for student ${studentId}`);
+  };
+  
+  const showStudentFeedback = (studentId) => {
+    // Logic to show student feedback
+    console.log(`Showing feedback for student ${studentId}`);
   };
 
   const removeStudent = async (studentId) => {
@@ -214,6 +220,17 @@ console.log(classroom)
     setIsAddingAssessmentData(false);
   };
 
+  const handleClassDelete = async () => {
+    // Modal confirmation would be added here
+    try {
+      // API call would go here
+      console.log("Deleting class");
+      // Redirect after successful deletion
+    } catch (error) {
+      console.error("Error deleting class:", error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
@@ -224,7 +241,7 @@ console.log(classroom)
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center">
+      <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-4">
         <p className="text-xl text-red-400 mb-4">Error loading classroom data</p>
         <p className="text-slate-400">{error}</p>
         <button 
@@ -245,66 +262,88 @@ console.log(classroom)
     classJoinedDate = '',
     classFeedback = 'No feedback available',
     assignments = [],
+    students = [],
   } = classroom || {};
 
   // Format the date for display
-  const formattedDate = new Date(classJoinedDate).toLocaleDateString('en-US', {
+  const formattedDate = classJoinedDate ? new Date(classJoinedDate).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
-  });
+  }) : 'Unknown date';
 
-  const students = 28; // Placeholder - would come from API
-
-  const handleClassDelete = async () => {
-      try {  
-          if (response.data.success) {
-              window.location.href = "/authform";  // Redirect only after role is set
-          }
-      } catch (error) {
-          console.error("Error setting student role:", error);
-      }
-  };
+  const studentsCount = students?.length || 0;
   
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-6">
+    <div className="min-h-screen bg-slate-950 text-white p-3 md:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 md:mb-8 gap-4">
         <div className="flex items-center">
           <button
             onClick={goBack}
-            className="mr-4 p-2 hover:bg-slate-800 rounded-lg transition-colors"
+            className="mr-3 p-2 hover:bg-slate-800 rounded-lg transition-colors"
           >
             <ArrowLeft className="text-cyan-400" />
           </button>
           <div>
-            <h1 className="text-3xl font-bold text-cyan-400">{className}</h1>
-            <p className="text-slate-400">{classDescription}</p>
+            <h1 className="text-xl md:text-3xl font-bold text-cyan-400 break-words">{className}</h1>
+            <p className="text-sm md:text-base text-slate-400 mt-1">{classDescription}</p>
           </div>
         </div>
-        <div className="flex space-x-4">
-        <button
-              onClick={handleClassDelete}
-              className="px-4 py-2 text-sm font-medium rounded-md bg-red-500/20 text-red-400 hover:bg-indigo-100 transition duration-150 ease-in-out"
-            >
-              Delete Class
-            </button>
+        <div className="flex flex-wrap gap-2 md:space-x-4">
+          <button
+            onClick={handleClassDelete}
+            className="px-3 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium rounded-md bg-red-500/20 text-red-400 hover:bg-red-500/30 transition duration-150 ease-in-out"
+          >
+            Delete Class
+          </button>
           <button
             onClick={() => setIsAddingAssignment(true)}
-            className="bg-cyan-600 hover:bg-cyan-700 px-4 py-2 rounded-lg transition-colors flex items-center"
+            className="bg-cyan-600 hover:bg-cyan-700 px-3 py-1 md:px-4 md:py-2 text-xs md:text-sm rounded-lg transition-colors flex items-center"
           >
-            <Plus className="mr-2" /> New Assignment
+            <Plus className="mr-1 md:mr-2" size={16} /> New Assignment
           </button>
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="flex space-x-4 mb-6 border-b border-slate-800">
+      {/* Navigation Tabs - Mobile */}
+      <div className="md:hidden relative mb-6">
+        <button 
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="flex items-center justify-between w-full p-3 bg-slate-800 rounded-lg"
+        >
+          <span className="font-medium capitalize">{activeTab}</span>
+          <ChevronDown size={20} className={`transition-transform ${mobileMenuOpen ? 'rotate-180' : ''}`} />
+        </button>
+        
+        {mobileMenuOpen && (
+          <div className="absolute z-10 mt-1 w-full bg-slate-800 rounded-lg shadow-xl">
+            {['overview', 'assignments', 'students', 'analytics'].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => {
+                  setActiveTab(tab);
+                  setMobileMenuOpen(false);
+                }}
+                className={`w-full text-left px-4 py-3 ${activeTab === tab
+                  ? 'bg-slate-700 text-cyan-400'
+                  : 'text-slate-300 hover:bg-slate-700'
+                }`}
+              >
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Navigation Tabs - Desktop */}
+      <div className="hidden md:flex space-x-4 mb-6 border-b border-slate-800 overflow-x-auto">
         {['overview', 'assignments', 'students', 'analytics'].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 -mb-px ${activeTab === tab
+            className={`px-4 py-2 -mb-px whitespace-nowrap ${activeTab === tab
               ? 'text-cyan-400 border-b-2 border-cyan-400'
               : 'text-slate-400 hover:text-slate-300'
               }`}
@@ -316,80 +355,80 @@ console.log(classroom)
 
       {/* Main Content based on Tab */}
       {activeTab === 'overview' && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           {/* Left Column - Class Overview */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-4 md:space-y-6">
             {/* Quick Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="bg-slate-900 p-4 rounded-xl border border-slate-800">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+              <div className="bg-slate-900 p-3 md:p-4 rounded-xl border border-slate-800">
                 <div className="flex items-center justify-between mb-2">
-                  <Users className="text-blue-400" />
+                  <Users className="text-blue-400" size={18} />
                   <span className="text-xs text-slate-400">Students</span>
                 </div>
-                <p className="text-2xl font-bold">{students}</p>
+                <p className="text-xl md:text-2xl font-bold">{studentsCount}</p>
               </div>
-              <div className="bg-slate-900 p-4 rounded-xl border border-slate-800">
+              <div className="bg-slate-900 p-3 md:p-4 rounded-xl border border-slate-800">
                 <div className="flex items-center justify-between mb-2">
-                  <BookOpen className="text-green-400" />
+                  <BookOpen className="text-green-400" size={18} />
                   <span className="text-xs text-slate-400">Assignments</span>
                 </div>
-                <p className="text-2xl font-bold">{assignments.length}</p>
+                <p className="text-xl md:text-2xl font-bold">{assignments.length}</p>
               </div>
-              <div className="bg-slate-900 p-4 rounded-xl border border-slate-800">
+              <div className="bg-slate-900 p-3 md:p-4 rounded-xl border border-slate-800">
                 <div className="flex items-center justify-between mb-2">
-                  <Target className="text-purple-400" />
+                  <Target className="text-purple-400" size={18} />
                   <span className="text-xs text-slate-400">Teacher</span>
                 </div>
-                <p className="text-2xl font-bold">{teacherName}</p>
+                <p className="text-xl md:text-2xl font-bold truncate">{teacherName}</p>
               </div>
             </div>
 
             {/* Performance Overview */}
-            <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
-              <h2 className="text-xl font-bold text-cyan-400 mb-4 flex items-center">
-                <BarChart2 className="mr-2" /> Class Performance
+            <div className="bg-slate-900 p-4 md:p-6 rounded-xl border border-slate-800">
+              <h2 className="text-lg md:text-xl font-bold text-cyan-400 mb-3 md:mb-4 flex items-center">
+                <BarChart2 className="mr-2" size={20} /> Class Performance
               </h2>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <div className="space-y-4">
+                <div className="space-y-3 md:space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-400">Average Grade</span>
-                    <span className="text-lg font-bold text-green-400">
+                    <span className="text-sm md:text-base text-slate-400">Average Grade</span>
+                    <span className="text-base md:text-lg font-bold text-green-400">
                       {performanceMetrics.averageGrade}%
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-400">Participation Rate</span>
-                    <span className="text-lg font-bold text-blue-400">
+                    <span className="text-sm md:text-base text-slate-400">Participation Rate</span>
+                    <span className="text-base md:text-lg font-bold text-blue-400">
                       {performanceMetrics.participationRate}%
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-400">Top Performers</span>
-                    <span className="text-lg font-bold text-purple-400">
+                    <span className="text-sm md:text-base text-slate-400">Top Performers</span>
+                    <span className="text-base md:text-lg font-bold text-purple-400">
                       {performanceMetrics.topPerformers} students
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-400">Avg. Assignment Score</span>
-                    <span className="text-lg font-bold text-cyan-400">
+                    <span className="text-sm md:text-base text-slate-400">Avg. Assignment Score</span>
+                    <span className="text-base md:text-lg font-bold text-cyan-400">
                       {performanceMetrics.averageAssignmentScore}%
                     </span>
                   </div>
                 </div>
-                <div className="bg-slate-800 rounded-lg p-4">
-                  <h3 className="text-sm font-medium text-slate-300 mb-3">Student Engagement</h3>
+                <div className="bg-slate-800 rounded-lg p-3 md:p-4">
+                  <h3 className="text-xs md:text-sm font-medium text-slate-300 mb-2 md:mb-3">Student Engagement</h3>
                   <div className="space-y-2">
                     {Object.entries(studentEngagement).map(([period, rate]) => (
                       <div key={period} className="flex justify-between items-center">
-                        <span className="capitalize text-sm text-slate-400">{period}</span>
+                        <span className="capitalize text-xs md:text-sm text-slate-400">{period}</span>
                         <div className="flex items-center">
-                          <div className="w-32 h-2 bg-slate-700 rounded-full mr-2">
+                          <div className="w-16 md:w-32 h-2 bg-slate-700 rounded-full mr-2">
                             <div
                               className="h-full bg-cyan-400 rounded-full"
                               style={{ width: `${rate}%` }}
                             />
                           </div>
-                          <span className="text-sm font-medium">{rate}%</span>
+                          <span className="text-xs md:text-sm font-medium">{rate}%</span>
                         </div>
                       </div>
                     ))}
@@ -399,42 +438,42 @@ console.log(classroom)
             </div>
 
             {/* Recent Assignments */}
-            <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-cyan-400 flex items-center">
-                  <Calendar className="mr-2" /> Recent Assignments
+            <div className="bg-slate-900 p-4 md:p-6 rounded-xl border border-slate-800">
+              <div className="flex justify-between items-center mb-3 md:mb-4">
+                <h2 className="text-lg md:text-xl font-bold text-cyan-400 flex items-center">
+                  <Calendar className="mr-2" size={20} /> Recent Assignments
                 </h2>
                 <button 
                   onClick={() => setActiveTab('assignments')}
-                  className="text-sm text-cyan-400 hover:text-cyan-300"
+                  className="text-xs md:text-sm text-cyan-400 hover:text-cyan-300"
                 >
                   View All
                 </button>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-2 md:space-y-3">
                 {assignments.length > 0 ? (
                   assignments.slice(0, 3).map((assignment, index) => (
                     <div
                       key={index}
-                      className="bg-slate-800 p-4 rounded-lg flex items-center justify-between hover:bg-slate-700 transition-colors"
+                      className="bg-slate-800 p-3 md:p-4 rounded-lg flex flex-col sm:flex-row sm:items-center sm:justify-between hover:bg-slate-700 transition-colors gap-2"
                     >
-                      <div className="flex items-center space-x-4">
-                        <FileText className="text-slate-400" />
+                      <div className="flex items-center space-x-3">
+                        <FileText className="text-slate-400 shrink-0" size={18} />
                         <div>
-                          <h3 className="font-medium">{assignment.title || 'Untitled Assignment'}</h3>
-                          <p className="text-sm text-slate-400">
+                          <h3 className="font-medium text-sm md:text-base">{assignment.title || 'Untitled Assignment'}</h3>
+                          <p className="text-xs md:text-sm text-slate-400">
                             {assignment.dueDate ? `Due: ${new Date(assignment.dueDate).toLocaleDateString()}` : 'No due date'}
                           </p>
                         </div>
                       </div>
-                      <span className={`px-3 py-1 rounded-full text-xs ${getStatusColor(assignment.status || 'active')}`}>
+                      <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(assignment.status || 'active')} self-start sm:self-auto`}>
                         {(assignment.status || 'active').charAt(0).toUpperCase() + 
                          (assignment.status || 'active').slice(1)}
                       </span>
                     </div>
                   ))
                 ) : (
-                  <div className="text-center p-4 text-slate-400">
+                  <div className="text-center p-4 text-slate-400 text-sm">
                     No assignments yet. Create your first assignment!
                   </div>
                 )}
@@ -443,50 +482,50 @@ console.log(classroom)
           </div>
 
           {/* Right Column - Additional Info */}
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
             {/* Class Info */}
-            <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
-              <h2 className="text-xl font-bold text-cyan-400 flex items-center mb-4">
-                <BookOpen className="mr-2" /> Class Information
+            <div className="bg-slate-900 p-4 md:p-6 rounded-xl border border-slate-800">
+              <h2 className="text-lg md:text-xl font-bold text-cyan-400 flex items-center mb-3 md:mb-4">
+                <BookOpen className="mr-2" size={20} /> Class Information
               </h2>
-              <div className="space-y-4">
-                <div className="flex items-start">
-                  <span className="text-slate-400 w-32">Subject:</span>
-                  <span className="text-white">{subject}</span>
+              <div className="space-y-3 md:space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-start">
+                  <span className="text-slate-400 sm:w-32 text-sm md:text-base">Subject:</span>
+                  <span className="text-white text-sm md:text-base mt-1 sm:mt-0">{subject}</span>
                 </div>
-                <div className="flex items-start">
-                  <span className="text-slate-400 w-32">Created on:</span>
-                  <span className="text-white">{formattedDate}</span>
+                <div className="flex flex-col sm:flex-row sm:items-start">
+                  <span className="text-slate-400 sm:w-32 text-sm md:text-base">Created on:</span>
+                  <span className="text-white text-sm md:text-base mt-1 sm:mt-0">{formattedDate}</span>
                 </div>
-                <div className="flex items-start">
-                  <span className="text-slate-400 w-32">Teacher:</span>
-                  <span className="text-white">{teacherName}</span>
+                <div className="flex flex-col sm:flex-row sm:items-start">
+                  <span className="text-slate-400 sm:w-32 text-sm md:text-base">Teacher:</span>
+                  <span className="text-white text-sm md:text-base mt-1 sm:mt-0">{teacherName}</span>
                 </div>
-                <div className="flex items-start">
-                  <span className="text-slate-400 w-32">Class Code:</span>
-                  <span className="text-white">{classcode}</span>
+                <div className="flex flex-col sm:flex-row sm:items-start">
+                  <span className="text-slate-400 sm:w-32 text-sm md:text-base">Class Code:</span>
+                  <span className="text-white text-sm md:text-base mt-1 sm:mt-0">{classcode}</span>
                 </div>
               </div>
             </div>
             
             {/* Learning Assessment Status */}
-            <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
-              <h2 className="text-xl font-bold text-cyan-400 flex items-center mb-4">
-                <Brain className="mr-2" /> Learning Assessment
+            <div className="bg-slate-900 p-4 md:p-6 rounded-xl border border-slate-800">
+              <h2 className="text-lg md:text-xl font-bold text-cyan-400 flex items-center mb-3 md:mb-4">
+                <Brain className="mr-2" size={20} /> Learning Assessment
               </h2>
-              <div className="p-4 rounded-lg flex justify-between items-center bg-yellow-500/10 border border-yellow-500/20">
+              <div className="p-3 md:p-4 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center bg-yellow-500/10 border border-yellow-500/20 gap-3">
                 <div className="flex items-center">
-                  <AlertCircle className="text-yellow-400 mr-3" />
+                  <AlertCircle className="text-yellow-400 mr-2 md:mr-3 shrink-0" size={18} />
                   <div>
-                    <p className="font-medium text-yellow-400">Assessment Pending</p>
-                    <p className="text-sm text-slate-400 mt-1">
+                    <p className="font-medium text-yellow-400 text-sm md:text-base">Assessment Pending</p>
+                    <p className="text-xs md:text-sm text-slate-400 mt-1">
                       Waiting for more student data
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={handleAddAssessmentData}
-                  className="bg-cyan-600 hover:bg-cyan-700 px-3 py-1 rounded-lg transition-colors text-sm"
+                  className="bg-cyan-600 hover:bg-cyan-700 px-3 py-1 rounded-lg transition-colors text-xs md:text-sm w-full sm:w-auto"
                 >
                   Add Data
                 </button>
@@ -494,12 +533,12 @@ console.log(classroom)
             </div>
 
             {/* Class Feedback */}
-            <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
-              <h2 className="text-xl font-bold text-cyan-400 flex items-center mb-4">
-                <MessageCircle className="mr-2" /> Class Feedback
+            <div className="bg-slate-900 p-4 md:p-6 rounded-xl border border-slate-800">
+              <h2 className="text-lg md:text-xl font-bold text-cyan-400 flex items-center mb-3 md:mb-4">
+                <MessageCircle className="mr-2" size={20} /> Class Feedback
               </h2>
-              <div className="p-4 bg-slate-800 rounded-lg">
-                <p className="text-slate-300">{classFeedback}</p>
+              <div className="p-3 md:p-4 bg-slate-800 rounded-lg">
+                <p className="text-slate-300 text-sm md:text-base">{classFeedback}</p>
               </div>
             </div>
           </div>
@@ -507,30 +546,30 @@ console.log(classroom)
       )}
 
       {activeTab === 'assignments' && (
-        <div className="space-y-6">
-          <h2 className="text-2xl font-bold text-cyan-400 mb-4">Assignments</h2>
-          <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
-            <div className="space-y-4">
+        <div className="space-y-4 md:space-y-6">
+          <h2 className="text-xl md:text-2xl font-bold text-cyan-400 mb-3 md:mb-4">Assignments</h2>
+          <div className="bg-slate-900 p-4 md:p-6 rounded-xl border border-slate-800">
+            <div className="space-y-3 md:space-y-4">
               {assignments.length > 0 ? (
                 assignments.map((assignment, index) => (
-                  <div key={index} className="bg-slate-800 p-4 rounded-lg hover:bg-slate-700 transition-colors flex justify-between items-center">
+                  <div key={index} className="bg-slate-800 p-3 md:p-4 rounded-lg hover:bg-slate-700 transition-colors flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                     <div>
-                      <h3 className="font-medium text-lg text-cyan-300">{assignment.title || 'Untitled Assignment'}</h3>
-                      <p className="text-slate-400 text-sm">{assignment.description || 'No description'}</p>
+                      <h3 className="font-medium text-base md:text-lg text-cyan-300">{assignment.title || 'Untitled Assignment'}</h3>
+                      <p className="text-slate-400 text-xs md:text-sm mt-1">{assignment.description || 'No description'}</p>
                     </div>
-                    <div className="text-right">
-                      <span className={`px-3 py-1 rounded-full text-xs ${getStatusColor(assignment.status || 'active')}`}>
+                    <div className="text-left sm:text-right">
+                      <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(assignment.status || 'active')}`}>
                         {(assignment.status || 'active').charAt(0).toUpperCase() + 
                          (assignment.status || 'active').slice(1)}
                       </span>
-                      <p className="text-slate-400 text-sm">
-                        {assignment.submissions ? `Submissions: ${assignment.submissions}/${students}` : 'No submissions yet'}
+                      <p className="text-slate-400 text-xs md:text-sm mt-1">
+                        {assignment.submissions ? `Submissions: ${assignment.submissions}/${studentsCount}` : 'No submissions yet'}
                       </p>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="text-center p-4 text-slate-400">
+                <div className="text-center p-4 text-slate-400 text-sm md:text-base">
                   No assignments yet. Create your first assignment!
                 </div>
               )}
@@ -539,72 +578,76 @@ console.log(classroom)
         </div>
       )}
 
-      
-{activeTab === 'students' && (
-  <div className="space-y-6">
-    <h2 className="text-2xl font-bold text-cyan-400 mb-4">Students</h2>
-    <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
-      <ul className="divide-y divide-slate-800">
-        {classroom.students.map(student => (
-          <li key={student.id} className="p-4  transition-colors">
-            <div className="flex justify-between items-center">
-              <div>
-                <h3 className="font-medium text-lg text-cyan-300">{student.name}</h3>
-                <button 
-                    onClick={() => showStudentAssessment(student.id)} 
-                    className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm rounded transition-colors"
-                  >
-                  Add-on Feedback
-                  </button>
-              </div>
-              
-              <div className="flex items-center gap-4">
-                <div className="text-right">
-                  <p className="text-slate-400 text-sm">Grade: {student.grade}%</p>
-                  <p className="text-slate-400 text-sm">Participation: {student.participation}%</p>
-                </div>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => showStudentAssessment(student.id)} 
-                    className="px-3 py-1 bg-cyan-600 hover:bg-cyan-700 text-white text-sm rounded transition-colors"
-                  >
-                    Assessment Result
-                  </button>
-                  <button 
-                    onClick={() => showStudentFeedback(student.id)} 
-                    className="px-3 py-1 bg-cyan-600 hover:bg-cyan-700 text-white text-sm rounded transition-colors"
-                  >
-                  Generated Feedback
-                  </button>
-                  <button 
-                    onClick={() => removeStudent(student.id)} 
-                    className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded transition-colors"
-                  >
-                    Remove Student
-                  </button>
-                </div>
-              </div>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
-  </div>
-)}
+      {activeTab === 'students' && (
+        <div className="space-y-4 md:space-y-6">
+          <h2 className="text-xl md:text-2xl font-bold text-cyan-400 mb-3 md:mb-4">Students</h2>
+          <div className="bg-slate-900 p-3 md:p-6 rounded-xl border border-slate-800">
+            <ul className="divide-y divide-slate-800">
+              {students && students.length > 0 ? (
+                students.map(student => (
+                  <li key={student.id} className="py-3 md:py-4">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                      <div>
+                        <h3 className="font-medium text-base md:text-lg text-cyan-300">{student.name}</h3>
+                        <button 
+                          className="mt-2 md:hidden px-2 py-1 bg-green-600 hover:bg-green-700 text-white text-xs rounded transition-colors"
+                        >
+                          Add-on Feedback
+                        </button>
+                      </div>
+                      
+                      <div className="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-4">
+                        <div className="text-left md:text-right">
+                          <p className="text-slate-400 text-xs md:text-sm">Grade: {student.grade}%</p>
+                          <p className="text-slate-400 text-xs md:text-sm">Participation: {student.participation}%</p>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <button 
+                            onClick={() => showStudentAssessment(student.id)} 
+                            className="px-2 py-1 md:px-3 md:py-1 bg-cyan-600 hover:bg-cyan-700 text-white text-xs rounded transition-colors"
+                          >
+                            Assessment
+                          </button>
+                          <button 
+                            onClick={() => showStudentFeedback(student.id)} 
+                            className="px-2 py-1 md:px-3 md:py-1 bg-cyan-600 hover:bg-cyan-700 text-white text-xs rounded transition-colors"
+                          >
+                            Feedback
+                          </button>
+                          <button 
+                            onClick={() => removeStudent(student.id)} 
+                            className="px-2 py-1 md:px-3 md:py-1 bg-red-600 hover:bg-red-700 text-white text-xs rounded transition-colors"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                ))
+              ) : (
+                <li className="py-4 text-center text-slate-400 text-sm md:text-base">
+                  No students enrolled in this class yet.
+                </li>
+              )}
+            </ul>
+          </div>
+        </div>
+      )}
 
       {activeTab === 'analytics' && (
-        <div className="space-y-6">
-          <h2 className="text-2xl font-bold text-cyan-400 mb-4">Analytics</h2>
+        <div className="space-y-4 md:space-y-6">
+          <h2 className="text-xl md:text-2xl font-bold text-cyan-400 mb-3 md:mb-4">Analytics</h2>
 
           {/* Overall Class Performance Analytics */}
-          <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
-            <h3 className="text-xl font-bold text-cyan-400 mb-4 flex items-center">
-              <PieChart className="mr-2" /> Overall Class Performance
+          <div className="bg-slate-900 p-4 md:p-6 rounded-xl border border-slate-800">
+            <h3 className="text-lg md:text-xl font-bold text-cyan-400 mb-3 md:mb-4 flex items-center">
+              <PieChart className="mr-2" size={20} /> Overall Class Performance
             </h3>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div>
-                <p className="text-slate-300 mb-2">Average Grade: <span className="text-cyan-200">{performanceMetrics.averageGrade}%</span></p>
-                <p className="text-slate-300 mb-2">Completion Rate: <span className="text-cyan-200">{performanceMetrics.completionRate}%</span></p>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+              <div className="space-y-2 md:space-y-3">
+                <p className="text-slate-300 text-sm md:text-base">Average Grade: <span className="text-cyan-200">{performanceMetrics.averageGrade}%</span></p>
+                <p className="text-slate-300 text-sm md:text-base">Completion Rate: <span className="text-cyan-200">{performanceMetrics.completionRate}%</span></p>
                 <p className="text-slate-300 mb-2">Participation Rate: <span className="text-cyan-200">{performanceMetrics.participationRate}%</span></p>
                 <p className="text-slate-300 mb-2">Average Assignment Score: <span className="text-cyan-200">{performanceMetrics.averageAssignmentScore}%</span></p>
               </div>
